@@ -3,7 +3,6 @@
 
 #include <linux/fs.h>
 #include <vector>
-#include <deque>
 #include <string>
 
 inline __u64 minu64(__u64 a, __u64 b) {
@@ -18,16 +17,15 @@ typedef struct {
 	__u64 start, length;
 } tuple;
 
-typedef std::deque<tuple> tuple_list;
+typedef std::vector<tuple> tuple_list;
 
 typedef struct {
 	tuple_list extents;
 	std::string name;
 } f_info;
 
-typedef std::deque<f_info> file_list;
+typedef std::vector<f_info> file_list;
 typedef std::vector<f_info *> file_p_list;
-//typedef std::deque<f_info> file_p_list;
 
 typedef struct {
 	file_p_list files;
@@ -35,7 +33,7 @@ typedef struct {
 	int fragmented;
 } cluster_info;
 
-typedef std::deque<cluster_info> cluster_list;
+typedef std::vector<cluster_info> cluster_list;
 
 extern file_list files2;
 extern cluster_list clusters2;
