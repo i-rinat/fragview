@@ -82,7 +82,17 @@ static int worker_fiemap(const char *fname, const struct stat64 *sb,
 		for (int k = 0; k < (int)fiemap->fm_mapped_extents; ++k) {
 			tuple tempt = { fiemap->fm_extents[k].fe_physical / sb->st_blksize,
 							fiemap->fm_extents[k].fe_length / sb->st_blksize };
-			fi.extents.push_back(tempt);
+
+			if (fi.extents.size() > 0) {
+				tuple *last = &fi.extents.back();
+				if (last->start + last->length == tempt.start) {
+					last->length += tempt.length;	// extent continuation
+				} else {
+					fi.extents.push_back(tempt);
+				}
+			} else {
+				fi.extents.push_back(tempt);
+			}
 			last_entry = k;
 		}
 		fiemap->fm_start = fiemap->fm_extents[last_entry].fe_logical +
