@@ -350,7 +350,6 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
 			cairo_fill (cr);
 			p = g_list_next (p);
 		}
-		
 	}
 	
 	pthread_mutex_unlock(fm->clusters_mutex);
