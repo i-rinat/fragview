@@ -23,7 +23,7 @@
 
 
 #define IGNORE_INACCESSIBLE_FILES
-// #define IGNORE_UNAVAILABLE_FIEMAP
+#define IGNORE_UNAVAILABLE_FIEMAP
 
 cluster_list clusters2;
 file_list files2;
@@ -32,6 +32,60 @@ pthread_mutex_t files2_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static file_list *worker_files;
 static pthread_mutex_t *worker_files_mutex;
+
+// emulate FIEMAP by means of FIBMAP
+static int fibmap_fallback(int fd, const char *fname, const struct stat64 *sb,
+							struct fiemap *fiemap)
+{
+	__u64 block;
+	__u64 block_count = (0 == sb->st_size) ? 0 :
+						(sb->st_size - 1) / sb->st_blksize + 1;
+	__u64 block_start = fiemap->fm_start / sb->st_blksize;
+	fiemap->fm_mapped_extents = 0;
+	struct fiemap_extent *extents = &fiemap->fm_extents[0];
+	int idx = 0; // index for extents array
+
+	for (__u64 k = block_start;
+	     k < block_count && idx < fiemap->fm_extent_count;
+         k ++)
+    {
+		block = k;
+		int ret = ioctl(fd, FIBMAP, &block);
+		if (0 != ret) {
+			printf("%s: FIBMAP unavailable, %d, %s\n", fname, errno, strerror(errno));
+			return ret;
+		}
+		if (0 == block) {
+			printf("I don't know what happened just now. `block` should "
+				"never be 0.\n");
+			//TODO: clarify this
+			return -1;
+		}
+
+		fiemap->fm_start += sb->st_blksize;
+
+		int flag_very_first_extent = (k == block_start);
+		if (!flag_very_first_extent &&
+		    extents[idx].fe_logical + extents[idx].fe_length == block * sb->st_blksize)
+		{
+			extents[idx].fe_length += sb->st_blksize;
+		} else {
+			if (!flag_very_first_extent) idx ++;
+			if (idx >= fiemap->fm_extent_count)
+				break;	// there is no room left in the extent table
+			extents[idx].fe_logical  = k * sb->st_blksize;
+			extents[idx].fe_physical = block * sb->st_blksize;
+			extents[idx].fe_length = sb->st_blksize;
+			extents[idx].fe_flags = FIEMAP_EXTENT_MERGED;
+		}
+		if (k == block_count - 1) {
+			extents[idx].fe_flags |= FIEMAP_EXTENT_LAST;
+		}
+	}
+	fiemap->fm_mapped_extents = idx;
+
+	return 0;
+}
 
 static int worker_fiemap(const char *fname, const struct stat64 *sb,
 				  int typeflag, struct FTW *ftw_struct) {
@@ -72,8 +126,12 @@ static int worker_fiemap(const char *fname, const struct stat64 *sb,
 			fprintf(stderr, "%s, fiemap get count error %d: \"%s\"\n", fname, 
 				errno, strerror(errno));
 #endif
-			close(fd);
-			return 0;
+			// there is no FIEMAP or it's inaccessible, trying to emulate
+			if (-1 == fibmap_fallback(fd, fname, sb, fiemap)) {
+				fprintf(stderr, "%s, fibmap fallback failed.\n", fname);
+				close(fd);
+				return 0;
+			}
 		}
 		
 		if (0 == fiemap->fm_mapped_extents) break; // there are no more left
