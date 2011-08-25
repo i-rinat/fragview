@@ -58,10 +58,9 @@ static int fibmap_fallback(int fd, const char *fname, const struct stat64 *sb,
 			return ret;
 		}
 		if (0 == block) {
-			printf("I don't know what happened just now. `block` should "
-				"never be 0.\n");
-			//TODO: clarify this
-			return -1;
+			// '0' here means block is not allocated, there is hole in file.
+			// we should try next block, skipping current
+			continue;
 		}
 
 		fiemap->fm_start += sb->st_blksize;
