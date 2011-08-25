@@ -52,7 +52,9 @@ static int fibmap_fallback(int fd, const char *fname, const struct stat64 *sb,
 		block = k;
 		int ret = ioctl(fd, FIBMAP, &block);
 		if (0 != ret) {
-			printf("%s: FIBMAP unavailable, %d, %s\n", fname, errno, strerror(errno));
+			if (ENOTTY != errno) {
+				printf("%s: FIBMAP unavailable, %d, %s\n", fname, errno, strerror(errno));
+			}
 			return ret;
 		}
 		if (0 == block) {
@@ -128,7 +130,9 @@ static int worker_fiemap(const char *fname, const struct stat64 *sb,
 #endif
 			// there is no FIEMAP or it's inaccessible, trying to emulate
 			if (-1 == fibmap_fallback(fd, fname, sb, fiemap)) {
-				fprintf(stderr, "%s, fibmap fallback failed.\n", fname);
+				if (ENOTTY != errno) {
+					fprintf(stderr, "%s, fibmap fallback failed.\n", fname);
+				}
 				close(fd);
 				return 0;
 			}
