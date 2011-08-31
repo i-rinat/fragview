@@ -2,3 +2,5 @@ frag-view.geany
 *.o
 graph
 gmon.out
+*.db
+fragdb
