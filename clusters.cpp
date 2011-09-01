@@ -192,7 +192,7 @@ __u64 get_device_size_in_blocks(const char *initial_dir) {
 
 	char ssize[128];
 	fgets(ssize, 127, pp);
-	fclose(pp);
+	pclose(pp);
 	
 	// '/proc/partitions' reports blockdevice size in 1K units
 	return atoll(ssize) * 1024 / device_block_size;	
