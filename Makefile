@@ -13,7 +13,7 @@ OBJECTS_fragdb=fragdb.o
 
 
 CFLAGS=$(DEBUG) -O2 $(shell pkg-config --cflags gtk+-2.0) $(PROFILER)
-CFLAGS+=$(shell pkg-config --libs sqlite3)
+CFLAGS+=$(shell pkg-config --cflags sqlite3)
 LIBS_graph=$(shell pkg-config --libs gtk+-2.0)
 LIBS_fragdb=$(shell pkg-config --libs sqlite3)
 
