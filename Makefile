@@ -14,8 +14,8 @@ OBJECTS_fragdb=fragdb.o
 
 CFLAGS=$(DEBUG) -O2 $(shell pkg-config --cflags gtk+-2.0) $(PROFILER)
 CFLAGS+=$(shell pkg-config --libs sqlite3)
-LIBS=$(shell pkg-config --libs gtk+-2.0) $(PROFILER)
-LIBS+=$(shell pkg-config --libs sqlite3)
+LIBS_graph=$(shell pkg-config --libs gtk+-2.0)
+LIBS_fragdb=$(shell pkg-config --libs sqlite3)
 
 all: graph fragdb
 
@@ -23,10 +23,10 @@ all: graph fragdb
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
 fragdb: $(OBJECTS_common) $(OBJECTS_fragdb)
-	$(CXX) -o fragdb $(OBJECTS_common) $(OBJECTS_fragdb) $(LIBS)
+	$(CXX) -o fragdb $(OBJECTS_common) $(OBJECTS_fragdb) $(LIBS_fragdb)
 
 graph: $(OBJECTS_common) $(OBJECTS_graph)
-	$(CXX)  -o graph $(OBJECTS_common) $(OBJECTS_graph) $(LIBS)
+	$(CXX)  -o graph $(OBJECTS_common) $(OBJECTS_graph) $(LIBS_graph)
 
 clean:
 	rm -f *.o
