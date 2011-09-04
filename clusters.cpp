@@ -19,7 +19,7 @@
 #include <assert.h>
 #include <linux/fiemap.h>
 #include "clusters.h"
-
+#include <map>
 
 
 #define IGNORE_INACCESSIBLE_FILES
@@ -229,8 +229,9 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
 	}
 	printf("cluster_size = %llu\n", cluster_size);
 
-	unsigned int files_count = files->size();
-	
+    typedef std::map<f_info *,int> onecopy_t;
+    onecopy_t *entry_exist = new onecopy_t[clusters->size()];
+
 	file_list::iterator item;
 	for (item = files->begin(); item != files->end(); ++item) {
 
@@ -247,12 +248,17 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
 			for (__u64 k3 = estart_c; k3 <= eend_c; k3 ++ ) {
 				// N-th cluster start: cluster_size * N
 				// N-th cluster end:   (cluster_size+1)*N-1
-				clusters->at(k3).files.push_back(&(*item));
+                if (entry_exist[k3].count(&(*item)) == 0) {
+                    clusters->at(k3).files.push_back(&(*item));
+                    entry_exist[k3][&(*item)] = 1;
+                }
 				clusters->at(k3).free = 0;
 				if (item->extents.size() > frag_limit)
 					clusters->at(k3).fragmented = 1;
 			}
 		}
 	}
+
+    delete [] entry_exist;
 }
 
