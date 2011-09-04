@@ -204,7 +204,7 @@ void collect_fragments(const char *initial_dir, file_list *files, pthread_mutex_
 	worker_files = files;
 	worker_files_mutex = files_mutex;
 	nftw64(initial_dir, worker_fiemap, 40, FTW_MOUNT | FTW_PHYS);
-	printf("files.size = %lu\n", files->size());
+	printf("files.size = %zu\n", files->size());
 }
 
 void __fill_clusters(file_list *files, __u64 device_size_in_blocks, 
