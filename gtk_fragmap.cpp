@@ -41,7 +41,12 @@ static gboolean gtk_fragmap_size_allocate (GtkWidget *widget, GdkRectangle *allo
 static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, gdouble y) {
 	
 	GtkFragmap *fm = GTK_FRAGMAP (widget);
-	pthread_mutex_lock(fm->clusters_mutex);
+
+    pthread_mutex_lock (fm->clusters_mutex);
+    pthread_mutex_lock (fm->files_mutex);
+
+    __fill_clusters (fm->files, fm->device_size_in_blocks, fm->clusters,
+                     fm->cluster_count, fm->frag_limit);
 
 	gboolean flag_update = FALSE;
 	int cl_x = (int) (x - fm->shift_x) / fm->box_size;
@@ -90,8 +95,9 @@ static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, g
 		g_object_unref (store);
 		flag_update = TRUE;
 	}
-	
-	pthread_mutex_unlock (fm->clusters_mutex);	
+
+	pthread_mutex_unlock (fm->files_mutex);
+    pthread_mutex_unlock (fm->clusters_mutex);
 	return flag_update;
 }
 
