@@ -45,9 +45,6 @@ static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, g
     pthread_mutex_lock (fm->clusters_mutex);
     pthread_mutex_lock (fm->files_mutex);
 
-    __fill_clusters (fm->files, fm->device_size_in_blocks, fm->clusters,
-                     fm->cluster_count, fm->frag_limit);
-
     gboolean flag_update = FALSE;
     int cl_x = (int) (x - fm->shift_x) / fm->box_size;
     int cl_y = (int) (y - fm->shift_y) / fm->box_size;
@@ -74,18 +71,18 @@ static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, g
         store = file_list_model_new();
 
         for (int k = 0; k < ci->files.size(); ++k) {
-            std::cout << ci->files[k]->name << "\n";
+            std::cout << fm->files->at(ci->files[k]).name << "\n";
 
-            size_t q = ci->files[k]->name.rfind('/');
-            std::string filename = ci->files[k]->name.substr(q+1, -1);
-            std::string dirname = ci->files[k]->name.substr(0, q);
+            size_t q = fm->files->at(ci->files[k]).name.rfind('/');
+            std::string filename = fm->files->at(ci->files[k]).name.substr(q+1, -1);
+            std::string dirname = fm->files->at(ci->files[k]).name.substr(0, q);
 
             gtk_list_store_append (store, &iter);
             gtk_list_store_set (store, &iter,
-                            FILELISTVIEW_COL_FRAG, ci->files[k]->extents.size(),
+                            FILELISTVIEW_COL_FRAG, fm->files->at(ci->files[k]).extents.size(),
                             FILELISTVIEW_COL_NAME, filename.c_str(),
                             FILELISTVIEW_COL_DIR, dirname.c_str(),
-                            FILELISTVIEW_COL_POINTER, (void *)&ci->files[k],
+                            FILELISTVIEW_COL_POINTER, ci->files[k],
                             -1);
         }
 
@@ -327,20 +324,20 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
         __u64 cluster_size = (fm->device_size_in_blocks-1) / fm->cluster_count + 1;
 
         while (p) {
-            f_info *item = (f_info *)p->data;
-            if (item->extents.size() > fm->frag_limit) {
+            int file_idx = GPOINTER_TO_INT (p->data);
+            if (fm->files->at(file_idx).extents.size() > fm->frag_limit) {
                 cairo_set_source_rgbv (cr, color_frag);
             } else {
                 cairo_set_source_rgbv (cr, color_nfrag);
             }
 
-            for (k2 = 0; k2 < item->extents.size(); k2 ++) {
+            for (k2 = 0; k2 < fm->files->at(file_idx).extents.size(); k2 ++) {
                 __u64 estart_c, eend_c;
                 __u64 estart_b, eend_b;
 
-                estart_c = item->extents[k2].start / cluster_size;
-                eend_c = (item->extents[k2].start +
-                          item->extents[k2].length - 1);
+                estart_c = fm->files->at(file_idx).extents[k2].start / cluster_size;
+                eend_c = (fm->files->at(file_idx).extents[k2].start +
+                          fm->files->at(file_idx).extents[k2].length - 1);
                 eend_c = eend_c / cluster_size;
 
                 for (__u64 k3 = estart_c; k3 <= eend_c; k3 ++) {
@@ -407,8 +404,8 @@ void gtk_fragmap_file_begin (GtkFragmap *fm) {
     g_list_free (fm->selected_files);
 }
 
-void gtk_fragmap_file_add (GtkFragmap *fm, f_info *fi) {
-    fm->selected_files = g_list_append (fm->selected_files, fi);
+void gtk_fragmap_file_add (GtkFragmap *fm, int file_idx) {
+    fm->selected_files = g_list_append (fm->selected_files, GINT_TO_POINTER (file_idx));
 }
 
 void gtk_fragmap_set_mode (GtkFragmap *fm, enum FRAGMAP_MODE mode) {

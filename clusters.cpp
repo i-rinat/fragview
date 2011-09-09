@@ -229,11 +229,12 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
     }
     printf("cluster_size = %llu\n", cluster_size);
 
-    typedef std::map<f_info *,int> onecopy_t;
+    typedef std::map<int, int> onecopy_t;
     onecopy_t *entry_exist = new onecopy_t[clusters->size()];
 
     file_list::iterator item;
-    for (item = files->begin(); item != files->end(); ++item) {
+    int item_idx;
+    for (item = files->begin(), item_idx = 0; item != files->end(); ++item, ++item_idx) {
 
         for (k2 = 0; k2 < item->extents.size(); k2 ++) {
             __u64 estart_c, eend_c;
@@ -248,9 +249,9 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
             for (__u64 k3 = estart_c; k3 <= eend_c; k3 ++ ) {
                 // N-th cluster start: cluster_size * N
                 // N-th cluster end:   (cluster_size+1)*N-1
-                if (entry_exist[k3].count(&(*item)) == 0) {
-                    clusters->at(k3).files.push_back(&(*item));
-                    entry_exist[k3][&(*item)] = 1;
+                if (entry_exist[k3].count(item_idx) == 0) {
+                    clusters->at(k3).files.push_back(item_idx);
+                    entry_exist[k3][item_idx] = 1;
                 }
                 clusters->at(k3).free = 0;
                 if (item->extents.size() > frag_limit)

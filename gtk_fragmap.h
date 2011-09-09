@@ -66,7 +66,7 @@ void gtk_fragmap_attach_widget_file_list(GtkFragmap *fm, GtkWidget *w,
             void (*update)(GtkWidget *, GtkTreeModel *));
 
 void gtk_fragmap_file_begin (GtkFragmap *fm);
-void gtk_fragmap_file_add (GtkFragmap *fm, f_info *fi); 
+void gtk_fragmap_file_add (GtkFragmap *fm, int file_idx);
 void gtk_fragmap_set_mode (GtkFragmap *fm, enum FRAGMAP_MODE);
 
 

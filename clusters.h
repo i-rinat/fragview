@@ -25,7 +25,7 @@ typedef struct {
 } f_info;
 
 typedef std::vector<f_info> file_list;
-typedef std::vector<f_info *> file_p_list;
+typedef std::vector<int> file_p_list;
 
 typedef struct {
     file_p_list files;

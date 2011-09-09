@@ -103,10 +103,10 @@ GtkListStore *file_list_model_new() {
     GtkListStore  *store;
     store = gtk_list_store_new (
         FILELISTVIEW_NUM_COLS,
-        G_TYPE_POINTER,            // pointer
+        G_TYPE_INT,             // pointer
         G_TYPE_UINT,            // fragments
-        G_TYPE_STRING,            // name
-        G_TYPE_STRING            // dir
+        G_TYPE_STRING,          // name
+        G_TYPE_STRING           // dir
     );
     return store;
 }
@@ -117,6 +117,7 @@ static gboolean file_list_view_cursor_changed (GtkTreeView *tv, gpointer user_da
     GtkTreeSelection *sel;
     GtkTreeModel *model;
     GtkTreeIter iter;
+    GtkFragmap *fm = GTK_FRAGMAP (flv_fm);
     sel = gtk_tree_view_get_selection (tv);
 
     if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
@@ -125,13 +126,12 @@ static gboolean file_list_view_cursor_changed (GtkTreeView *tv, gpointer user_da
         //g_value_init(&value, G_TYPE_UINT);
         gtk_tree_model_get_value (model, &iter, FILELISTVIEW_COL_POINTER, &value);
 
-        printf("value = %p, ", g_value_get_pointer(&value));
-        f_info *fi = *(f_info **)g_value_get_pointer(&value);
-        printf("name = %s\n", fi->name.c_str());
+        int file_idx = g_value_get_int(&value);
+        printf("name = %s\n", fm->files->at(file_idx).name.c_str());
 
-        gtk_fragmap_file_begin (GTK_FRAGMAP (flv_fm));
-        gtk_fragmap_file_add (GTK_FRAGMAP (flv_fm), fi);
-        gtk_fragmap_set_mode (GTK_FRAGMAP (flv_fm), FRAGMAP_MODE_FILE);
+        gtk_fragmap_file_begin (fm);
+        gtk_fragmap_file_add (fm, file_idx);
+        gtk_fragmap_set_mode (fm, FRAGMAP_MODE_FILE);
     }
 
     return TRUE;
