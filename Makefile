@@ -23,10 +23,10 @@ all: graph fragdb
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
 fragdb: $(OBJECTS_common) $(OBJECTS_fragdb)
-	$(CXX) -o fragdb $(OBJECTS_common) $(OBJECTS_fragdb) $(LIBS_fragdb)
+	$(CXX) -o fragdb $(OBJECTS_common) $(OBJECTS_fragdb) $(LIBS_fragdb) $(PROFILER)
 
 graph: $(OBJECTS_common) $(OBJECTS_graph)
-	$(CXX)  -o graph $(OBJECTS_common) $(OBJECTS_graph) $(LIBS_graph)
+	$(CXX)  -o graph $(OBJECTS_common) $(OBJECTS_graph) $(LIBS_graph) $(PROFILER)
 
 clean:
 	rm -f *.o
