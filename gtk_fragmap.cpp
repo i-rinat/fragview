@@ -325,7 +325,7 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
 
         while (p) {
             int file_idx = GPOINTER_TO_INT (p->data);
-            if (fm->files->at(file_idx).extents.size() > fm->frag_limit) {
+            if (fm->files->at(file_idx).fragmented) {
                 cairo_set_source_rgbv (cr, color_frag);
             } else {
                 cairo_set_source_rgbv (cr, color_nfrag);

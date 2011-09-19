@@ -23,6 +23,8 @@ typedef std::vector<tuple> tuple_list;
 typedef struct {
     tuple_list extents;
     std::string name;
+    double severity;
+    int fragmented;
 } f_info;
 
 typedef std::vector<f_info> file_list;

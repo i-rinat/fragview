@@ -161,6 +161,13 @@ static int worker_fiemap(const char *fname, const struct stat64 *sb,
 
     } while (1);
 
+    // calculate linear read performance degradation
+    fi.severity = get_file_severity (&fi,
+        2*1024*1024 / sb->st_blksize,    // window size (blocks)
+        16*4096 / sb->st_blksize,        // gap size (blocks)
+        20,                              // hdd head reposition delay (ms)
+        40e6 / sb->st_blksize);          // raw read speed (blocks/s)
+
     pthread_mutex_lock(worker_files_mutex);
     worker_files->push_back(fi);
     pthread_mutex_unlock(worker_files_mutex);
@@ -235,7 +242,7 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
     file_list::iterator item;
     int item_idx;
     for (item = files->begin(), item_idx = 0; item != files->end(); ++item, ++item_idx) {
-
+        item->fragmented = (item->severity >= 2.0);
         for (k2 = 0; k2 < item->extents.size(); k2 ++) {
             __u64 estart_c, eend_c;
             __u64 estart_b, eend_b;
@@ -254,7 +261,7 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
                     entry_exist[k3][item_idx] = 1;
                 }
                 clusters->at(k3).free = 0;
-                if (item->extents.size() > frag_limit)
+                if (item->fragmented)
                     clusters->at(k3).fragmented = 1;
             }
         }
