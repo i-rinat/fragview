@@ -113,7 +113,6 @@ GtkListStore *file_list_model_new() {
 
 static gboolean file_list_view_cursor_changed (GtkTreeView *tv, gpointer user_data)
 {
-//    printf("something activated.\n");
     GtkTreeSelection *sel;
     GtkTreeModel *model;
     GtkTreeIter iter;
@@ -121,13 +120,10 @@ static gboolean file_list_view_cursor_changed (GtkTreeView *tv, gpointer user_da
     sel = gtk_tree_view_get_selection (tv);
 
     if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
-        printf("there is selected node\n");
         GValue value = {0, };
-        //g_value_init(&value, G_TYPE_UINT);
-        gtk_tree_model_get_value (model, &iter, FILELISTVIEW_COL_POINTER, &value);
 
+        gtk_tree_model_get_value (model, &iter, FILELISTVIEW_COL_POINTER, &value);
         int file_idx = g_value_get_int(&value);
-        printf("name = %s\n", fm->files->at(file_idx).name.c_str());
 
         gtk_fragmap_file_begin (fm);
         gtk_fragmap_file_add (fm, file_idx);
