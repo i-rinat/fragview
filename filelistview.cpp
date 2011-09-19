@@ -65,6 +65,9 @@ GtkWidget *file_list_view_new () {
     gtk_tree_view_insert_column_with_attributes( tv, -1, "Fragments",
         gtk_cell_renderer_text_new(), "text", FILELISTVIEW_COL_FRAG,
         NULL);
+    gtk_tree_view_insert_column_with_attributes( tv, -1, "Severity",
+        gtk_cell_renderer_text_new(), "text", FILELISTVIEW_COL_SEVERITY,
+        NULL);
     gtk_tree_view_insert_column_with_attributes( tv, -1, "Name",
         gtk_cell_renderer_text_new(), "text", FILELISTVIEW_COL_NAME,
         NULL);
@@ -105,6 +108,7 @@ GtkListStore *file_list_model_new() {
         FILELISTVIEW_NUM_COLS,
         G_TYPE_INT,             // pointer
         G_TYPE_UINT,            // fragments
+        G_TYPE_DOUBLE,          // severity
         G_TYPE_STRING,          // name
         G_TYPE_STRING           // dir
     );

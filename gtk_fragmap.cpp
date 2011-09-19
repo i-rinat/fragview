@@ -81,6 +81,7 @@ static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, g
             gtk_list_store_set (store, &iter,
                             FILELISTVIEW_COL_FRAG, fm->files->at(ci->files[k]).extents.size(),
                             FILELISTVIEW_COL_NAME, filename.c_str(),
+                            FILELISTVIEW_COL_SEVERITY, fm->files->at(ci->files[k]).severity,
                             FILELISTVIEW_COL_DIR, dirname.c_str(),
                             FILELISTVIEW_COL_POINTER, ci->files[k],
                             -1);
