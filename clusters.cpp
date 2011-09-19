@@ -263,3 +263,60 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
     delete [] entry_exist;
 }
 
+// Severity is a metric for file fragmentation. Roughly it shows how slow
+// can be linear read. It equals to fraction of raw disk speed to read
+// speed of slowest file part. So it estimates effect of gaps between extents
+// in terms of delays they introduces. Function below uses four parameters:
+//   1) size of aggregation window (blocks)
+//        applications that read files continuously (i.e. video players) and
+//        try to smooth read delays by buffering input stream. This parameter
+//        is just size of a buffer. While sliding this window through file and
+//        counting gaps one can estimate effective read speed.
+//   2) shift (blocks);
+//        there is such thing as read-ahead. Every movement of hdd heads is very
+//        slow compared to read of several adjacent sectors, so small enough
+//        gaps are likely to be read and thrown away, it's faster than skip
+//        them and cause head jump. But if next file extent located before
+//        current, head jump become inevitable. So if gap size is between 0 and
+//        some value, there will be no delay. This parameter is the very value.
+//   3) penalty (ms);
+//        hdd random seek delay
+//   4) speed (blocks/s);
+//        hdd raw read speed
+// In ideal case when files continuous, this metric gives 1.0.
+// The larger the worst. Given value n one can say this file is (somewhere
+// inside) n times slower at linear read than continuous one.
+
+static double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed) {
+    double overall_severity = 1.0; // continuous files have severity equal to 1.0
+
+    for (int k1 = 0; k1 < fi->extents.size(); k1 ++) {
+        int64_t span = window;
+        double read_time = 0.0;
+        for (int k2 = k1; k2 < fi->extents.size() && span > 0; k2 ++) {
+            if (fi->extents[k2].length <= span) {
+                span -= fi->extents[k2].length;
+                read_time += fi->extents[k2].length / speed;
+                if (k2 + 1 < fi->extents.size()) { // for all but last extent
+                    // compute head "jump"
+                    int64_t delta = fi->extents[k2+1].start -
+                        (fi->extents[k2].start + fi->extents[k2].length - 1);
+                    if (delta >= 0 || delta <= shift) { // small gaps
+                        read_time += delta / speed;     // are likely to be read
+                    } else {                            // while large ones
+                        read_time += penalty * 1.0e-3;  // will cause head jump
+                    }
+                }
+            } else {
+                read_time += span / speed;
+                span = 0;
+            }
+        }
+        double effective_speed = (window - span) / read_time;
+        double local_severity = speed / effective_speed;
+        // we need the worst value
+        overall_severity = std::max(local_severity, overall_severity);
+    }
+
+    return overall_severity;
+}
