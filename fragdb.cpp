@@ -17,10 +17,12 @@ const char *sql_create_tables =
     "CREATE TABLE items( "
     "   id INTEGER PRIMARY KEY, "
     "   name TEXT, "
-    "   fragments INTEGER "
+    "   fragments INTEGER, "
+    "   severity REAL "
     "); "
     "CREATE INDEX name_idx ON items (name); "
-    "CREATE INDEX frag_idx ON items (fragments); ";
+    "CREATE INDEX frag_idx ON items (fragments); "
+    "CREATE INDEX sev_idx ON items (severity); ";
 
 void init_db (sqlite3 **db) {
     int res = sqlite3_open ("fragmentator.db", db);
@@ -59,7 +61,7 @@ void scan (sqlite3 *db, const char *dir) {
 
     sqlite3_stmt *stmt;
     const char *sql_insert =
-        "INSERT INTO items (name, fragments) VALUES (:n, :f)";
+        "INSERT INTO items (name, fragments, severity) VALUES (:n, :f, :s)";
     res = sqlite3_prepare (db, sql_insert, -1, &stmt, NULL);
     if (SQLITE_OK != res) {
         fprintf (stderr, "error: insert prepare\n");
@@ -72,6 +74,7 @@ void scan (sqlite3 *db, const char *dir) {
         sqlite3_clear_bindings (stmt);
         sqlite3_bind_text (stmt, 1, item->name.c_str(), -1, SQLITE_STATIC);
         sqlite3_bind_int  (stmt, 2, item->extents.size());
+        sqlite3_bind_double (stmt, 3, item->severity);
         res = sqlite3_step (stmt);
         if (SQLITE_DONE != res) {
             fprintf (stderr, "error: something wrong with sqlite3_step\n");
@@ -111,6 +114,27 @@ void show_top (sqlite3 *db, int top_count) {
     sqlite3_finalize (stmt);
 }
 
+void show_top_severity (sqlite3 *db, int top_count) {
+    sqlite3_stmt *stmt;
+    int res;
+
+    sqlite3_prepare (db, "SELECT name, severity FROM items ORDER BY severity DESC LIMIT ?", -1, &stmt, NULL);
+    sqlite3_bind_int (stmt, 1, top_count);
+
+    while (SQLITE_ROW == (res = sqlite3_step (stmt))) {
+        const char unsigned *name = sqlite3_column_text (stmt, 0);
+        double severity = sqlite3_column_double (stmt, 1);
+        if (NULL != name) {
+            printf ("%7.1f %s\n", severity, name);
+        } else {
+            fprintf (stderr, "error: can't fetch name from db\n");
+            sqlite3_close (db);
+            exit (1);
+        }
+    }
+    sqlite3_finalize (stmt);
+}
+
 void show_over (sqlite3 *db, int over_count) {
     sqlite3_stmt *stmt;
     int res;
@@ -132,7 +156,26 @@ void show_over (sqlite3 *db, int over_count) {
     sqlite3_finalize (stmt);
 }
 
+void show_over_severity (sqlite3 *db, double over_count) {
+    sqlite3_stmt *stmt;
+    int res;
 
+    sqlite3_prepare (db, "SELECT name, severity FROM items WHERE severity>=? ORDER BY severity DESC", -1, &stmt, NULL);
+    sqlite3_bind_double (stmt, 1, over_count);
+
+    while (SQLITE_ROW == (res = sqlite3_step (stmt))) {
+        const char unsigned *name = sqlite3_column_text (stmt, 0);
+        double severity = sqlite3_column_double (stmt, 1);
+        if (NULL != name) {
+            printf ("%7.1f %s\n", severity, name);
+        } else {
+            fprintf (stderr, "error: can't fetch name from db\n");
+            sqlite3_close (db);
+            exit (1);
+        }
+    }
+    sqlite3_finalize (stmt);
+}
 
 int main (int argc, char *argv[]) {
 
@@ -164,6 +207,11 @@ int main (int argc, char *argv[]) {
         if (argc >= 3) top_count = atoi (argv[2]);
         init_db (&db);
         show_top (db, top_count);
+    } else if (0 == strcmp (argv[1], "tops")) {
+        int top_count = 10;
+        if (argc >= 3) top_count = atoi (argv[2]);
+        init_db (&db);
+        show_top_severity (db, top_count);
     } else if (0 == strcmp (argv[1], "over")) {
         if (argc < 3) {
             printf ("error: no threshold specified\n");
@@ -172,6 +220,14 @@ int main (int argc, char *argv[]) {
         int over_count = atoi (argv[2]);
         init_db (&db);
         show_over (db, over_count);
+    } else if (0 == strcmp (argv[1], "overs")) {
+        if (argc < 3) {
+            printf ("error: no threshold specified\n");
+            exit (2);
+        }
+        int over_count = atof (argv[2]);
+        init_db (&db);
+        show_over_severity (db, over_count);
     }
 
     sqlite3_close (db);
