@@ -299,7 +299,7 @@ static double get_file_severity (const f_info *fi, int64_t window, int shift, in
 
     for (int k1 = 0; k1 < fi->extents.size(); k1 ++) {
         int64_t span = window;
-        double read_time = 0.0;
+        double read_time = 1e-3 * penalty;
         for (int k2 = k1; k2 < fi->extents.size() && span > 0; k2 ++) {
             if (fi->extents[k2].length <= span) {
                 span -= fi->extents[k2].length;
@@ -319,8 +319,8 @@ static double get_file_severity (const f_info *fi, int64_t window, int shift, in
                 span = 0;
             }
         }
-        double effective_speed = (window - span) / read_time;
-        double local_severity = speed / effective_speed;
+        double raw_read_time = (window - span) / speed + penalty * 1e-3;
+        double local_severity = read_time / raw_read_time;
         // we need the worst value
         overall_severity = std::max(local_severity, overall_severity);
     }
