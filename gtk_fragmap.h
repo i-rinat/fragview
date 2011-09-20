@@ -22,6 +22,7 @@ struct _GtkFragmap {
     pthread_mutex_t *clusters_mutex;
     pthread_mutex_t *files_mutex;
     int cluster_count;
+    int cluster_size_desired; // desired number of blocks each cluster contains
     __u64 device_size_in_blocks;
     int force_redraw;
     int box_size;
