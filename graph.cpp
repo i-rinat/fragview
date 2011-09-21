@@ -85,14 +85,14 @@ int main(int argc, char *argv[]) {
 
     gtk_init (&argc, &argv);
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_size_request (GTK_WIDGET (window), 200, 100);
+    gtk_widget_set_size_request (GTK_WIDGET (window), 550, 400);
 
     vpaned = gtk_vpaned_new();
     gtk_container_add (GTK_CONTAINER(window), vpaned);
     gtk_widget_show(vpaned);
 
     fm = gtk_fragmap_new();
-    gtk_widget_set_size_request ( fm, 100, 50);
+    gtk_widget_set_size_request ( fm, 100, 270);
     gtk_paned_add1 ( GTK_PANED(vpaned), fm);
 
     file_list_view = file_list_view_new();
