@@ -1,7 +1,7 @@
 
 CC=clang
-CXX=clang++
-#CXX=g++
+#CXX=clang++
+CXX=g++
 
 #PROFILER=-pg
 DEBUG=-g3 -ggdb3
