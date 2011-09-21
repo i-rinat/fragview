@@ -82,6 +82,8 @@ int main(int argc, char *argv[]) {
     GtkWidget *file_list_view;
     GtkWidget *scroll_area1;
     GtkWidget *vpaned;
+    GtkWidget *fragmap_scroll;
+    GtkWidget *hbox;
 
     gtk_init (&argc, &argv);
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -93,7 +95,22 @@ int main(int argc, char *argv[]) {
 
     fm = gtk_fragmap_new();
     gtk_widget_set_size_request ( fm, 100, 270);
-    gtk_paned_add1 ( GTK_PANED(vpaned), fm);
+
+    fragmap_scroll = gtk_vscrollbar_new (NULL);
+    gtk_widget_show (fragmap_scroll);
+
+    // TODO: remove code below, it's for testing purposes
+    GtkAdjustment *adj = gtk_range_get_adjustment (&(GTK_SCROLLBAR(fragmap_scroll)->range));
+    gtk_adjustment_set_lower (adj, 0);
+    gtk_adjustment_set_upper (adj, 100);
+    gtk_adjustment_set_step_increment (adj, 1);
+
+    hbox = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox), fm, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox), fragmap_scroll, FALSE, FALSE, 0);
+    gtk_widget_show (hbox);
+
+    gtk_paned_add1 ( GTK_PANED(vpaned), hbox);
 
     file_list_view = file_list_view_new();
 
