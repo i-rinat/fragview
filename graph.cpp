@@ -42,7 +42,7 @@ static void *worker_thread(void *arg) {
         max_fragments = std::max(max_fragments, files2[k].extents.size());
     }
     printf("max_severity = %11.9f\n", max_severity);
-    printf("max_fragments = %d\n", max_fragments);
+    printf("max_fragments = %zu\n", max_fragments);
     return NULL;
 }
 
