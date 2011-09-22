@@ -194,12 +194,6 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     int cluster_height = (pix_height - 1) / (box_size);
 
 
-    // center image
-    fm->shift_x = (pix_width - cluster_width*box_size)/2;
-    fm->shift_y = (pix_height - cluster_height*box_size)/2;
-    fm->shift_y = 0;
-    fm->shift_x = 0;
-    cairo_translate(cr, fm->shift_x, fm->shift_y);
 
     printf("clusters_total = %d\n", cluster_width * cluster_height);
 
