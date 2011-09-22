@@ -138,7 +138,7 @@ static void gtk_fragmap_init (GtkFragmap *fm) {
     fm->selected_files = NULL;
 
     fm->target_cluster = 0;
-    fm->cluster_size_desired = 40;
+    fm->cluster_size_desired = 15;
 
     fm->file_list_view = NULL;
     fm->update_file_list = NULL;
@@ -201,7 +201,7 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
 
     assert(fm->device_size_in_blocks > 0);
     int total_clusters = (fm->device_size_in_blocks - 1) / fm->cluster_size_desired + 1;
-    cluster_map_height = (total_clusters - 1) / cluster_map_width + 1;
+    int cluster_map_full_height = (total_clusters - 1) / cluster_map_width + 1;
 
     // TODO: one must get target_line from scrollbar
     int target_line = fm->target_cluster / cluster_map_width;
