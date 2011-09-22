@@ -5,6 +5,7 @@
 
 #include <sys/time.h>
 #include <iostream>
+#include <assert.h>
 
 static double color_free[3] = {1.0, 1.0, 1.0};
 static double color_free_selected[3] = {1.0, 1.0, 0.0};
@@ -136,6 +137,9 @@ static void gtk_fragmap_init (GtkFragmap *fm) {
     fm->selected_cluster = -1;
     fm->selected_files = NULL;
 
+    fm->target_cluster = 0;
+    fm->cluster_size_desired = 40;
+
     fm->file_list_view = NULL;
     fm->update_file_list = NULL;
 
@@ -190,27 +194,38 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
 
     int pix_width = widget->allocation.width;
     int pix_height = widget->allocation.height;
-    int cluster_width = (pix_width - 1) / (box_size);
-    int cluster_height = (pix_height - 1) / (box_size);
+    int cluster_map_width = (pix_width - 1) / (box_size);
+    int cluster_map_height = (pix_height - 1) / (box_size);
 
+    // WIP BEGIN -------------------------------------------------------------
 
+    assert(fm->device_size_in_blocks > 0);
+    int total_clusters = (fm->device_size_in_blocks - 1) / fm->cluster_size_desired + 1;
+    cluster_map_height = (total_clusters - 1) / cluster_map_width + 1;
 
-    printf("clusters_total = %d\n", cluster_width * cluster_height);
+    // TODO: one must get target_line from scrollbar
+    int target_line = fm->target_cluster / cluster_map_width;
+
+    int target_offset = target_line * cluster_map_width;
+
+    // WIP END ===============================================================
+
+    printf("clusters_total = %d\n", total_clusters);
 
     struct timeval tv1, tv2;
 
     gettimeofday(&tv1, NULL);
-    if (fm->cluster_count != cluster_width * cluster_height ||
+    if (fm->cluster_count != total_clusters ||
         fm->force_redraw )
     {
         pthread_mutex_lock(fm->clusters_mutex);
         pthread_mutex_lock(fm->files_mutex);
-        __fill_clusters(&files2,
+        __fill_clusters(fm->files,
                         fm->device_size_in_blocks,
                         fm->clusters,
-                        cluster_width * cluster_height,
+                        total_clusters,
                         fm->frag_limit);
-        fm->cluster_count = cluster_width * cluster_height;
+        fm->cluster_count = total_clusters;
         fm->force_redraw = 0;
         pthread_mutex_unlock(fm->clusters_mutex);
         pthread_mutex_unlock(fm->files_mutex);
@@ -236,14 +251,16 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
             break;
     }
 
-    for (ky = 0; ky < cluster_height; ++ky) {
-        for (kx = 0; kx < cluster_width; ++kx) {
-            if (cl->at(ky*cluster_width+kx).free) {
+    for (ky = 0; ky < cluster_map_height; ++ky) {
+        for (kx = 0; kx < cluster_map_width; ++kx) {
+            int cluster_idx = ky*cluster_map_width + kx + target_offset;
+            if (cluster_idx < total_clusters && cl->at(cluster_idx).free) {
                 cairo_rectangle (cr, kx * box_size, ky * box_size ,
                     box_size - 1, box_size - 1);
             }
         }
     }
+
     cairo_fill (cr);
 
     switch (fm->display_mode) {
@@ -257,10 +274,11 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
             break;
     }
 
-    for (ky = 0; ky < cluster_height; ++ky) {
-        for (kx = 0; kx < cluster_width; ++kx) {
-            if (!(cl->at(ky*cluster_width+kx).free) &&
-                cl->at(ky*cluster_width+kx).fragmented)
+    for (ky = 0; ky < cluster_map_height; ++ky) {
+        for (kx = 0; kx < cluster_map_width; ++kx) {
+            int cluster_idx = ky*cluster_map_width + kx + target_offset;
+            if (cluster_idx < total_clusters && !(cl->at(cluster_idx).free) &&
+                cl->at(cluster_idx).fragmented)
             {
                 cairo_rectangle (cr, kx * box_size, ky * box_size ,
                     box_size - 1, box_size - 1);
@@ -280,10 +298,11 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
             break;
     }
 
-    for (ky = 0; ky < cluster_height; ++ky) {
-        for (kx = 0; kx < cluster_width; ++kx) {
-            if (!(cl->at(ky*cluster_width+kx).free) &&
-                !(cl->at(ky*cluster_width+kx).fragmented))
+    for (ky = 0; ky < cluster_map_height; ++ky) {
+        for (kx = 0; kx < cluster_map_width; ++kx) {
+            int cluster_idx = ky*cluster_map_width + kx + target_offset;
+            if (cluster_idx < total_clusters && !(cl->at(cluster_idx).free) &&
+                !(cl->at(cluster_idx).fragmented))
             {
                 cairo_rectangle (cr, kx * box_size, ky * box_size ,
                     box_size - 1, box_size - 1);
@@ -297,8 +316,8 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     if (selected_cluster > cl->size()) selected_cluster = cl->size() - 1;
 
     if (FRAGMAP_MODE_CLUSTER == fm->display_mode &&    selected_cluster > 0 ) {
-        ky = selected_cluster / cluster_width;
-        kx = selected_cluster - ky * cluster_width;
+        ky = selected_cluster / cluster_map_width;
+        kx = selected_cluster - ky * cluster_map_width;
 
         if (cl->at(selected_cluster).free) {
             cairo_set_source_rgbv (cr, color_free_selected);
@@ -337,11 +356,14 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
                 eend_c = eend_c / cluster_size;
 
                 for (__u64 k3 = estart_c; k3 <= eend_c; k3 ++) {
-                    ky = k3 / cluster_width;
-                    kx = k3 - ky * cluster_width;
+                    ky = k3 / cluster_map_width;
+                    kx = k3 - ky * cluster_map_width;
+                    ky = ky - target_line;              // to screen coordinates
 
-                    cairo_rectangle (cr, kx * box_size, ky * box_size ,
-                        box_size - 1, box_size - 1);
+                    if (0 <= ky && ky < cluster_map_height) {
+                        cairo_rectangle (cr, kx * box_size, ky * box_size ,
+                            box_size - 1, box_size - 1);
+                    }
                 }
             }
             cairo_fill (cr);

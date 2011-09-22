@@ -28,6 +28,8 @@ struct _GtkFragmap {
     int box_size;
     int frag_limit;
 
+    int target_cluster;
+
     FRAGMAP_MODE display_mode;
     int selected_cluster;
     GList *selected_files;
