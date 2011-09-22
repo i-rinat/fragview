@@ -40,6 +40,8 @@ static gboolean gtk_fragmap_size_allocate (GtkWidget *widget, GdkRectangle *allo
     return TRUE;
 }
 
+
+
 static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, gdouble y) {
 
     GtkFragmap *fm = GTK_FRAGMAP (widget);
@@ -138,7 +140,7 @@ static void gtk_fragmap_init (GtkFragmap *fm) {
     fm->selected_files = NULL;
 
     fm->target_cluster = 0;
-    fm->cluster_size_desired = 15;
+    fm->cluster_size_desired = 3500;
 
     fm->file_list_view = NULL;
     fm->update_file_list = NULL;
@@ -207,6 +209,17 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     int target_line = fm->target_cluster / cluster_map_width;
 
     int target_offset = target_line * cluster_map_width;
+
+    GtkRange *range = GTK_RANGE(fm->scroll_widget);
+    GtkAdjustment *adj = gtk_range_get_adjustment(range);
+
+    gtk_adjustment_set_lower (adj, 0.0);
+    gtk_adjustment_set_upper (adj, cluster_map_full_height - 1);
+    gtk_adjustment_set_step_increment (adj, 1.0);
+    gtk_adjustment_set_page_increment (adj, cluster_map_height);
+    gtk_adjustment_set_value (adj, target_offset);
+
+    gtk_adjustment_changed (adj);
 
     // WIP END ===============================================================
 
@@ -430,6 +443,10 @@ void gtk_fragmap_set_mode (GtkFragmap *fm, enum FRAGMAP_MODE mode) {
     fm->display_mode = mode;
     fm->force_redraw = 1;
     gtk_widget_queue_draw (GTK_WIDGET (fm));
+}
+
+void gtk_fragmap_attach_scroll (GtkFragmap *fm, GtkWidget *scroll_widget) {
+    fm->scroll_widget = scroll_widget;
 }
 
 G_DEFINE_TYPE (GtkFragmap, gtk_fragmap, GTK_TYPE_DRAWING_AREA);

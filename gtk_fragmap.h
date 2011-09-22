@@ -38,6 +38,7 @@ struct _GtkFragmap {
     int shift_y;
 
     GtkWidget *file_list_view;
+    GtkWidget *scroll_widget;
     void (*update_file_list) ( GtkWidget *file_list, GtkTreeModel *model);
 };
 
@@ -67,6 +68,8 @@ void gtk_fragmap_set_device_size(GtkFragmap *fragmap, __u64 sib);
 
 void gtk_fragmap_attach_widget_file_list(GtkFragmap *fm, GtkWidget *w,
             void (*update)(GtkWidget *, GtkTreeModel *));
+
+void gtk_fragmap_attach_scroll (GtkFragmap *fm, GtkWidget *scroll_widget);
 
 void gtk_fragmap_file_begin (GtkFragmap *fm);
 void gtk_fragmap_file_add (GtkFragmap *fm, int file_idx);

@@ -98,6 +98,7 @@ int main(int argc, char *argv[]) {
 
     fragmap_scroll = gtk_vscrollbar_new (NULL);
     gtk_widget_show (fragmap_scroll);
+    gtk_fragmap_attach_scroll (GTK_FRAGMAP(fm), fragmap_scroll);
 
     // TODO: remove code below, it's for testing purposes
     GtkAdjustment *adj = gtk_range_get_adjustment (&(GTK_SCROLLBAR(fragmap_scroll)->range));
