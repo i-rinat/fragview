@@ -7,6 +7,7 @@
 #include <iostream>
 
 static double color_free[3] = {1.0, 1.0, 1.0};
+static double color_free_selected[3] = {1.0, 1.0, 0.0};
 static double color_frag[3] = {0.8, 0.0, 0.0};
 static double color_nfrag[3] = {0.0, 0.0, 0.8};
 static double color_back[3] = {0.25, 0.25, 0.25};
@@ -306,12 +307,12 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
         kx = selected_cluster - ky * cluster_width;
 
         if (cl->at(selected_cluster).free) {
-            cairo_set_source_rgb (cr, 1.0, 1.0, 0.0);
+            cairo_set_source_rgbv (cr, color_free_selected);
         } else {
             if (cl->at(selected_cluster).fragmented) {
-                cairo_set_source_rgb (cr, 0.8, 0.0, 0.0);
+                cairo_set_source_rgbv (cr, color_frag);
             } else {
-                cairo_set_source_rgb (cr, 0.0, 0.0, 0.8);
+                cairo_set_source_rgbv (cr, color_nfrag);
             }
         }
         cairo_rectangle (cr, kx * box_size, ky * box_size ,
