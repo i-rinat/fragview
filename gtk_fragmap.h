@@ -37,6 +37,8 @@ struct _GtkFragmap {
     int shift_x;
     int shift_y;
 
+    int cluster_map_width;
+
     GtkWidget *file_list_view;
     GtkWidget *scroll_widget;
     void (*update_file_list) ( GtkWidget *file_list, GtkTreeModel *model);

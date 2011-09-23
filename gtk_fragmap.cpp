@@ -199,29 +199,24 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     int cluster_map_width = (pix_width - 1) / (box_size);
     int cluster_map_height = (pix_height - 1) / (box_size);
 
-    // WIP BEGIN -------------------------------------------------------------
+    fm->cluster_map_width = cluster_map_width;
 
     assert(fm->device_size_in_blocks > 0);
     int total_clusters = (fm->device_size_in_blocks - 1) / fm->cluster_size_desired + 1;
     int cluster_map_full_height = (total_clusters - 1) / cluster_map_width + 1;
 
-    // TODO: one must get target_line from scrollbar
     int target_line = fm->target_cluster / cluster_map_width;
-
     int target_offset = target_line * cluster_map_width;
 
     GtkRange *range = GTK_RANGE(fm->scroll_widget);
     GtkAdjustment *adj = gtk_range_get_adjustment(range);
 
-    gtk_adjustment_set_lower (adj, 0.0);
-    gtk_adjustment_set_upper (adj, cluster_map_full_height - 1);
-    gtk_adjustment_set_step_increment (adj, 1.0);
-    gtk_adjustment_set_page_increment (adj, cluster_map_height);
-    gtk_adjustment_set_value (adj, target_offset);
+    gtk_range_set_range (GTK_RANGE (fm->scroll_widget), 0.0,
+        std::max(0, cluster_map_full_height - cluster_map_height));
+    gtk_range_set_increments (GTK_RANGE (fm->scroll_widget), 1.0, 1.0);
 
-    gtk_adjustment_changed (adj);
-
-    // WIP END ===============================================================
+    gtk_range_set_slider_size_fixed (GTK_RANGE (fm->scroll_widget), TRUE);
+    gtk_range_set_slider_size_fixed (GTK_RANGE (fm->scroll_widget), FALSE);
 
     printf("clusters_total = %d\n", total_clusters);
 
@@ -445,8 +440,17 @@ void gtk_fragmap_set_mode (GtkFragmap *fm, enum FRAGMAP_MODE mode) {
     gtk_widget_queue_draw (GTK_WIDGET (fm));
 }
 
+static void scroll_value_changed (GtkRange *range, gpointer user_data) {
+    GtkFragmap *fm = (GtkFragmap *) user_data;
+
+    fm->target_cluster = fm->cluster_map_width * round (gtk_range_get_value (range));
+    gtk_widget_queue_draw (GTK_WIDGET (fm));
+}
+
 void gtk_fragmap_attach_scroll (GtkFragmap *fm, GtkWidget *scroll_widget) {
     fm->scroll_widget = scroll_widget;
+    gtk_range_set_slider_size_fixed (GTK_RANGE (scroll_widget), FALSE);
+    g_signal_connect (scroll_widget, "value-changed", G_CALLBACK (scroll_value_changed), fm);
 }
 
 G_DEFINE_TYPE (GtkFragmap, gtk_fragmap, GTK_TYPE_DRAWING_AREA);
