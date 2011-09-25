@@ -54,7 +54,8 @@ static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, g
     int cl_y = (int) (y - fm->shift_y) / fm->box_size;
     int clusters_per_row = widget->allocation.width / fm->box_size;
 
-    int cl_raw = cl_y * clusters_per_row + cl_x;
+    int target_line = fm->target_cluster / fm->cluster_map_width;
+    int cl_raw = (cl_y + target_line) * clusters_per_row + cl_x;
 
     if (cl_raw >= fm->clusters->size())
         cl_raw = fm->clusters->size() - 1;
@@ -326,6 +327,7 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     if (FRAGMAP_MODE_CLUSTER == fm->display_mode &&    selected_cluster > 0 ) {
         ky = selected_cluster / cluster_map_width;
         kx = selected_cluster - ky * cluster_map_width;
+        ky = ky - target_line;              // to screen coordinates
 
         if (cl->at(selected_cluster).free) {
             cairo_set_source_rgbv (cr, color_free_selected);
