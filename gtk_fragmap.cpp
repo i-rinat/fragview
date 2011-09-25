@@ -210,8 +210,14 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     GtkRange *range = GTK_RANGE(fm->scroll_widget);
     GtkAdjustment *adj = gtk_range_get_adjustment(range);
 
-    gtk_range_set_range (GTK_RANGE (fm->scroll_widget), 0.0,
-        std::max(0, cluster_map_full_height - cluster_map_height));
+    int upper_limit = std::max(0, cluster_map_full_height - cluster_map_height);
+    if (0 == upper_limit) {
+        gtk_widget_hide (fm->scroll_widget);
+        upper_limit = 1; // to avoid GtkRange warning about assertion min < max
+    } else {
+        gtk_widget_show (fm->scroll_widget);
+    }
+    gtk_range_set_range (GTK_RANGE (fm->scroll_widget), 0.0, upper_limit);
     gtk_range_set_increments (GTK_RANGE (fm->scroll_widget), 1.0, 1.0);
 
     gtk_range_set_slider_size_fixed (GTK_RANGE (fm->scroll_widget), TRUE);
