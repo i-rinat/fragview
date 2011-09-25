@@ -40,9 +40,7 @@ static gboolean gtk_fragmap_size_allocate (GtkWidget *widget, GdkRectangle *allo
     return TRUE;
 }
 
-
-
-static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, gdouble y) {
+static gboolean gtk_fragmap_highlight_cluster_at (GtkWidget *widget, gdouble x, gdouble y) {
 
     GtkFragmap *fm = GTK_FRAGMAP (widget);
 
@@ -107,7 +105,7 @@ static gboolean gtk_fragmap_highligh_cluster_at (GtkWidget *widget, gdouble x, g
 static gboolean gtk_fragmap_motion_event (GtkWidget *widget, GdkEventMotion *event, gboolean user_data) {
 
     if (event->state & GDK_BUTTON1_MASK) {
-        if (gtk_fragmap_highligh_cluster_at(widget, event->x, event->y)) {
+        if (gtk_fragmap_highlight_cluster_at(widget, event->x, event->y)) {
             gtk_widget_queue_draw (widget);
         }
     }
@@ -119,7 +117,7 @@ static gboolean gtk_fragmap_motion_event (GtkWidget *widget, GdkEventMotion *eve
 static gboolean gtk_fragmap_button_press_event (GtkWidget *widget, GdkEventButton *event, gboolean user_data) {
 
     if (event->button == 1) { // left mouse button
-        if (gtk_fragmap_highligh_cluster_at(widget, event->x, event->y)) {
+        if (gtk_fragmap_highlight_cluster_at(widget, event->x, event->y)) {
             gtk_widget_queue_draw (widget);
         }
     }
