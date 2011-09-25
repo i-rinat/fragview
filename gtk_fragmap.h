@@ -21,14 +21,16 @@ struct _GtkFragmap {
     file_list *files;
     pthread_mutex_t *clusters_mutex;
     pthread_mutex_t *files_mutex;
-    int cluster_count;
+
     int cluster_size_desired; // desired number of blocks each cluster contains
     __u64 device_size_in_blocks;
     int force_redraw;
+    int widget_size_changed;
     int box_size;
     int frag_limit;
 
     int target_cluster;
+    int total_clusters;
 
     FRAGMAP_MODE display_mode;
     int selected_cluster;
@@ -38,6 +40,8 @@ struct _GtkFragmap {
     int shift_y;
 
     int cluster_map_width;
+    int cluster_map_height;
+    int cluster_map_full_height;
 
     GtkWidget *file_list_view;
     GtkWidget *scroll_widget;

@@ -37,6 +37,33 @@ static void gtk_fragmap_class_init (GtkFragmapClass *klass) {
 static gboolean gtk_fragmap_size_allocate (GtkWidget *widget, GdkRectangle *allocation) {
     GtkFragmap *fm = GTK_FRAGMAP(widget);
     fm->display_mode = FRAGMAP_MODE_SHOW_ALL;
+
+    int pix_width = widget->allocation.width;
+    int pix_height = widget->allocation.height;
+    fm->cluster_map_width = (pix_width - 1) / fm->box_size;
+    fm->cluster_map_height = (pix_height - 1) / fm->box_size;
+
+    assert(fm->device_size_in_blocks > 0);
+    fm->total_clusters = (fm->device_size_in_blocks - 1) / fm->cluster_size_desired + 1;
+    fm->cluster_map_full_height = (fm->total_clusters - 1) / fm->cluster_map_width + 1;
+
+    int upper_limit = std::max(0, fm->cluster_map_full_height - fm->cluster_map_height);
+    if (0 == upper_limit) {
+        gtk_widget_hide (fm->scroll_widget);
+        upper_limit = 1; // to avoid GtkRange warning about assertion min < max
+    } else {
+        gtk_widget_show (fm->scroll_widget);
+    }
+    gtk_range_set_range (GTK_RANGE (fm->scroll_widget), 0.0, upper_limit);
+    gtk_range_set_increments (GTK_RANGE (fm->scroll_widget), 1.0, fm->cluster_map_height);
+
+    // upper limit for scroll bar is one page shorter, so we must recalculate page size
+    double page_size = (double)fm->cluster_map_height / fm->cluster_map_full_height * upper_limit;
+    GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (fm->scroll_widget));
+    gtk_adjustment_set_page_size (adj, page_size);
+
+    fm->widget_size_changed = 1;
+
     return TRUE;
 }
 
@@ -123,7 +150,8 @@ static gboolean gtk_fragmap_button_press_event (GtkWidget *widget, GdkEventButto
 }
 
 static void gtk_fragmap_init (GtkFragmap *fm) {
-    fm->cluster_count = 0;
+    fm->widget_size_changed = 0;
+    fm->total_clusters = 0;
     fm->clusters = NULL;
     fm->force_redraw = 0;
     fm->shift_x = 0;
@@ -190,51 +218,25 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
 
     int box_size = fm->box_size;
 
-    int pix_width = widget->allocation.width;
-    int pix_height = widget->allocation.height;
-    int cluster_map_width = (pix_width - 1) / (box_size);
-    int cluster_map_height = (pix_height - 1) / (box_size);
+    int target_line = fm->target_cluster / fm->cluster_map_width;
+    int target_offset = target_line * fm->cluster_map_width;
 
-    fm->cluster_map_width = cluster_map_width;
-
-    assert(fm->device_size_in_blocks > 0);
-    int total_clusters = (fm->device_size_in_blocks - 1) / fm->cluster_size_desired + 1;
-    int cluster_map_full_height = (total_clusters - 1) / cluster_map_width + 1;
-
-    int target_line = fm->target_cluster / cluster_map_width;
-    int target_offset = target_line * cluster_map_width;
-
-    int upper_limit = std::max(0, cluster_map_full_height - cluster_map_height);
-    if (0 == upper_limit) {
-        gtk_widget_hide (fm->scroll_widget);
-        upper_limit = 1; // to avoid GtkRange warning about assertion min < max
-    } else {
-        gtk_widget_show (fm->scroll_widget);
-    }
-    gtk_range_set_range (GTK_RANGE (fm->scroll_widget), 0.0, upper_limit);
-    gtk_range_set_increments (GTK_RANGE (fm->scroll_widget), 1.0, cluster_map_height);
-
-    double page_size = (double)cluster_map_height / cluster_map_full_height * upper_limit;
-    GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (fm->scroll_widget));
-    gtk_adjustment_set_page_size (adj, page_size);
-
-    printf("clusters_total = %d\n", total_clusters);
+//    printf("clusters_total = %d\n", fm->total_clusters);
 
     struct timeval tv1, tv2;
 
     gettimeofday(&tv1, NULL);
-    if (fm->cluster_count != total_clusters ||
-        fm->force_redraw )
+    if (fm->widget_size_changed || fm->force_redraw )
     {
         pthread_mutex_lock(fm->clusters_mutex);
         pthread_mutex_lock(fm->files_mutex);
         __fill_clusters(fm->files,
                         fm->device_size_in_blocks,
                         fm->clusters,
-                        total_clusters,
+                        fm->total_clusters,
                         fm->frag_limit);
-        fm->cluster_count = total_clusters;
         fm->force_redraw = 0;
+        fm->widget_size_changed = 0;
         pthread_mutex_unlock(fm->clusters_mutex);
         pthread_mutex_unlock(fm->files_mutex);
     }
@@ -259,10 +261,10 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
             break;
     }
 
-    for (ky = 0; ky < cluster_map_height; ++ky) {
-        for (kx = 0; kx < cluster_map_width; ++kx) {
-            int cluster_idx = ky*cluster_map_width + kx + target_offset;
-            if (cluster_idx < total_clusters && cl->at(cluster_idx).free) {
+    for (ky = 0; ky < fm->cluster_map_height; ++ky) {
+        for (kx = 0; kx < fm->cluster_map_width; ++kx) {
+            int cluster_idx = ky*fm->cluster_map_width + kx + target_offset;
+            if (cluster_idx < fm->total_clusters && cl->at(cluster_idx).free) {
                 cairo_rectangle (cr, kx * box_size, ky * box_size ,
                     box_size - 1, box_size - 1);
             }
@@ -282,10 +284,10 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
             break;
     }
 
-    for (ky = 0; ky < cluster_map_height; ++ky) {
-        for (kx = 0; kx < cluster_map_width; ++kx) {
-            int cluster_idx = ky*cluster_map_width + kx + target_offset;
-            if (cluster_idx < total_clusters && !(cl->at(cluster_idx).free) &&
+    for (ky = 0; ky < fm->cluster_map_height; ++ky) {
+        for (kx = 0; kx < fm->cluster_map_width; ++kx) {
+            int cluster_idx = ky*fm->cluster_map_width + kx + target_offset;
+            if (cluster_idx < fm->total_clusters && !(cl->at(cluster_idx).free) &&
                 cl->at(cluster_idx).fragmented)
             {
                 cairo_rectangle (cr, kx * box_size, ky * box_size ,
@@ -306,10 +308,10 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
             break;
     }
 
-    for (ky = 0; ky < cluster_map_height; ++ky) {
-        for (kx = 0; kx < cluster_map_width; ++kx) {
-            int cluster_idx = ky*cluster_map_width + kx + target_offset;
-            if (cluster_idx < total_clusters && !(cl->at(cluster_idx).free) &&
+    for (ky = 0; ky < fm->cluster_map_height; ++ky) {
+        for (kx = 0; kx < fm->cluster_map_width; ++kx) {
+            int cluster_idx = ky*fm->cluster_map_width + kx + target_offset;
+            if (cluster_idx < fm->total_clusters && !(cl->at(cluster_idx).free) &&
                 !(cl->at(cluster_idx).fragmented))
             {
                 cairo_rectangle (cr, kx * box_size, ky * box_size ,
@@ -324,8 +326,8 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     if (selected_cluster > cl->size()) selected_cluster = cl->size() - 1;
 
     if (FRAGMAP_MODE_CLUSTER == fm->display_mode &&    selected_cluster > 0 ) {
-        ky = selected_cluster / cluster_map_width;
-        kx = selected_cluster - ky * cluster_map_width;
+        ky = selected_cluster / fm->cluster_map_width;
+        kx = selected_cluster - ky * fm->cluster_map_width;
         ky = ky - target_line;              // to screen coordinates
 
         if (cl->at(selected_cluster).free) {
@@ -345,7 +347,7 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     if (FRAGMAP_MODE_FILE == fm->display_mode) {
         int k2;
         GList *p = fm->selected_files;
-        __u64 cluster_size = (fm->device_size_in_blocks-1) / fm->cluster_count + 1;
+        __u64 cluster_size = (fm->device_size_in_blocks-1) / fm->total_clusters + 1;
 
         while (p) {
             int file_idx = GPOINTER_TO_INT (p->data);
@@ -365,11 +367,11 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
                 eend_c = eend_c / cluster_size;
 
                 for (__u64 k3 = estart_c; k3 <= eend_c; k3 ++) {
-                    ky = k3 / cluster_map_width;
-                    kx = k3 - ky * cluster_map_width;
+                    ky = k3 / fm->cluster_map_width;
+                    kx = k3 - ky * fm->cluster_map_width;
                     ky = ky - target_line;              // to screen coordinates
 
-                    if (0 <= ky && ky < cluster_map_height) {
+                    if (0 <= ky && ky < fm->cluster_map_height) {
                         cairo_rectangle (cr, kx * box_size, ky * box_size ,
                             box_size - 1, box_size - 1);
                     }
@@ -391,7 +393,7 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
 
 int gtk_fragmap_get_cluster_count(GtkFragmap *fragmap) {
 
-    return fragmap->cluster_count;
+    return fragmap->total_clusters;
 }
 
 void gtk_fragmap_attach_cluster_list(GtkFragmap *fragmap, cluster_list *cl,
