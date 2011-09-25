@@ -58,14 +58,11 @@ static gboolean gtk_fragmap_highlight_cluster_at (GtkWidget *widget, gdouble x, 
     if (cl_raw >= fm->clusters->size())
         cl_raw = fm->clusters->size() - 1;
 
-    // printf("clicked cluster # %d\n", cl_raw);
     cluster_info *ci = &(fm->clusters->at(cl_raw));
 
     if ( fm->display_mode != FRAGMAP_MODE_CLUSTER || fm->selected_cluster != cl_raw ) {
         fm->display_mode = FRAGMAP_MODE_CLUSTER;
         fm->selected_cluster = cl_raw;
-
-        // printf("clusters total = %lu\n", fm->clusters->size());
 
         int ss = ci->files.size();
 

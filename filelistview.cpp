@@ -21,8 +21,6 @@ static GtkSortType inverse_sort_order (GtkSortType order) {
 
 static gboolean file_list_view_header_clicked (GtkTreeViewColumn *col, gpointer name) {
 
-    printf("++++ clicked '%s'\n", gtk_tree_view_column_get_title (col) );
-
     gboolean was_selected = gtk_tree_view_column_get_sort_indicator (col);
     gtk_tree_view_column_set_sort_indicator (col, TRUE);
 

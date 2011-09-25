@@ -100,7 +100,6 @@ static int worker_fiemap(const char *fname, const struct stat64 *sb,
         //printf("not regular: %s\n", fname);
         return 0;
     }
-    //printf("file: %s\n", fname);
 
     int fd = open(fname, O_RDONLY | O_NOFOLLOW | O_LARGEFILE);
     if (-1 == fd) {
@@ -232,7 +231,6 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
         clusters->at(k).free = 1;
         clusters->at(k).fragmented = 0;
         clusters->at(k).files.resize(0);
-        //clusters->at(k).files.reserve(files_per_cluster_mean);
     }
     printf("cluster_size = %llu\n", cluster_size);
 
@@ -251,7 +249,6 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
             eend_c = (item->extents[k2].start +
                       item->extents[k2].length - 1);
             eend_c = eend_c / cluster_size;
-            // printf("span: %llu-%llu\n", estart_c, eend_c);
 
             for (__u64 k3 = estart_c; k3 <= eend_c; k3 ++ ) {
                 // N-th cluster start: cluster_size * N
