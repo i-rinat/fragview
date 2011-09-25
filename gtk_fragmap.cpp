@@ -207,9 +207,6 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
     int target_line = fm->target_cluster / cluster_map_width;
     int target_offset = target_line * cluster_map_width;
 
-    GtkRange *range = GTK_RANGE(fm->scroll_widget);
-    GtkAdjustment *adj = gtk_range_get_adjustment(range);
-
     int upper_limit = std::max(0, cluster_map_full_height - cluster_map_height);
     if (0 == upper_limit) {
         gtk_widget_hide (fm->scroll_widget);
@@ -218,10 +215,11 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
         gtk_widget_show (fm->scroll_widget);
     }
     gtk_range_set_range (GTK_RANGE (fm->scroll_widget), 0.0, upper_limit);
-    gtk_range_set_increments (GTK_RANGE (fm->scroll_widget), 1.0, 1.0);
+    gtk_range_set_increments (GTK_RANGE (fm->scroll_widget), 1.0, cluster_map_height);
 
-    gtk_range_set_slider_size_fixed (GTK_RANGE (fm->scroll_widget), TRUE);
-    gtk_range_set_slider_size_fixed (GTK_RANGE (fm->scroll_widget), FALSE);
+    double page_size = (double)cluster_map_height / cluster_map_full_height * upper_limit;
+    GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (fm->scroll_widget));
+    gtk_adjustment_set_page_size (adj, page_size);
 
     printf("clusters_total = %d\n", total_clusters);
 
