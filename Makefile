@@ -31,3 +31,4 @@ graph: $(OBJECTS_common) $(OBJECTS_graph)
 clean:
 	rm -f *.o
 	rm -f graph fragdb gmon.out
+	make -C tests clean

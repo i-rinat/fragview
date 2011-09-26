@@ -2,7 +2,7 @@ CXX = g++
 CFLAGS = -g3 -ggdb3 -O0
 
 all: severity_test1
-	make -C ..
+	make -C .. clusters.o
 
 %.o: %.cpp
 	$(CXX) $(CFLAGS) -o $@ -c $<
