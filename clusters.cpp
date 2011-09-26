@@ -291,7 +291,7 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
 // The larger the worst. Given value n one can say this file is (somewhere
 // inside) n times slower at linear read than continuous one.
 
-static double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed) {
+double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed) {
     double overall_severity = 1.0; // continuous files have severity equal to 1.0
 
     for (int k1 = 0; k1 < fi->extents.size(); k1 ++) {
