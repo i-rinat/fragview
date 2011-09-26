@@ -164,9 +164,10 @@ static gboolean gtk_fragmap_button_press_event (GtkWidget *widget, GdkEventButto
 
 static void gtk_fragmap_init (GtkFragmap *fm) {
     fm->widget_size_changed = 0;
+    fm->cluster_count_changed = 1;
     fm->total_clusters = 0;
     fm->clusters = NULL;
-    fm->force_redraw = 0;
+    fm->force_fill_clusters = 0;
     fm->shift_x = 0;
     fm->shift_y = 0;
     fm->box_size = 7;
@@ -238,9 +239,9 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
 
     struct timeval tv1, tv2;
 
-    gettimeofday(&tv1, NULL);
-    if (fm->widget_size_changed || fm->force_redraw )
+    if (fm->cluster_count_changed || fm->force_fill_clusters )
     {
+        gettimeofday(&tv1, NULL);
         pthread_mutex_lock(fm->clusters_mutex);
         pthread_mutex_lock(fm->files_mutex);
         __fill_clusters(fm->files,
@@ -248,13 +249,13 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
                         fm->clusters,
                         fm->total_clusters,
                         fm->frag_limit);
-        fm->force_redraw = 0;
-        fm->widget_size_changed = 0;
+        fm->force_fill_clusters = 0;
+        fm->cluster_count_changed = 0;
         pthread_mutex_unlock(fm->clusters_mutex);
         pthread_mutex_unlock(fm->files_mutex);
+        gettimeofday(&tv2, NULL);
+        printf("fill_clusters: %f sec\n", tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0);
     }
-    gettimeofday(&tv2, NULL);
-    printf("fill_clusters: %f sec\n", tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0);
 
     gettimeofday(&tv1, NULL);
     int ky, kx;
@@ -452,7 +453,6 @@ void gtk_fragmap_file_add (GtkFragmap *fm, int file_idx) {
 
 void gtk_fragmap_set_mode (GtkFragmap *fm, enum FRAGMAP_MODE mode) {
     fm->display_mode = mode;
-    fm->force_redraw = 1;
     gtk_widget_queue_draw (GTK_WIDGET (fm));
 }
 

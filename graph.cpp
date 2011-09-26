@@ -53,7 +53,7 @@ static void *updater_thread(void *arg) {
         usleep(1*1000*1000);
         if (files2.size() != files_count) {
             files_count = files2.size();
-            GTK_FRAGMAP((GtkWidget *)arg)->force_redraw = 1;
+            GTK_FRAGMAP((GtkWidget *)arg)->force_fill_clusters = 1;
             gtk_widget_queue_draw((GtkWidget *)arg);
             printf("queue draw\n");
         }

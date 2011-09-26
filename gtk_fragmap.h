@@ -24,8 +24,9 @@ struct _GtkFragmap {
 
     int cluster_size_desired; // desired number of blocks each cluster contains
     __u64 device_size_in_blocks;
-    int force_redraw;
+    int force_fill_clusters;
     int widget_size_changed;
+    int cluster_count_changed;
     int box_size;
     int frag_limit;
 
