@@ -36,10 +36,19 @@ static void gtk_fragmap_class_init (GtkFragmapClass *klass) {
 
 static gboolean gtk_fragmap_size_allocate (GtkWidget *widget, GdkRectangle *allocation) {
     GtkFragmap *fm = GTK_FRAGMAP(widget);
+    GtkAdjustment *scroll_adj = gtk_range_get_adjustment (GTK_RANGE (fm->scroll_widget));
+    int pix_width;
+    int pix_height;
+
     fm->display_mode = FRAGMAP_MODE_SHOW_ALL;
 
-    int pix_width = widget->allocation.width;
-    int pix_height = widget->allocation.height;
+    // estimate map size without scrollbar
+    pix_width = widget->allocation.width;
+    pix_height = widget->allocation.height;
+
+    // to get full width one need determine, if scrollbar visible
+    if (gtk_widget_get_visible (fm->scroll_widget)) pix_width += fm->scroll_widget->allocation.width;
+
     fm->cluster_map_width = (pix_width - 1) / fm->box_size;
     fm->cluster_map_height = (pix_height - 1) / fm->box_size;
 
@@ -47,20 +56,24 @@ static gboolean gtk_fragmap_size_allocate (GtkWidget *widget, GdkRectangle *allo
     fm->total_clusters = (fm->device_size_in_blocks - 1) / fm->cluster_size_desired + 1;
     fm->cluster_map_full_height = (fm->total_clusters - 1) / fm->cluster_map_width + 1;
 
-    int upper_limit = std::max(0, fm->cluster_map_full_height - fm->cluster_map_height);
-    if (0 == upper_limit) {
-        gtk_widget_hide (fm->scroll_widget);
-        upper_limit = 1; // to avoid GtkRange warning about assertion min < max
-    } else {
+    if (fm->cluster_map_full_height > fm->cluster_map_height) {
+        // map does not fit, show scrollbar
         gtk_widget_show (fm->scroll_widget);
+
+        // and then recalculate sizes
+        pix_width = widget->allocation.width;
+        fm->cluster_map_width = (pix_width - 1) / fm->box_size;
+        fm->cluster_map_full_height = (fm->total_clusters - 1) / fm->cluster_map_width + 1;
+    } else {
+        // we do not need scrollbar, hide it
+        gtk_widget_hide (fm->scroll_widget);
     }
-    gtk_range_set_range (GTK_RANGE (fm->scroll_widget), 0.0, upper_limit);
+
+    gtk_range_set_range (GTK_RANGE (fm->scroll_widget), 0.0, fm->cluster_map_full_height);
     gtk_range_set_increments (GTK_RANGE (fm->scroll_widget), 1.0, fm->cluster_map_height);
 
     // upper limit for scroll bar is one page shorter, so we must recalculate page size
-    double page_size = (double)fm->cluster_map_height / fm->cluster_map_full_height * upper_limit;
-    GtkAdjustment *adj = gtk_range_get_adjustment (GTK_RANGE (fm->scroll_widget));
-    gtk_adjustment_set_page_size (adj, page_size);
+    gtk_adjustment_set_page_size (scroll_adj, (double)fm->cluster_map_height);
 
     fm->widget_size_changed = 1;
 
