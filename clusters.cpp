@@ -304,8 +304,8 @@ double get_file_severity (const f_info *fi, int64_t window, int shift, int penal
                 if (k2 + 1 < fi->extents.size()) { // for all but last extent
                     // compute head "jump"
                     int64_t delta = fi->extents[k2+1].start -
-                        (fi->extents[k2].start + fi->extents[k2].length - 1);
-                    if (delta >= 0 || delta <= shift) { // small gaps
+                        (fi->extents[k2].start + fi->extents[k2].length);
+                    if (delta >= 0 && delta <= shift) { // small gaps
                         read_time += delta / speed;     // are likely to be read
                     } else {                            // while large ones
                         read_time += penalty * 1.0e-3;  // will cause head jump
