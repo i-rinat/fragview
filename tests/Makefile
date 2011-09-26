@@ -11,6 +11,6 @@ severity_test1: severity_test1.o ../clusters.o
 	$(CXX) -o severity_test1 severity_test1.o ../clusters.o
 
 clean:
-	rm *.o
-	rm severity_test1
+	rm -f *.o
+	rm -f severity_test1
 
