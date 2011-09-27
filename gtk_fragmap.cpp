@@ -162,6 +162,50 @@ static gboolean gtk_fragmap_button_press_event (GtkWidget *widget, GdkEventButto
     return TRUE;
 }
 
+static gboolean gtk_fragmap_mouse_scroll_event (GtkWidget *widget, GdkEventScroll *event, gpointer user_data) {
+    GtkFragmap *fm = GTK_FRAGMAP (widget);
+
+    if (event->state & GDK_CONTROL_MASK) {
+        // scroll with Ctrl key
+        fm->force_fill_clusters = 1;
+        pthread_mutex_lock(fm->clusters_mutex);
+
+        if (GDK_SCROLL_UP == event->direction) {
+            fm->cluster_size_desired = fm->cluster_size_desired / 1.15;
+            if (fm->cluster_size_desired == 0) fm->cluster_size_desired = 1;
+        }
+
+        if (GDK_SCROLL_DOWN == event->direction) {
+            int old = fm->cluster_size_desired;
+            fm->cluster_size_desired = fm->cluster_size_desired * 1.15;
+            if (old == fm->cluster_size_desired) fm->cluster_size_desired ++;
+
+            // clamp
+            if (fm->cluster_size_desired > fm->total_clusters) {
+                fm->cluster_size_desired = fm->total_clusters;
+            }
+        }
+        printf ("updated cluster_size_desired = %d\n", fm->cluster_size_desired);
+
+        gtk_fragmap_size_allocate (widget, &widget->allocation);
+        gtk_widget_queue_draw (widget);
+        pthread_mutex_unlock(fm->clusters_mutex);
+    } else {
+        GtkAdjustment *adj =
+            gtk_range_get_adjustment (GTK_RANGE (fm->scroll_widget));
+        double value = gtk_adjustment_get_value (adj);
+        double step = gtk_adjustment_get_step_increment (adj);
+        if (GDK_SCROLL_UP == event->direction) value -= step;
+        if (GDK_SCROLL_DOWN == event->direction) value += step;
+        value = std::min (value, gtk_adjustment_get_upper (adj) -
+                                gtk_adjustment_get_page_size (adj));
+        // set_value will clamp value on 'lower'
+        gtk_adjustment_set_value (adj, value);
+    }
+
+    return TRUE;
+}
+
 static void gtk_fragmap_init (GtkFragmap *fm) {
     fm->widget_size_changed = 0;
     fm->cluster_count_changed = 1;
@@ -184,13 +228,16 @@ static void gtk_fragmap_init (GtkFragmap *fm) {
     fm->update_file_list = NULL;
 
     gtk_widget_set_events(GTK_WIDGET(fm),
-        GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK);
+        GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
 
     g_signal_connect (GTK_OBJECT(fm), "motion-notify-event",
         GTK_SIGNAL_FUNC (gtk_fragmap_motion_event), NULL);
 
     g_signal_connect (GTK_OBJECT(fm), "button_press_event",
         GTK_SIGNAL_FUNC (gtk_fragmap_button_press_event), NULL);
+
+    g_signal_connect (GTK_OBJECT(fm), "scroll-event",
+        GTK_SIGNAL_FUNC (gtk_fragmap_mouse_scroll_event), NULL);
 
     g_signal_connect (GTK_OBJECT(fm), "size_allocate",
         GTK_SIGNAL_FUNC (gtk_fragmap_size_allocate), NULL);
