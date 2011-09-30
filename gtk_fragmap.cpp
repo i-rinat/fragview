@@ -386,7 +386,7 @@ static gboolean gtk_fragmap_expose (GtkWidget *widget, GdkEventExpose *event) {
 
     if (selected_cluster > cl->size()) selected_cluster = cl->size() - 1;
 
-    if (FRAGMAP_MODE_CLUSTER == fm->display_mode &&    selected_cluster > 0 ) {
+    if (FRAGMAP_MODE_CLUSTER == fm->display_mode && selected_cluster >= 0 ) {
         ky = selected_cluster / fm->cluster_map_width;
         kx = selected_cluster - ky * fm->cluster_map_width;
         ky = ky - target_line;              // to screen coordinates
