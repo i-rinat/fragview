@@ -4,3 +4,4 @@ graph
 gmon.out
 *.db
 fragdb
+fileseverity
