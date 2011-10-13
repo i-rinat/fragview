@@ -34,5 +34,5 @@ fileseverity: $(OBJECTS_common) $(OBJECTS_fileseverity)
 
 clean:
 	rm -f *.o
-	rm -f graph fragdb gmon.out
+	rm -f graph fragdb fileseverity gmon.out
 	make -C tests clean
