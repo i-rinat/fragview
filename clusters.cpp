@@ -91,14 +91,23 @@ static int fibmap_fallback(int fd, const char *fname, const struct stat64 *sb,
 static int worker_fiemap(const char *fname, const struct stat64 *sb,
                   int typeflag, struct FTW *ftw_struct) {
     f_info fi;
+
+    if (get_file_extents (fname, sb, &fi)) {
+        pthread_mutex_lock(worker_files_mutex);
+        worker_files->push_back(fi);
+        pthread_mutex_unlock(worker_files_mutex);
+    }
+
+    return 0;
+}
+
+int get_file_extents(const char *fname, const struct stat64 *sb, f_info *fi) {
     static char fiemap_buffer[16*1024];
 
-    fi.name = fname;
-    if (!S_ISREG(sb->st_mode) && !S_ISDIR(sb->st_mode) &&
-        !S_ISLNK(sb->st_mode) )
-    {
-        //printf("not regular: %s\n", fname);
-        return 0;
+    fi->name = fname;
+
+    if (!S_ISREG(sb->st_mode) && !S_ISDIR(sb->st_mode) && !S_ISLNK(sb->st_mode)) {
+        return 0; // not regular file or directory
     }
 
     int fd = open(fname, O_RDONLY | O_NOFOLLOW | O_LARGEFILE);
@@ -143,15 +152,15 @@ static int worker_fiemap(const char *fname, const struct stat64 *sb,
             tuple tempt = { fiemap->fm_extents[k].fe_physical / sb->st_blksize,
                             fiemap->fm_extents[k].fe_length / sb->st_blksize };
 
-            if (fi.extents.size() > 0) {
-                tuple *last = &fi.extents.back();
+            if (fi->extents.size() > 0) {
+                tuple *last = &fi->extents.back();
                 if (last->start + last->length == tempt.start) {
                     last->length += tempt.length;    // extent continuation
                 } else {
-                    fi.extents.push_back(tempt);
+                    fi->extents.push_back(tempt);
                 }
             } else {
-                fi.extents.push_back(tempt);
+                fi->extents.push_back(tempt);
             }
             last_entry = k;
         }
@@ -161,18 +170,14 @@ static int worker_fiemap(const char *fname, const struct stat64 *sb,
     } while (1);
 
     // calculate linear read performance degradation
-    fi.severity = get_file_severity (&fi,
+    fi->severity = get_file_severity (fi,
         2*1024*1024 / sb->st_blksize,    // window size (blocks)
         16*4096 / sb->st_blksize,        // gap size (blocks)
         20,                              // hdd head reposition delay (ms)
         40e6 / sb->st_blksize);          // raw read speed (blocks/s)
 
-    pthread_mutex_lock(worker_files_mutex);
-    worker_files->push_back(fi);
-    pthread_mutex_unlock(worker_files_mutex);
-
     close(fd);
-    return 0;
+    return 1;
 }
 
 __u64 get_device_size_in_blocks(const char *initial_dir) {

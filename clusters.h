@@ -49,5 +49,6 @@ void __fill_clusters(file_list *files, __u64 device_size_in_blocks,
                     cluster_list *clusters, __u64 cluster_count,
                     int frag_limit);
 double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed);
+int get_file_extents(const char *fname, const struct stat64 *sb, f_info *fi);
 
 #endif // __CLUSTERS_H__
