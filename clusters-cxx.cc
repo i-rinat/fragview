@@ -1,9 +1,16 @@
 #include "clusters-cxx.h"
-#include <assert.h>
 #include <map>
 #include <iostream>
 #include <fts.h>
+#include <fcntl.h>
+#include <assert.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <linux/fiemap.h>
+#include <linux/fs.h>
 
 Clusters::Clusters ()
 {
@@ -49,7 +56,8 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
                 {
                     f_info fi;
                     struct stat64 sb;
-                    lstat64 (ent->fts_path, &sb);
+                    if (0 != lstat64 (ent->fts_path, &sb)) // something wrong
+                        break;
                     if (get_file_extents (ent->fts_path, &sb, &fi)) {
                         pthread_mutex_lock (&files_mutex);
                         files.push_back (fi);
@@ -79,7 +87,7 @@ Clusters::__fill_clusters (uint64_t device_size_in_blocks, uint64_t cluster_coun
 {
     if (cluster_count == 0) cluster_count = 1;
     // divide whole disk to clusters of blocks
-    uint64_t cluster_size = (device_size_in_blocks-1) / cluster_count + 1;
+    uint64_t cluster_size = (device_size_in_blocks - 1) / cluster_count + 1;
 
     clusters.resize(cluster_count);
 
@@ -89,7 +97,7 @@ Clusters::__fill_clusters (uint64_t device_size_in_blocks, uint64_t cluster_coun
     for (k = 0; k < clusters.size(); ++k) {
         clusters.at(k).free = 1;
         clusters.at(k).fragmented = 0;
-        clusters.at(k).files.resize(0);
+        clusters.at(k).files.resize (0);
     }
     std::cout << "cluster_size = " << cluster_size << std::endl;
 
@@ -132,8 +140,84 @@ Clusters::get_file_severity (const f_info *fi, int64_t window, int shift, int pe
     assert (0);
 }
 
+// TODO: WIP
 int
 Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi)
 {
     assert (0);
+    static char fiemap_buffer[16*1024];
+
+    fi->name = fname;
+
+    if (!S_ISREG(sb->st_mode) && !S_ISDIR(sb->st_mode) && !S_ISLNK(sb->st_mode)) {
+        return 0; // not regular file or directory
+    }
+
+    int fd = open(fname, O_RDONLY | O_NOFOLLOW | O_LARGEFILE);
+    if (-1 == fd) {
+#ifndef IGNORE_INACCESSIBLE_FILES
+        std::cerr << "can't open file/dir: " << fname << std::endl;
+#endif
+        return 0;
+    }
+
+    struct fiemap *fiemap = (struct fiemap *)fiemap_buffer;
+    int max_count = (sizeof(fiemap_buffer) - sizeof(struct fiemap)) /
+                        sizeof(struct fiemap_extent);
+
+    int extent_number = 0;
+    memset(fiemap, 0, sizeof(struct fiemap) );
+    fiemap->fm_start = 0;
+    do {
+        fiemap->fm_extent_count = max_count;
+        fiemap->fm_length = ~0ULL;
+
+        int ret = ioctl(fd, FS_IOC_FIEMAP, fiemap);
+        if (ret == -1) {
+#ifndef IGNORE_UNAVAILABLE_FIEMAP
+            std::cerr << fname << ", fiemap get count error " << errno << ":\"" << strerror (errno) << "\"" << std::endl;
+#endif
+            // there is no FIEMAP or it's inaccessible, trying to emulate
+            if (-1 == fibmap_fallback(fd, fname, sb, fiemap)) {
+                if (ENOTTY != errno) {
+                    std::cerr << fname << ", fibmap fallback failed." << std::endl;
+                }
+                close(fd);
+                return 0;
+            }
+        }
+
+        if (0 == fiemap->fm_mapped_extents) break; // there are no more left
+
+        int last_entry;
+        for (int k = 0; k < (int)fiemap->fm_mapped_extents; ++k) {
+            tuple tempt = { fiemap->fm_extents[k].fe_physical / sb->st_blksize,
+                            fiemap->fm_extents[k].fe_length / sb->st_blksize };
+
+            if (fi->extents.size() > 0) {
+                tuple *last = &fi->extents.back();
+                if (last->start + last->length == tempt.start) {
+                    last->length += tempt.length;    // extent continuation
+                } else {
+                    fi->extents.push_back(tempt);
+                }
+            } else {
+                fi->extents.push_back(tempt);
+            }
+            last_entry = k;
+        }
+        fiemap->fm_start = fiemap->fm_extents[last_entry].fe_logical +
+                            fiemap->fm_extents[last_entry].fe_length;
+
+    } while (1);
+
+    // calculate linear read performance degradation
+    fi->severity = get_file_severity (fi,
+        2*1024*1024 / sb->st_blksize,    // window size (blocks)
+        16*4096 / sb->st_blksize,        // gap size (blocks)
+        20,                              // hdd head reposition delay (ms)
+        40e6 / sb->st_blksize);          // raw read speed (blocks/s)
+
+    close(fd);
+    return 1;
 }
