@@ -4,11 +4,13 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include <glibmm/ustring.h>
+#include <pthread.h>
 
 
 class Clusters {
     public:
-        // internal type definitions
+        // type definitions
         typedef struct {
             int64_t start;
             int64_t length;
@@ -34,22 +36,24 @@ class Clusters {
 
         typedef std::vector<cluster_info> cluster_list;
 
-
     public:
         Clusters ();
         ~Clusters ();
 
-        void collect_fragments (const char *initial_dir);
-        uint64_t get_device_size_in_blocks (const char *initial_dir);
-        void __fill_clusters ();
+        void collect_fragments (const Glib::ustring& initial_dir);
+        uint64_t get_device_size_in_blocks (Glib::ustring& initial_dir);
+        void __fill_clusters (uint64_t device_size_in_blocks, uint64_t cluster_count, int frag_limit);
         double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed);
         int get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi);
 
     private:
-        file_list files2;
-        cluster_list clusters2;
-        pthread_mutex_t clusters2_mutex;
-        pthread_mutex_t files2_mutex;
+
+
+    private:
+        file_list files;
+        cluster_list clusters;
+        pthread_mutex_t clusters_mutex;
+        pthread_mutex_t files_mutex;
 };
 
 #endif
