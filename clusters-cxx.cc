@@ -137,14 +137,97 @@ Clusters::__fill_clusters (uint64_t device_size_in_blocks, uint64_t cluster_coun
 double
 Clusters::get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed)
 {
-    assert (0);
+    double overall_severity = 1.0; // continuous files have severity equal to 1.0
+
+    for (int k1 = 0; k1 < fi->extents.size(); k1 ++) {
+        int64_t span = window;
+        double read_time = 1e-3 * penalty;
+        for (int k2 = k1; k2 < fi->extents.size() && span > 0; k2 ++) {
+            if (fi->extents[k2].length <= span) {
+                span -= fi->extents[k2].length;
+                read_time += fi->extents[k2].length / speed;
+                if (k2 + 1 < fi->extents.size()) { // for all but last extent
+                    // compute head "jump"
+                    int64_t delta = fi->extents[k2+1].start -
+                        (fi->extents[k2].start + fi->extents[k2].length);
+                    if (delta >= 0 && delta <= shift) { // small gaps
+                        read_time += delta / speed;     // are likely to be read
+                    } else {                            // while large ones
+                        read_time += penalty * 1.0e-3;  // will cause head jump
+                    }
+                }
+            } else {
+                read_time += span / speed;
+                span = 0;
+            }
+        }
+        double raw_read_time = (window - span) / speed + penalty * 1e-3;
+        double local_severity = read_time / raw_read_time;
+        // we need the worst value
+        overall_severity = std::max(local_severity, overall_severity);
+    }
+
+    return overall_severity;
 }
 
-// TODO: WIP
+// emulate FIEMAP by means of FIBMAP
+int
+Clusters::fibmap_fallback(int fd, const char *fname, const struct stat64 *sb, struct fiemap *fiemap)
+{
+    uint64_t block;
+    uint64_t block_count = (0 == sb->st_size) ? 0 :
+                        (sb->st_size - 1) / sb->st_blksize + 1;
+    uint64_t block_start = fiemap->fm_start / sb->st_blksize;
+    fiemap->fm_mapped_extents = 0;
+    struct fiemap_extent *extents = &fiemap->fm_extents[0];
+    int idx = 0; // index for extents array
+
+    for (uint64_t k = block_start;
+         k < block_count && idx < fiemap->fm_extent_count;
+         k ++)
+    {
+        block = k;
+        int ret = ioctl(fd, FIBMAP, &block);
+        if (0 != ret) {
+            if (ENOTTY != errno) {
+                std::cout << fname << " FIBMAP unavailable, " << errno << ", " << strerror (errno) << std::endl;
+            }
+            return ret;
+        }
+        if (0 == block) {
+            // '0' here means block is not allocated, there is hole in file.
+            // we should try next block, skipping current
+            continue;
+        }
+
+        fiemap->fm_start += sb->st_blksize;
+
+        int flag_very_first_extent = (k == block_start);
+        if (!flag_very_first_extent &&
+            extents[idx].fe_logical + extents[idx].fe_length == block * sb->st_blksize)
+        {
+            extents[idx].fe_length += sb->st_blksize;
+        } else {
+            if (!flag_very_first_extent) idx ++;
+            if (idx >= fiemap->fm_extent_count)
+                break;    // there is no room left in the extent table
+            extents[idx].fe_logical  = k * sb->st_blksize;
+            extents[idx].fe_physical = block * sb->st_blksize;
+            extents[idx].fe_length = sb->st_blksize;
+            extents[idx].fe_flags = FIEMAP_EXTENT_MERGED;
+        }
+        if (k == block_count - 1) {
+            extents[idx].fe_flags |= FIEMAP_EXTENT_LAST;
+        }
+    }
+    fiemap->fm_mapped_extents = idx;
+
+    return 0;
+}
+
 int
 Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi)
 {
-    assert (0);
     static char fiemap_buffer[16*1024];
 
     fi->name = fname;
@@ -153,7 +236,7 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
         return 0; // not regular file or directory
     }
 
-    int fd = open(fname, O_RDONLY | O_NOFOLLOW | O_LARGEFILE);
+    int fd = open (fname, O_RDONLY | O_NOFOLLOW | O_LARGEFILE);
     if (-1 == fd) {
 #ifndef IGNORE_INACCESSIBLE_FILES
         std::cerr << "can't open file/dir: " << fname << std::endl;
@@ -166,23 +249,23 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
                         sizeof(struct fiemap_extent);
 
     int extent_number = 0;
-    memset(fiemap, 0, sizeof(struct fiemap) );
+    memset (fiemap, 0, sizeof(struct fiemap));
     fiemap->fm_start = 0;
     do {
         fiemap->fm_extent_count = max_count;
         fiemap->fm_length = ~0ULL;
 
-        int ret = ioctl(fd, FS_IOC_FIEMAP, fiemap);
+        int ret = ioctl (fd, FS_IOC_FIEMAP, fiemap);
         if (ret == -1) {
 #ifndef IGNORE_UNAVAILABLE_FIEMAP
             std::cerr << fname << ", fiemap get count error " << errno << ":\"" << strerror (errno) << "\"" << std::endl;
 #endif
             // there is no FIEMAP or it's inaccessible, trying to emulate
-            if (-1 == fibmap_fallback(fd, fname, sb, fiemap)) {
+            if (-1 == fibmap_fallback (fd, fname, sb, fiemap)) {
                 if (ENOTTY != errno) {
                     std::cerr << fname << ", fibmap fallback failed." << std::endl;
                 }
-                close(fd);
+                close (fd);
                 return 0;
             }
         }
@@ -199,10 +282,10 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
                 if (last->start + last->length == tempt.start) {
                     last->length += tempt.length;    // extent continuation
                 } else {
-                    fi->extents.push_back(tempt);
+                    fi->extents.push_back (tempt);
                 }
             } else {
-                fi->extents.push_back(tempt);
+                fi->extents.push_back (tempt);
             }
             last_entry = k;
         }
@@ -218,6 +301,6 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
         20,                              // hdd head reposition delay (ms)
         40e6 / sb->st_blksize);          // raw read speed (blocks/s)
 
-    close(fd);
+    close (fd);
     return 1;
 }

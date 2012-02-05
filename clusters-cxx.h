@@ -47,6 +47,7 @@ class Clusters {
         int get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi);
 
     private:
+        int fibmap_fallback (int fd, const char *fname, const struct stat64 *sb, struct fiemap *fiemap);
 
 
     private:
