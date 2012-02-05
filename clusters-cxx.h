@@ -41,7 +41,7 @@ class Clusters {
         ~Clusters ();
 
         void collect_fragments (const Glib::ustring& initial_dir);
-        uint64_t get_device_size_in_blocks (Glib::ustring& initial_dir);
+        uint64_t get_device_size_in_blocks (const Glib::ustring& initial_dir);
         void __fill_clusters (uint64_t device_size_in_blocks, uint64_t cluster_count, int frag_limit);
         double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed);
         int get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi);

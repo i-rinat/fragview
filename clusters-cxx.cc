@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/statfs.h>
 #include <sys/ioctl.h>
 #include <linux/fiemap.h>
 #include <linux/fs.h>
@@ -77,9 +78,11 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 }
 
 uint64_t
-Clusters::get_device_size_in_blocks (Glib::ustring & initial_dir)
+Clusters::get_device_size_in_blocks (const Glib::ustring & initial_dir)
 {
-    assert (0);
+    struct statfs64 sfs;
+    statfs64 (initial_dir.c_str(), &sfs);
+    return sfs.f_blocks;
 }
 
 void
