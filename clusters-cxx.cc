@@ -23,22 +23,6 @@ Clusters::~Clusters ()
 
 }
 
-/*
-int
-Clusters::worker_fiemap (const char *fname, const struct stat64 *sb, int typeflag, struct FTW *ftw_struct)
-{
-    f_info fi;
-
-    if (get_file_extents (fname, sb, &fi)) {
-        pthread_mutex_lock(worker_files_mutex);
-        worker_files->push_back(fi);
-        pthread_mutex_unlock(worker_files_mutex);
-    }
-
-    return 0;
-}
-*/
-
 void
 Clusters::collect_fragments (const Glib::ustring & initial_dir)
 {
