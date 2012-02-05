@@ -14,8 +14,9 @@ include_directories (
 )
 
 add_executable (fragview
-	graph-cxx.cc
-	clusters-cxx.cc
+	fragview.cc
+	clusters.cc
+	fragmap-widget.cc
 )
 
 target_link_libraries (fragview
