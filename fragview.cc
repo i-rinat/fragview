@@ -1,6 +1,6 @@
 #include <gtkmm/window.h>
 #include <gtkmm/main.h>
-#include "clusters-cxx.h"
+#include "clusters.h"
 #include <iostream>
 
 class GraphWindow : public Gtk::Window {
