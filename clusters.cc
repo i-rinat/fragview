@@ -1,6 +1,7 @@
 #include "clusters.h"
 #include <map>
 #include <iostream>
+#include <fstream>
 #include <fts.h>
 #include <fcntl.h>
 #include <assert.h>
@@ -64,9 +65,29 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 uint64_t
 Clusters::get_device_size_in_blocks (const Glib::ustring & initial_dir)
 {
-    struct statfs64 sfs;
-    statfs64 (initial_dir.c_str(), &sfs);
-    return sfs.f_blocks;
+    struct stat64 sb;
+    std::fstream fp;
+    std::string partition_name;
+
+    if (0 != stat64 (initial_dir.c_str(), &sb))
+        return 0;
+
+    fp.open ("/proc/partitions", std::ios_base::in);
+    fp.ignore (1024, '\n'); // header
+    fp.ignore (1024, '\n'); // empty line
+
+    while (! fp.eof ()){
+        int major, minor;
+        uint64_t blocks;
+
+        fp >> major >> minor >> blocks >> partition_name;
+        if (sb.st_dev == (major << 8) + minor) {
+            fp.close();
+            return blocks;
+        }
+    }
+    fp.close ();
+    return 0;
 }
 
 void
