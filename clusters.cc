@@ -24,6 +24,48 @@ Clusters::~Clusters ()
 
 }
 
+int
+Clusters::lock_clusters ()
+{
+    return pthread_mutex_lock (&clusters_mutex);
+}
+
+int
+Clusters::lock_files ()
+{
+    return pthread_mutex_lock (&files_mutex);
+}
+
+int
+Clusters::unlock_clusters ()
+{
+    return pthread_mutex_unlock (&clusters_mutex);
+}
+
+int
+Clusters::unlock_files ()
+{
+    return pthread_mutex_unlock (&files_mutex);
+}
+
+Clusters::cluster_info&
+Clusters::at (int k)
+{
+    return clusters.at(k);
+}
+
+size_t
+Clusters::size ()
+{
+    return clusters.size ();
+}
+
+Clusters::file_list&
+Clusters::get_files ()
+{
+    return files;
+}
+
 void
 Clusters::collect_fragments (const Glib::ustring & initial_dir)
 {

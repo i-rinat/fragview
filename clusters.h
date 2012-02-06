@@ -46,6 +46,15 @@ class Clusters {
         double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed);
         int get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi);
 
+        int lock_clusters ();
+        int lock_files ();
+        int unlock_clusters ();
+        int unlock_files ();
+
+        cluster_info& at (int k);
+        size_t size ();
+        file_list& get_files ();
+
     private:
         int fibmap_fallback (int fd, const char *fname, const struct stat64 *sb, struct fiemap *fiemap);
 
