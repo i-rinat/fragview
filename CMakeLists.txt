@@ -1,5 +1,6 @@
 project (fragview)
 cmake_minimum_required (VERSION 2.6)
+set (CMAKE_C_FLAGS_DEBUG "-ggdb3 -O0")
 
 find_package (PkgConfig)
 
