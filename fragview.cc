@@ -18,12 +18,13 @@ class GraphWindow : public Gtk::Window {
 GraphWindow::GraphWindow () {
     set_title ("graph");
     fragmap.attach_clusters (cl);
-    cl.collect_fragments("/var");
-    uint64_t ds = cl.get_device_size_in_blocks ("/var");
-    cl.__fill_clusters (ds, 1000, 2);
+    cl.collect_fragments ("/var");
 
     add (fragmap);
     fragmap.show();
+
+    cl.__fill_clusters (1000, 2);
+    fragmap.queue_draw ();
 }
 
 GraphWindow::~GraphWindow () {
