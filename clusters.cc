@@ -16,7 +16,8 @@
 
 Clusters::Clusters ()
 {
-
+    pthread_mutex_init (&files_mutex, NULL);
+    pthread_mutex_init (&clusters_mutex, NULL);
 }
 
 Clusters::~Clusters ()
@@ -108,9 +109,9 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
                     if (0 != lstat64 (ent->fts_path, &sb)) // something wrong
                         break;
                     if (get_file_extents (ent->fts_path, &sb, &fi)) {
-                        pthread_mutex_lock (&files_mutex);
+                        this->lock_files ();
                         files.push_back (fi);
-                        pthread_mutex_unlock (&files_mutex);
+                        this->unlock_files ();
                     }
                 }
                 break;
