@@ -69,9 +69,30 @@ Clusters::get_files ()
 void
 Clusters::collect_fragments (const Glib::ustring & initial_dir)
 {
-    // walk directory tree, don't cross mount borders
-    //nftw64 (initial_dir.c_str(), worker_fiemap, 40, FTW_MOUNT | FTW_PHYS);
+    struct stat64 sb;
 
+    this->device_size = 0;
+
+    if (0 == stat64 (initial_dir.c_str(), &sb)) {
+        std::string partition_name;
+        std::fstream fp("/proc/partitions", std::ios_base::in);
+        fp.ignore (1024, '\n'); // header
+        fp.ignore (1024, '\n'); // empty line
+
+        while (! fp.eof ()){
+            int major, minor;
+            uint64_t blocks;
+
+            fp >> major >> minor >> blocks >> partition_name;
+            if (sb.st_dev == (major << 8) + minor) {
+                this->device_size = blocks;
+                break;
+            }
+        }
+        fp.close ();
+    }
+
+    // walk directory tree, don't cross mount borders
     char *dirs[2] = {const_cast<char *>(initial_dir.c_str()), 0};
     FTS *fts_handle = fts_open (dirs, FTS_PHYSICAL | FTS_XDEV | FTS_NOCHDIR, NULL);
 
@@ -105,39 +126,17 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 }
 
 uint64_t
-Clusters::get_device_size_in_blocks (const Glib::ustring & initial_dir)
+Clusters::get_device_size ()
 {
-    struct stat64 sb;
-    std::fstream fp;
-    std::string partition_name;
-
-    if (0 != stat64 (initial_dir.c_str(), &sb))
-        return 0;
-
-    fp.open ("/proc/partitions", std::ios_base::in);
-    fp.ignore (1024, '\n'); // header
-    fp.ignore (1024, '\n'); // empty line
-
-    while (! fp.eof ()){
-        int major, minor;
-        uint64_t blocks;
-
-        fp >> major >> minor >> blocks >> partition_name;
-        if (sb.st_dev == (major << 8) + minor) {
-            fp.close();
-            return blocks;
-        }
-    }
-    fp.close ();
-    return 0;
+    return this->device_size;
 }
 
 void
-Clusters::__fill_clusters (uint64_t device_size_in_blocks, uint64_t cluster_count, int frag_limit)
+Clusters::__fill_clusters (uint64_t cluster_count, int frag_limit)
 {
     if (cluster_count == 0) cluster_count = 1;
     // divide whole disk to clusters of blocks
-    uint64_t cluster_size = (device_size_in_blocks - 1) / cluster_count + 1;
+    uint64_t cluster_size = (this->device_size - 1) / cluster_count + 1;
 
     clusters.resize(cluster_count);
 
