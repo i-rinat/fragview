@@ -98,7 +98,7 @@ Fragmap::on_scroll_event (GdkEventScroll* event)
         }
         std::cout << "updated cluster_size_desired = " << cluster_size_desired << std::endl;
 
-        // size_allocate (get_allocation ());
+        //TODO: do I need it? size_allocate (get_allocation ());
         queue_draw ();
         clusters->unlock_clusters ();
     } else {
@@ -122,6 +122,8 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
     int pix_width;
     int pix_height;
 
+    set_allocation (allocation);
+
     display_mode = FRAGMAP_MODE_SHOW_ALL;
 
     // estimate map size without scrollbar
@@ -142,7 +144,7 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
         // map does not fit, show scrollbar
         scrollbar.show();
         // and then recalculate sizes
-        pix_width = get_allocation().get_width();
+        pix_width = allocation.get_width();
         cluster_map_width = (pix_width - 1) / box_size;
         cluster_map_full_height = (total_clusters - 1) / cluster_map_width + 1;
     } else {
