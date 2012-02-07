@@ -125,8 +125,8 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
     display_mode = FRAGMAP_MODE_SHOW_ALL;
 
     // estimate map size without scrollbar
-    pix_width = get_allocation().get_width();
-    pix_height = get_allocation().get_height();
+    pix_width = allocation.get_width();
+    pix_height = allocation.get_height();
 
     // to get full width one need determine, if scrollbar visible
     if (scrollbar.get_visible()) pix_width += scrollbar.get_allocation().get_width();
