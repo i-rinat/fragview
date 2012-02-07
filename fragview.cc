@@ -1,6 +1,7 @@
 #include <gtkmm/window.h>
 #include <gtkmm/main.h>
 #include <gtkmm/button.h>
+#include <gtkmm/box.h>
 #include "clusters.h"
 #include "fragmap-widget.h"
 #include <iostream>
@@ -20,11 +21,15 @@ GraphWindow::GraphWindow () {
     fragmap.attach_clusters (cl);
     cl.collect_fragments ("/var");
 
-    add (fragmap);
-    fragmap.show();
+    Gtk::VBox *vbox = Gtk::manage (new Gtk::VBox);
+    Gtk::Button *btn = Gtk::manage (new Gtk::Button ("Hello, world!"));
 
-    cl.__fill_clusters (1000, 2);
-    fragmap.queue_draw ();
+    vbox->pack_start (fragmap, true, true);
+    vbox->pack_start (*btn, false, false);
+
+    add (*vbox);
+
+    show_all_children ();
 }
 
 GraphWindow::~GraphWindow () {
