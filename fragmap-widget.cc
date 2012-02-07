@@ -42,6 +42,8 @@ Fragmap::Fragmap ()
         color_nfrag_bleached[k] = 1.0 - (1.0 - color_nfrag[k]) * bleach_factor;
         color_back_bleached[k] = 1.0 - (1.0 - color_back[k]) * bleach_factor;
     }
+
+    set_size_request (400, 200);
 }
 
 Fragmap::~Fragmap ()
