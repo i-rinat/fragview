@@ -192,8 +192,6 @@ Fragmap::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     cr->rectangle (0, 0, width, height);
     cr->fill ();
 
-    int box_size = box_size;
-
     int target_line = target_cluster / cluster_map_width;
     int target_offset = target_line * cluster_map_width;
 
@@ -285,8 +283,6 @@ Fragmap::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         }
     }
     cr->fill ();
-
-    int selected_cluster = selected_cluster;
 
     if (selected_cluster > clusters->size()) selected_cluster = clusters->size() - 1;
 
