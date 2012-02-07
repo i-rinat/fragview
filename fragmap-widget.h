@@ -28,7 +28,6 @@ class Fragmap : public Gtk::DrawingArea {
 
         int get_cluster_count();
         void attach_clusters (Clusters& cl);
-        void set_device_size (uint64_t sib);
         void attach_widget_file_list (GtkWidget *w, void (*update)(GtkWidget *, GtkTreeModel *));
         void attach_scroll (GtkWidget *scroll_widget);
         void file_begin ();
@@ -40,7 +39,6 @@ class Fragmap : public Gtk::DrawingArea {
         Clusters *clusters;
 
         int cluster_size_desired; // desired number of blocks each cluster contains
-        uint64_t device_size_in_blocks;
         int force_fill_clusters;
         int widget_size_changed;
         int cluster_count_changed;

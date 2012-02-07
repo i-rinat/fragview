@@ -136,8 +136,10 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
     cluster_map_width = (pix_width - 1) / box_size;
     cluster_map_height = (pix_height - 1) / box_size;
 
-    assert(device_size_in_blocks > 0);
-    total_clusters = (device_size_in_blocks - 1) / cluster_size_desired + 1;
+    assert (clusters != NULL);
+    uint64_t device_size = clusters->get_device_size ();
+    assert (device_size > 0);
+    total_clusters = (device_size - 1) / cluster_size_desired + 1;
     cluster_map_full_height = (total_clusters - 1) / cluster_map_width + 1;
 
     if (cluster_map_full_height > cluster_map_height) {
@@ -310,7 +312,10 @@ Fragmap::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         int k2;
         GList *p = selected_files;
         Clusters::file_list& files = clusters->get_files ();
-        uint64_t cluster_size = (device_size_in_blocks - 1) / total_clusters + 1;
+        assert (clusters != NULL);
+        uint64_t device_size = clusters->get_device_size ();
+        assert (device_size > 0);
+        uint64_t cluster_size = (device_size - 1) / total_clusters + 1;
 
         while (p) {
             int file_idx = GPOINTER_TO_INT (p->data);
@@ -434,12 +439,6 @@ Fragmap::attach_clusters (Clusters& cl)
 #include <sys/time.h>
 #include <iostream>
 #include <assert.h>
-
-
-
-void gtk_fragmap_set_device_size(GtkFragmap *fragmap, __u64 sib) {
-    fragmap->device_size_in_blocks = sib;
-}
 
 void gtk_fragmap_attach_widget_file_list(GtkFragmap *fm, GtkWidget *w,
             void (*update)(GtkWidget *, GtkTreeModel *))
