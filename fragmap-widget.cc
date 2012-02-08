@@ -120,11 +120,11 @@ Fragmap::on_scroll_event (GdkEventScroll* event)
 void
 Fragmap::on_size_allocate (Gtk::Allocation& allocation)
 {
+    Gtk::DrawingArea::on_size_allocate (allocation); // parent
+
     Glib::RefPtr<Gtk::Adjustment> scroll_adj = scrollbar.get_adjustment ();
     int pix_width;
     int pix_height;
-
-    set_allocation (allocation);
 
     display_mode = FRAGMAP_MODE_SHOW_ALL;
 
@@ -155,7 +155,6 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
         // we do not need scrollbar, hide it
         scrollbar.hide();
     }
-
 
     scrollbar.set_range (0.0, cluster_map_full_height);
     scrollbar.set_increments (1.0, cluster_map_height);
