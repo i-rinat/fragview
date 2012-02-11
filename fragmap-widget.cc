@@ -2,6 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include <sys/time.h>
+#include <gtkmm/box.h>
 
 Fragmap::Fragmap ()
 {
@@ -42,6 +43,11 @@ Fragmap::Fragmap ()
         color_nfrag_bleached[k] = 1.0 - (1.0 - color_nfrag[k]) * bleach_factor;
         color_back_bleached[k] = 1.0 - (1.0 - color_back[k]) * bleach_factor;
     }
+
+    pack_start (drawing_area, true, true);
+    pack_start (scrollbar, false, true);
+    drawing_area.signal_draw ().connect (sigc::mem_fun (*this, &Fragmap::on_draw));
+    show_all_children ();
 
     set_size_request (400, 200);
 }
@@ -120,7 +126,7 @@ Fragmap::on_scroll_event (GdkEventScroll* event)
 void
 Fragmap::on_size_allocate (Gtk::Allocation& allocation)
 {
-    Gtk::DrawingArea::on_size_allocate (allocation); // parent
+    Gtk::HBox::on_size_allocate (allocation); // parent
 
     Glib::RefPtr<Gtk::Adjustment> scroll_adj = scrollbar.get_adjustment ();
     int pix_width;
@@ -131,9 +137,6 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
     // estimate map size without scrollbar
     pix_width = allocation.get_width();
     pix_height = allocation.get_height();
-
-    // to get full width one need determine, if scrollbar visible
-    if (scrollbar.get_visible()) pix_width += scrollbar.get_allocation().get_width();
 
     cluster_map_width = (pix_width - 1) / box_size;
     cluster_map_height = (pix_height - 1) / box_size;
@@ -148,7 +151,7 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
         // map does not fit, show scrollbar
         scrollbar.show();
         // and then recalculate sizes
-        pix_width = allocation.get_width();
+        pix_width = allocation.get_width() - scrollbar.get_allocation().get_width();
         cluster_map_width = (pix_width - 1) / box_size;
         cluster_map_full_height = (total_clusters - 1) / cluster_map_width + 1;
     } else {
@@ -175,7 +178,7 @@ Fragmap::cairo_set_source_rgbv (const Cairo::RefPtr<Cairo::Context>& cr, double 
 bool
 Fragmap::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
-    Gtk::Allocation allocation = get_allocation ();
+    Gtk::Allocation allocation = drawing_area.get_allocation ();
     const int width = allocation.get_width ();
     const int height = allocation.get_height ();
 

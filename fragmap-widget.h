@@ -5,11 +5,12 @@
 #include <gtkmm/widget.h>
 #include <gtkmm/scrollbar.h>
 #include <gtkmm/adjustment.h>
+#include <gtkmm/box.h>
 #include <stdint.h>
 #include <pthread.h>
 #include "clusters.h"
 
-class Fragmap : public Gtk::DrawingArea {
+class Fragmap : public Gtk::HBox {
     public:
         // types
         enum FRAGMAP_MODE {
@@ -38,6 +39,9 @@ class Fragmap : public Gtk::DrawingArea {
     protected:
         Clusters *clusters;
 
+        Gtk::DrawingArea drawing_area;
+        Gtk::VScrollbar scrollbar;
+
         int cluster_size_desired; // desired number of blocks each cluster contains
         int force_fill_clusters;
         int widget_size_changed;
@@ -60,7 +64,7 @@ class Fragmap : public Gtk::DrawingArea {
         int cluster_map_full_height;
 
         GtkWidget *file_list_view;
-        Gtk::Scrollbar scrollbar;
+
         void (*update_file_list) ( GtkWidget *file_list, GtkTreeModel *model);
 
         double color_free[3];
