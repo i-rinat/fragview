@@ -118,7 +118,6 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
             default:
                 continue;
         }
-        std::cout << ent->fts_path << std::endl;
     }
 
     fts_close (fts_handle);
