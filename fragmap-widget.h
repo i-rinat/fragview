@@ -84,7 +84,7 @@ class Fragmap : public Gtk::HBox {
         virtual bool on_drawarea_draw (const Cairo::RefPtr<Cairo::Context>& cr);
         virtual bool on_motion_notify_event (GdkEventMotion *event);
         virtual bool on_button_press_event (GdkEventButton* event);
-        virtual bool on_scroll_event (GdkEventScroll* event);
+        virtual bool on_drawarea_scroll_event (GdkEventScroll* event);
         virtual void on_size_allocate (Gtk::Allocation& allocation);
         virtual void on_scrollbar_value_changed (void);
     private:

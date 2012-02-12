@@ -27,7 +27,7 @@ Fragmap::Fragmap ()
     file_list_view = NULL;
     update_file_list = NULL;
 
-    set_events (Gdk::BUTTON_PRESS_MASK | Gdk::POINTER_MOTION_MASK | Gdk::SCROLL_MASK);
+    drawing_area.set_events (Gdk::BUTTON_PRESS_MASK | Gdk::POINTER_MOTION_MASK | Gdk::SCROLL_MASK);
 
     // colors
     bleach_factor = 0.3;
@@ -48,6 +48,7 @@ Fragmap::Fragmap ()
     pack_start (scrollbar, false, true);
     drawing_area.signal_draw ().connect (sigc::mem_fun (*this, &Fragmap::on_drawarea_draw));
     scrollbar.signal_value_changed ().connect (sigc::mem_fun (*this, &Fragmap::on_scrollbar_value_changed));
+    drawing_area.signal_scroll_event ().connect (sigc::mem_fun (*this, &Fragmap::on_drawarea_scroll_event));
     show_all_children ();
 
     set_size_request (400, 200);
@@ -83,7 +84,7 @@ Fragmap::on_button_press_event (GdkEventButton* event)
 }
 
 bool
-Fragmap::on_scroll_event (GdkEventScroll* event)
+Fragmap::on_drawarea_scroll_event (GdkEventScroll* event)
 {
     if (event->state & Gdk::CONTROL_MASK) {
         // scroll with Ctrl key
