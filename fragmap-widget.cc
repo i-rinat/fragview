@@ -464,18 +464,5 @@ void gtk_fragmap_set_mode (GtkFragmap *fm, enum FRAGMAP_MODE mode) {
     gtk_widget_queue_draw (GTK_WIDGET (fm));
 }
 
-static void scroll_value_changed (GtkRange *range, gpointer user_data) {
-    GtkFragmap *fm = (GtkFragmap *) user_data;
-
-    target_cluster = cluster_map_width * round (gtk_range_get_value (range));
-    gtk_widget_queue_draw (GTK_WIDGET (fm));
-}
-
-void gtk_fragmap_attach_scroll (GtkFragmap *fm, GtkWidget *scroll_widget) {
-    scroll_widget = scroll_widget;
-    gtk_range_set_slider_size_fixed (GTK_RANGE (scroll_widget), FALSE);
-    g_signal_connect (scroll_widget, "value-changed", G_CALLBACK (scroll_value_changed), fm);
-}
-
 G_DEFINE_TYPE (GtkFragmap, gtk_fragmap, GTK_TYPE_DRAWING_AREA);
 */
