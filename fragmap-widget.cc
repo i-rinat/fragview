@@ -46,7 +46,7 @@ Fragmap::Fragmap ()
 
     pack_start (drawing_area, true, true);
     pack_start (scrollbar, false, true);
-    drawing_area.signal_draw ().connect (sigc::mem_fun (*this, &Fragmap::on_draw));
+    drawing_area.signal_draw ().connect (sigc::mem_fun (*this, &Fragmap::on_drawarea_draw));
     show_all_children ();
 
     set_size_request (400, 200);
@@ -176,7 +176,7 @@ Fragmap::cairo_set_source_rgbv (const Cairo::RefPtr<Cairo::Context>& cr, double 
 
 
 bool
-Fragmap::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
+Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 {
     Gtk::Allocation allocation = drawing_area.get_allocation ();
     const int width = allocation.get_width ();
