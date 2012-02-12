@@ -47,6 +47,7 @@ Fragmap::Fragmap ()
     pack_start (drawing_area, true, true);
     pack_start (scrollbar, false, true);
     drawing_area.signal_draw ().connect (sigc::mem_fun (*this, &Fragmap::on_drawarea_draw));
+    scrollbar.signal_value_changed ().connect (sigc::mem_fun (*this, &Fragmap::on_scrollbar_value_changed));
     show_all_children ();
 
     set_size_request (400, 200);
@@ -427,6 +428,13 @@ void
 Fragmap::attach_clusters (Clusters& cl)
 {
     clusters = &cl;
+}
+
+void
+Fragmap::on_scrollbar_value_changed (void)
+{
+    target_cluster = cluster_map_width * round (scrollbar.get_value ());
+    drawing_area.queue_draw ();
 }
 
 
