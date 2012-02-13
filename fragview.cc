@@ -4,6 +4,7 @@
 #include <gtkmm/box.h>
 #include "clusters.h"
 #include "fragmap-widget.h"
+#include "filelist-widget.h"
 #include <iostream>
 
 class GraphWindow : public Gtk::Window {
@@ -14,6 +15,7 @@ class GraphWindow : public Gtk::Window {
     protected:
         Fragmap fragmap;
         Clusters cl;
+        FilelistView filelist;
 };
 
 GraphWindow::GraphWindow () {
@@ -26,6 +28,7 @@ GraphWindow::GraphWindow () {
 
     vbox->pack_start (fragmap, true, true);
     vbox->pack_start (*btn, false, false);
+    vbox->pack_start (filelist, true, true);
 
     add (*vbox);
 
