@@ -81,7 +81,7 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
         fp.ignore (1024, '\n'); // empty line
 
         while (! fp.eof ()){
-            int major, minor;
+            unsigned int major, minor;
             uint64_t blocks;
 
             fp >> major >> minor >> blocks >> partition_name;
@@ -140,8 +140,6 @@ Clusters::__fill_clusters (uint64_t cluster_count, int frag_limit)
 
     clusters.resize(cluster_count);
 
-    int files_per_cluster_mean = files.size() / cluster_count;
-
     int k, k2;
     for (k = 0; k < clusters.size(); ++k) {
         clusters.at(k).free = 1;
@@ -159,7 +157,6 @@ Clusters::__fill_clusters (uint64_t cluster_count, int frag_limit)
         item->fragmented = (item->severity >= 2.0);
         for (k2 = 0; k2 < item->extents.size(); k2 ++) {
             uint64_t estart_c, eend_c;
-            uint64_t estart_b, eend_b;
 
             estart_c = item->extents[k2].start / cluster_size;
             eend_c = (item->extents[k2].start +
@@ -297,7 +294,6 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
     int max_count = (sizeof(fiemap_buffer) - sizeof(struct fiemap)) /
                         sizeof(struct fiemap_extent);
 
-    int extent_number = 0;
     memset (fiemap, 0, sizeof(struct fiemap));
     fiemap->fm_start = 0;
     do {

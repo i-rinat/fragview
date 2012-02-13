@@ -330,7 +330,6 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
             for (k2 = 0; k2 < files.at(file_idx).extents.size(); k2 ++) {
                 uint64_t estart_c, eend_c;
-                uint64_t estart_b, eend_b;
 
                 estart_c = files.at(file_idx).extents[k2].start / cluster_size;
                 eend_c = (files.at(file_idx).extents[k2].start +
