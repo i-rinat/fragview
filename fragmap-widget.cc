@@ -108,8 +108,9 @@ Fragmap::on_drawarea_scroll_event (GdkEventScroll* event)
         }
         std::cout << "updated cluster_size_desired = " << cluster_size_desired << std::endl;
 
-        //TODO: do I need it? size_allocate (get_allocation ());
-        queue_draw ();
+        Gtk::Allocation al(get_allocation());
+        on_size_allocate (al);
+        drawing_area.queue_draw ();
         clusters->unlock_clusters ();
     } else {
         Glib::RefPtr<Gtk::Adjustment> adj = scrollbar.get_adjustment ();
