@@ -18,6 +18,7 @@ add_executable (fragview
 	fragview.cc
 	clusters.cc
 	fragmap-widget.cc
+	filelist-widget.cc
 )
 
 target_link_libraries (fragview
