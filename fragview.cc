@@ -3,6 +3,7 @@
 #include <gtkmm/button.h>
 #include <gtkmm/box.h>
 #include <gtkmm/paned.h>
+#include <gtkmm/scrolledwindow.h>
 #include "clusters.h"
 #include "fragmap-widget.h"
 #include "filelist-widget.h"
@@ -24,9 +25,12 @@ GraphWindow::GraphWindow () {
     fragmap.attach_clusters (cl);
     cl.collect_fragments ("/var");
 
+    Gtk::ScrolledWindow *scrolled_window = Gtk::manage (new Gtk::ScrolledWindow);
+    scrolled_window->add (filelist);
+
     Gtk::VPaned *vpaned = Gtk::manage (new Gtk::VPaned);
     vpaned->pack1 (fragmap, true, false);
-    vpaned->pack2 (filelist, true, false);
+    vpaned->pack2 (*scrolled_window, true, false);
 
     Gtk::VBox *vbox = Gtk::manage (new Gtk::VBox);
     vbox->pack_start (*vpaned, true, true);
