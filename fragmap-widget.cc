@@ -46,12 +46,15 @@ Fragmap::Fragmap ()
 
     pack_start (drawing_area, true, true);
     pack_start (scrollbar, false, true);
+
+    // signals
     drawing_area.signal_draw ().connect (sigc::mem_fun (*this, &Fragmap::on_drawarea_draw));
-    scrollbar.signal_value_changed ().connect (sigc::mem_fun (*this, &Fragmap::on_scrollbar_value_changed));
     drawing_area.signal_scroll_event ().connect (sigc::mem_fun (*this, &Fragmap::on_drawarea_scroll_event));
+    scrollbar.signal_value_changed ().connect (sigc::mem_fun (*this, &Fragmap::on_scrollbar_value_changed));
+
     show_all_children ();
 
-    set_size_request (400, 200);
+    this->set_size_request (400, 200);
 }
 
 Fragmap::~Fragmap ()
