@@ -438,17 +438,14 @@ Fragmap::on_scrollbar_value_changed (void)
     drawing_area.queue_draw ();
 }
 
+void
+Fragmap::set_mode (enum FRAGMAP_MODE mode)
+{
+    display_mode = mode;
+    drawing_area.queue_draw ();
+}
 
 /*
-#include <gtk/gtk.h>
-#include <math.h>
-#include "gtk_fragmap.h"
-#include "filelistview.h"
-
-#include <sys/time.h>
-#include <iostream>
-#include <assert.h>
-
 void gtk_fragmap_attach_widget_file_list(GtkFragmap *fm, GtkWidget *w,
             void (*update)(GtkWidget *, GtkTreeModel *))
 {
@@ -468,10 +465,4 @@ void gtk_fragmap_file_add (GtkFragmap *fm, int file_idx) {
     selected_files = g_list_append (selected_files, GINT_TO_POINTER (file_idx));
 }
 
-void gtk_fragmap_set_mode (GtkFragmap *fm, enum FRAGMAP_MODE mode) {
-    display_mode = mode;
-    gtk_widget_queue_draw (GTK_WIDGET (fm));
-}
-
-G_DEFINE_TYPE (GtkFragmap, gtk_fragmap, GTK_TYPE_DRAWING_AREA);
 */
