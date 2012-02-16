@@ -37,6 +37,8 @@ class FilelistView : public Gtk::TreeView
         ModelColumns columns;
         Glib::RefPtr<Gtk::ListStore> liststore;
 
+        virtual void on_filelist_header_clicked (int column_id);
+
 };
 
 #endif

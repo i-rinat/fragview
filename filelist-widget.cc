@@ -1,4 +1,5 @@
 #include "filelist-widget.h"
+#include <iostream>
 
 FilelistView::FilelistView ()
 {
@@ -10,16 +11,34 @@ FilelistView::FilelistView ()
     append_column ("Name", columns.col_name);
     append_column ("Dir", columns.col_dir);
 
-    set_headers_clickable (true);
-
-    for (int k = 1; k < 15; k ++) {
-        Gtk::TreeModel::Row row = *(liststore->append());
-        row[columns.col_fileid] = k;
+    int k;
+    std::vector<Gtk::TreeViewColumn *> columns = get_columns ();
+    for (k = 0; k < columns.size(); ++k) {
+        columns[k]->set_resizable ();
+        columns[k]->set_reorderable ();
+        columns[k]->set_sort_column (k);
+        columns[k]->signal_clicked ().connect(
+            sigc::bind<int>(sigc::mem_fun (*this, &FilelistView::on_filelist_header_clicked), k));
     }
 }
 
 FilelistView::~FilelistView ()
 {
+
+}
+
+void
+FilelistView::on_filelist_header_clicked (int column_id) {
+    Gtk::TreeViewColumn *col = get_column (column_id);
+
+    if (col->get_sort_indicator ()) {
+        if (Gtk::SORT_ASCENDING == col->get_sort_order ())
+            col->set_sort_order (Gtk::SORT_DESCENDING);
+        else
+            col->set_sort_order (Gtk::SORT_ASCENDING);
+    } else {
+        col->set_sort_indicator (true);
+    }
 
 }
 
