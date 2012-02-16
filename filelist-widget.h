@@ -25,6 +25,10 @@ class FilelistView : public Gtk::TreeView
         FilelistView ();
         ~FilelistView ();
 
+        void clear ();
+        void add_file_info (int id, int fragments, double severity, std::string name, std::string dir);
+        void add_file_info (int id, int fragments, double severity, std::string full_path);
+
     protected:
         ModelColumns columns;
         Glib::RefPtr<Gtk::ListStore> liststore;

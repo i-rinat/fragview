@@ -22,3 +22,38 @@ FilelistView::~FilelistView ()
 {
 
 }
+
+void
+FilelistView::add_file_info (int id, int fragments, double severity, std::string name, std::string dir)
+{
+    Gtk::TreeModel::Row row = *(liststore->append ());
+
+    row [columns.col_fileid] = id;
+    row [columns.col_fragments] = fragments;
+    row [columns.col_severity] = severity;
+    row [columns.col_name] = name;
+    row [columns.col_dir] = dir;
+}
+
+void
+FilelistView::add_file_info (int id, int fragments, double severity, std::string full_path)
+{
+    Gtk::TreeModel::Row row = *(liststore->append ());
+
+    row [columns.col_fileid] = id;
+    row [columns.col_fragments] = fragments;
+    row [columns.col_severity] = severity;
+
+    size_t slash_pos = full_path.rfind ('/');
+    std::string filename = full_path.substr (slash_pos + 1, -1);
+    std::string dirname = full_path.substr(0, slash_pos);
+
+    row [columns.col_name] = filename;
+    row [columns.col_dir] = dirname;
+}
+
+void
+FilelistView::clear ()
+{
+    liststore.clear ();
+}
