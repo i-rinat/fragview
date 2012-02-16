@@ -1,3 +1,7 @@
+#pragma once
+#ifndef __FILELIST_WIDGET_H__
+#define __FILELIST_WIDGET_H__
+
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
 
@@ -34,3 +38,5 @@ class FilelistView : public Gtk::TreeView
         Glib::RefPtr<Gtk::ListStore> liststore;
 
 };
+
+#endif
