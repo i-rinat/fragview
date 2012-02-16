@@ -30,8 +30,8 @@ class FilelistView : public Gtk::TreeView
         ~FilelistView ();
 
         void clear ();
-        void add_file_info (int id, int fragments, double severity, std::string name, std::string dir);
-        void add_file_info (int id, int fragments, double severity, std::string full_path);
+        void add_file_info (int id, int fragments, double severity, const std::string& name, const std::string& dir);
+        void add_file_info (int id, int fragments, double severity, const std::string& full_path);
 
     protected:
         ModelColumns columns;

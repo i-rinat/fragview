@@ -24,7 +24,7 @@ FilelistView::~FilelistView ()
 }
 
 void
-FilelistView::add_file_info (int id, int fragments, double severity, std::string name, std::string dir)
+FilelistView::add_file_info (int id, int fragments, double severity, const std::string& name, const std::string& dir)
 {
     Gtk::TreeModel::Row row = *(liststore->append ());
 
@@ -36,7 +36,7 @@ FilelistView::add_file_info (int id, int fragments, double severity, std::string
 }
 
 void
-FilelistView::add_file_info (int id, int fragments, double severity, std::string full_path)
+FilelistView::add_file_info (int id, int fragments, double severity, const std::string& full_path)
 {
     Gtk::TreeModel::Row row = *(liststore->append ());
 
