@@ -53,7 +53,7 @@ Fragmap::Fragmap ()
 
     show_all_children ();
 
-    this->set_size_request (400, 200);
+    this->set_size_request (400, 50);
 }
 
 Fragmap::~Fragmap ()
