@@ -23,6 +23,7 @@ class GraphWindow : public Gtk::Window {
 GraphWindow::GraphWindow () {
     set_title ("graph");
     fragmap.attach_clusters (cl);
+    fragmap.attach_filelist_widget (filelist);
     cl.collect_fragments ("/var");
 
     Gtk::ScrolledWindow *scrolled_window = Gtk::manage (new Gtk::ScrolledWindow);

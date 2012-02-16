@@ -24,8 +24,7 @@ Fragmap::Fragmap ()
     target_cluster = 0;
     cluster_size_desired = 3500;
 
-    file_list_view = NULL;
-    update_file_list = NULL;
+    filelist = 0;
 
     drawing_area.set_events (Gdk::BUTTON_PRESS_MASK | Gdk::POINTER_MOTION_MASK | Gdk::SCROLL_MASK);
 
@@ -368,7 +367,7 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
     clusters->lock_clusters ();
     clusters->lock_files ();
 
-    gboolean flag_update = FALSE;
+    bool flag_update = FALSE;
     int cl_x = (int) (x - shift_x) / box_size;
     int cl_y = (int) (y - shift_y) / box_size;
     int clusters_per_row = get_allocation().get_width() / box_size;
@@ -382,41 +381,25 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
     Clusters::cluster_info& ci = clusters->at (cl_raw);
     Clusters::file_list files = clusters->get_files ();
 //TODO: fix
-/*
+
     if ( display_mode != FRAGMAP_MODE_CLUSTER || selected_cluster != cl_raw ) {
         display_mode = FRAGMAP_MODE_CLUSTER;
         selected_cluster = cl_raw;
 
         int ss = ci.files.size();
 
-        GtkListStore  *store;
-        GtkTreeIter    iter;
-        store = file_list_model_new();
+        if (filelist) {
+            filelist->clear();
+            for (int k = 0; k < ci.files.size(); ++k) {
+                std::cout << files.at(ci.files[k]).name << "\n";
 
-        for (int k = 0; k < ci.files.size(); ++k) {
-            std::cout << files.at(ci.files[k]).name << "\n";
-
-            size_t q = files.at(ci.files[k]).name.rfind('/');
-            std::string filename = files.at(ci.files[k]).name.substr(q+1, -1);
-            std::string dirname = files.at(ci.files[k]).name.substr(0, q);
-
-            gtk_list_store_append (store, &iter);
-            gtk_list_store_set (store, &iter,
-                            FILELISTVIEW_COL_FRAG, files->at(ci->files[k]).extents.size(),
-                            FILELISTVIEW_COL_NAME, filename.c_str(),
-                            FILELISTVIEW_COL_SEVERITY, files->at(ci->files[k]).severity,
-                            FILELISTVIEW_COL_DIR, dirname.c_str(),
-                            FILELISTVIEW_COL_POINTER, ci->files[k],
-                            -1);
+                filelist->add_file_info (ci.files[k], files.at (ci.files[k]).extents.size(),
+                        files.at (ci.files[k]).severity, files.at(ci.files[k]).name);
+            }
         }
-
-        if (update_file_list) {
-            update_file_list (file_list_view, GTK_TREE_MODEL(store));
-        }
-        g_object_unref (store);
         flag_update = TRUE;
     }
-*/
+
     clusters->unlock_files ();
     clusters->unlock_clusters ();
     return flag_update;
@@ -448,14 +431,13 @@ Fragmap::set_mode (enum FRAGMAP_MODE mode)
     drawing_area.queue_draw ();
 }
 
-/*
-void gtk_fragmap_attach_widget_file_list(GtkFragmap *fm, GtkWidget *w,
-            void (*update)(GtkWidget *, GtkTreeModel *))
+void
+Fragmap::attach_filelist_widget (FilelistView& fl)
 {
-    update_file_list = update;
-    file_list_view = w;
+    filelist = &fl;
 }
 
+/*
 void gtk_fragmap_file_begin (GtkFragmap *fm) {
     if (selected_files) {
         g_list_free (selected_files);

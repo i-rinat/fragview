@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <pthread.h>
 #include "clusters.h"
+#include "filelist-widget.h"
 
 class Fragmap : public Gtk::HBox {
     public:
@@ -29,7 +30,7 @@ class Fragmap : public Gtk::HBox {
 
         int get_cluster_count();
         void attach_clusters (Clusters& cl);
-        void attach_widget_file_list (GtkWidget *w, void (*update)(GtkWidget *, GtkTreeModel *));
+        void attach_filelist_widget (FilelistView& fl);
         void attach_scroll (GtkWidget *scroll_widget);
         void file_begin ();
         void file_add (int file_idx);
@@ -38,6 +39,7 @@ class Fragmap : public Gtk::HBox {
 
     protected:
         Clusters *clusters;
+        FilelistView *filelist;
 
         Gtk::DrawingArea drawing_area;
         Gtk::VScrollbar scrollbar;
@@ -62,10 +64,6 @@ class Fragmap : public Gtk::HBox {
         int cluster_map_width;
         int cluster_map_height;
         int cluster_map_full_height;
-
-        GtkWidget *file_list_view;
-
-        void (*update_file_list) ( GtkWidget *file_list, GtkTreeModel *model);
 
         double color_free[3];
         double color_free_selected[3];
