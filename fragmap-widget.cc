@@ -380,21 +380,20 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
 
     Clusters::cluster_info& ci = clusters->at (cl_raw);
     Clusters::file_list files = clusters->get_files ();
-//TODO: fix
 
     if ( display_mode != FRAGMAP_MODE_CLUSTER || selected_cluster != cl_raw ) {
         display_mode = FRAGMAP_MODE_CLUSTER;
         selected_cluster = cl_raw;
 
-        int ss = ci.files.size();
-
         if (filelist) {
             filelist->clear();
             for (int k = 0; k < ci.files.size(); ++k) {
-                std::cout << files.at(ci.files[k]).name << "\n";
+                int fid = ci.files[k];
+                Clusters::f_info &fi = files[fid];
 
-                filelist->add_file_info (ci.files[k], files.at (ci.files[k]).extents.size(),
-                        files.at (ci.files[k]).severity, files.at(ci.files[k]).name);
+                filelist->add_file_info (fid, fi.extents.size(),
+                        fi.severity, fi.name);
+                std::cout << fi.name << std::endl;
             }
         }
         flag_update = TRUE;
