@@ -55,5 +55,5 @@ FilelistView::add_file_info (int id, int fragments, double severity, const std::
 void
 FilelistView::clear ()
 {
-    liststore.clear ();
+    liststore->clear ();
 }
