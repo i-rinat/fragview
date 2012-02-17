@@ -1,6 +1,6 @@
 About
 -----
-Files stored on disk usually divided into small chunks called blocks which can
+Files stored on disk usually divided into small chunks called blocks, which can
 reside anywhere on disk partition. When file blocks are not adjacent, one
 can say it's fragmented. There is nothing bad in fragmentation, it helps
 filesystem to use disk space more efficiently instead. But if file divided in
@@ -19,10 +19,16 @@ lower than read speed of continuous ones will be considered fragmented.
 
 Compiling and installing
 ------------------------
-You'll need gtk+-2.0 and sqlite3 headers to compile. Maybe you'll need to
+You'll need gtkmm-3.0 and sqlite3 headers to compile. Maybe you'll need to
 install kernel headers too.
 
-To compile just run make:
+First, create directory, go there and run cmake:
+
+`$ mkdir build` <br>
+`$ cd build` <br>
+`$ cmake ..` <br>
+
+Then run make:
 
 `$ make`
 
@@ -31,9 +37,10 @@ There is no install procedure yet. Just run binaries.
 Binaries
 --------
 
-There is two binaries you can run: `graph` and `fragdb`. First one is gtk
-GUI application which enables you to browse by clicking and scrolling. And
-second one is command-line utility whose purpose is to collect number of
+There is one binary you can run: `fragview`. First one is GTK+
+GUI application which enables you to browse by clicking and scrolling.
+(Oops, sorry there are no second and third yet).
+And second one is command-line utility whose purpose is to collect number of
 fragments of files in specified directory storing it in sqlite3 database.
 Then it is possible to make some simple reports like displaying ten most
 fragmented files or files having more than 100 fragments.
@@ -46,5 +53,5 @@ Foundation; either version 2, or (at your option) any later version.
 
 Contact
 -------
-Rinat Ibragimov is primary author of fragmap. He can be reached at email
+Author can be reached at email
 `ibragimovrinat-at-mail.ru` or at github: https://github.com/i-rinat/fragview
