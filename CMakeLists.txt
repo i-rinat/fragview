@@ -5,6 +5,7 @@ set (CMAKE_C_FLAGS_DEBUG "-ggdb3 -O0")
 find_package (PkgConfig)
 
 pkg_check_modules (GTKMM gtkmm-3.0)
+pkg_check_modules (GLIBMM glibmm-2.4)
 
 link_directories (
 	${GTKMM_LIBRARY_DIRS}
@@ -21,7 +22,15 @@ add_executable (fragview
 	filelist-widget.cc
 )
 
+add_executable (fileseverity
+	fileseverity.cc
+	clusters.cc
+)
+
 target_link_libraries (fragview
 	${GTKMM_LIBRARIES}
 )
 
+target_link_libraries (fileseverity
+	${GLIBMM_LIBRARIES}
+)
