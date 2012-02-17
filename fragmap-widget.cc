@@ -19,7 +19,6 @@ Fragmap::Fragmap ()
 
     display_mode = FRAGMAP_MODE_SHOW_ALL;
     selected_cluster = -1;
-    selected_files = NULL;
 
     target_cluster = 0;
     cluster_size_desired = 3500;
@@ -314,23 +313,21 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     }
 
     if (FRAGMAP_MODE_FILE == display_mode) {
-        int k2;
-        GList *p = selected_files;
         Clusters::file_list& files = clusters->get_files ();
         assert (clusters != NULL);
         uint64_t device_size = clusters->get_device_size ();
         assert (device_size > 0);
         uint64_t cluster_size = (device_size - 1) / total_clusters + 1;
 
-        while (p) {
-            int file_idx = GPOINTER_TO_INT (p->data);
+        for (int k = 0; k < selected_files.size (); ++k) {
+            int file_idx = selected_files[k];
             if (files.at(file_idx).fragmented) {
                 cairo_set_source_rgbv (cr, color_frag);
             } else {
                 cairo_set_source_rgbv (cr, color_nfrag);
             }
 
-            for (k2 = 0; k2 < files.at(file_idx).extents.size(); k2 ++) {
+            for (int k2 = 0; k2 < files.at(file_idx).extents.size(); k2 ++) {
                 uint64_t estart_c, eend_c;
 
                 estart_c = files.at(file_idx).extents[k2].start / cluster_size;
@@ -349,7 +346,6 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
                 }
             }
             cr->fill ();
-            p = g_list_next (p);
         }
     }
 
