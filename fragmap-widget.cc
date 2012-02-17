@@ -429,3 +429,16 @@ Fragmap::attach_filelist_widget (FilelistView& fl)
 {
     filelist = &fl;
 }
+
+void
+Fragmap::file_begin ()
+{
+    selected_files.clear ();
+    set_mode (FRAGMAP_MODE_FILE);
+}
+
+void
+Fragmap::file_add (int idx)
+{
+    selected_files.push_back (idx);
+}
