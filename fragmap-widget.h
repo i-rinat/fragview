@@ -17,8 +17,7 @@ class Fragmap : public Gtk::HBox {
         enum FRAGMAP_MODE {
             FRAGMAP_MODE_SHOW_ALL = 0,
             FRAGMAP_MODE_CLUSTER,
-            FRAGMAP_MODE_FILE,
-            FRAGMAP_MODE_FILEGROUP
+            FRAGMAP_MODE_FILE
         };
 
     public:
