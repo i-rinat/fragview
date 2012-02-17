@@ -1,8 +1,11 @@
 #include "filelist-widget.h"
 #include <iostream>
+#include "fragmap-widget.h"
 
 FilelistView::FilelistView ()
 {
+    fragmap = 0;
+
     liststore = Gtk::ListStore::create (columns);
     set_model (liststore);
     default_sort_order [append_column ("fileid", columns.col_fileid) - 1] = Gtk::SORT_ASCENDING;

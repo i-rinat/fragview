@@ -428,6 +428,7 @@ void
 Fragmap::attach_filelist_widget (FilelistView& fl)
 {
     filelist = &fl;
+    filelist->attach_fragmap (this);
 }
 
 void

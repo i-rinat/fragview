@@ -5,6 +5,8 @@
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
 
+class Fragmap;
+
 class FilelistView : public Gtk::TreeView
 {
     class ModelColumns : public Gtk::TreeModelColumnRecord {
@@ -32,11 +34,13 @@ class FilelistView : public Gtk::TreeView
         void clear ();
         void add_file_info (int id, int fragments, double severity, const std::string& name, const std::string& dir);
         void add_file_info (int id, int fragments, double severity, const std::string& full_path);
+        void attach_fragmap (Fragmap *fm) { fragmap = fm; }
 
     protected:
         ModelColumns columns;
         Glib::RefPtr<Gtk::ListStore> liststore;
         std::map<int, enum Gtk::SortType> default_sort_order;
+        Fragmap *fragmap;
 
         virtual void on_filelist_header_clicked (int column_id);
 
