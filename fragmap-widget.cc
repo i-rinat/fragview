@@ -378,7 +378,7 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
         cl_raw = clusters->size() - 1;
 
     Clusters::cluster_info& ci = clusters->at (cl_raw);
-    Clusters::file_list files = clusters->get_files ();
+    Clusters::file_list& files = clusters->get_files ();
 
     if ( display_mode != FRAGMAP_MODE_CLUSTER || selected_cluster != cl_raw ) {
         display_mode = FRAGMAP_MODE_CLUSTER;
