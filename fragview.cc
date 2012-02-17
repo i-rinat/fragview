@@ -8,23 +8,27 @@
 #include "fragmap-widget.h"
 #include "filelist-widget.h"
 #include <iostream>
+#include <pwd.h>
+#include <cassert>
 
 class GraphWindow : public Gtk::Window {
     public:
-        GraphWindow ();
+        GraphWindow (const std::string& initial_dir);
         virtual ~GraphWindow ();
 
     protected:
         Fragmap fragmap;
         Clusters cl;
         FilelistView filelist;
+        std::string initial_dir;
 };
 
-GraphWindow::GraphWindow () {
+GraphWindow::GraphWindow (const std::string& initial_dir) {
     set_title ("graph");
     fragmap.attach_clusters (cl);
     fragmap.attach_filelist_widget (filelist);
-    cl.collect_fragments ("/var");
+
+    cl.collect_fragments (initial_dir);
 
     Gtk::ScrolledWindow *scrolled_window = Gtk::manage (new Gtk::ScrolledWindow);
     scrolled_window->add (filelist);
@@ -49,7 +53,16 @@ GraphWindow::~GraphWindow () {
 int main (int argc, char *argv[]) {
     Gtk::Main kit(argc, argv);
 
-    GraphWindow window;
+    std::string initial_dir;
+    if (argc > 1) {
+        initial_dir = argv[1];
+    } else {
+        struct passwd *pw = getpwuid(getuid());
+        assert(pw != NULL);
+        initial_dir = pw->pw_dir;
+    }
+
+    GraphWindow window (initial_dir);
 
     Gtk::Main::run (window);
 }
