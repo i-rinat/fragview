@@ -15,22 +15,26 @@ include_directories (
 	${GTKMM_INCLUDE_DIRS}
 )
 
+add_library (clusters STATIC
+	clusters.cc
+)
+
 add_executable (fragview
 	fragview.cc
-	clusters.cc
 	fragmap-widget.cc
 	filelist-widget.cc
 )
 
 add_executable (fileseverity
 	fileseverity.cc
-	clusters.cc
 )
 
 target_link_libraries (fragview
 	${GTKMM_LIBRARIES}
+	clusters
 )
 
 target_link_libraries (fileseverity
 	${GLIBMM_LIBRARIES}
+	clusters
 )
