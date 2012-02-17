@@ -370,10 +370,9 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
     bool flag_update = FALSE;
     int cl_x = (int) (x - shift_x) / box_size;
     int cl_y = (int) (y - shift_y) / box_size;
-    int clusters_per_row = get_allocation().get_width() / box_size;
 
     int target_line = target_cluster / cluster_map_width;
-    int cl_raw = (cl_y + target_line) * clusters_per_row + cl_x;
+    int cl_raw = (cl_y + target_line) * cluster_map_width + cl_x;
 
     if (cl_raw >= clusters->size())
         cl_raw = clusters->size() - 1;
