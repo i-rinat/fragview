@@ -86,7 +86,7 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 
             fp >> major >> minor >> blocks >> partition_name;
             if (sb.st_dev == (major << 8) + minor) {
-                this->device_size = blocks;
+                this->device_size = blocks * 1024 / sb.st_blksize;
                 break;
             }
         }
