@@ -5,18 +5,18 @@ FilelistView::FilelistView ()
 {
     liststore = Gtk::ListStore::create (columns);
     set_model (liststore);
-    append_column ("fileid", columns.col_fileid);
-    append_column ("Fragments", columns.col_fragments);
-    append_column ("Severity", columns.col_severity);
-    append_column ("Name", columns.col_name);
-    append_column ("Dir", columns.col_dir);
+    default_sort_order [append_column ("fileid", columns.col_fileid) - 1] = Gtk::SORT_ASCENDING;
+    default_sort_order [append_column ("Fragments", columns.col_fragments) - 1] = Gtk::SORT_DESCENDING;
+    default_sort_order [append_column ("Severity", columns.col_severity) - 1] = Gtk::SORT_DESCENDING;
+    default_sort_order [append_column ("Name", columns.col_name) - 1] = Gtk::SORT_ASCENDING;
+    default_sort_order [append_column ("Dir", columns.col_dir) - 1] = Gtk::SORT_ASCENDING;
 
     int k;
     std::vector<Gtk::TreeViewColumn *> columns = get_columns ();
     for (k = 0; k < columns.size(); ++k) {
         columns[k]->set_resizable ();
         columns[k]->set_reorderable ();
-        columns[k]->set_sort_column (k);
+        columns[k]->set_clickable ();
         columns[k]->signal_clicked ().connect(
             sigc::bind<int>(sigc::mem_fun (*this, &FilelistView::on_filelist_header_clicked), k));
     }
@@ -28,18 +28,30 @@ FilelistView::~FilelistView ()
 }
 
 void
-FilelistView::on_filelist_header_clicked (int column_id) {
-    Gtk::TreeViewColumn *col = get_column (column_id);
+FilelistView::on_filelist_header_clicked (int column_id)
+{
+    static int last_column_id = 0;
 
-    if (col->get_sort_indicator ()) {
-        if (Gtk::SORT_ASCENDING == col->get_sort_order ())
+    Gtk::TreeViewColumn *col = get_column (column_id);
+    if (column_id == last_column_id) {
+        if (Gtk::SORT_ASCENDING == col->get_sort_order ()) {
             col->set_sort_order (Gtk::SORT_DESCENDING);
-        else
+            liststore->set_sort_column (column_id, Gtk::SORT_DESCENDING);
+        } else {
             col->set_sort_order (Gtk::SORT_ASCENDING);
+            liststore->set_sort_column (column_id, Gtk::SORT_ASCENDING);
+        }
     } else {
+        // hide indicator on previous column
+        get_column (last_column_id)->set_sort_indicator (false);
+
         col->set_sort_indicator (true);
+        Gtk::SortType sort_type = default_sort_order [column_id];
+        col->set_sort_order (sort_type);
+        liststore->set_sort_column (column_id, sort_type);
     }
 
+    last_column_id = column_id;
 }
 
 void

@@ -36,6 +36,7 @@ class FilelistView : public Gtk::TreeView
     protected:
         ModelColumns columns;
         Glib::RefPtr<Gtk::ListStore> liststore;
+        std::map<int, enum Gtk::SortType> default_sort_order;
 
         virtual void on_filelist_header_clicked (int column_id);
 
