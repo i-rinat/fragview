@@ -1,5 +1,6 @@
 #include "filelist-widget.h"
 #include <iostream>
+#include <cassert>
 #include "fragmap-widget.h"
 
 FilelistView::FilelistView ()
@@ -23,6 +24,11 @@ FilelistView::FilelistView ()
         columns[k]->signal_clicked ().connect(
             sigc::bind<int>(sigc::mem_fun (*this, &FilelistView::on_filelist_header_clicked), k));
     }
+
+    // manage selection properties
+    Glib::RefPtr<Gtk::TreeSelection> selection = get_selection ();
+    selection->set_mode (Gtk::SELECTION_MULTIPLE);
+    selection->signal_changed ().connect (sigc::mem_fun (*this, &FilelistView::on_selection_changed));
 }
 
 FilelistView::~FilelistView ()
@@ -90,4 +96,17 @@ void
 FilelistView::clear ()
 {
     liststore->clear ();
+}
+
+void
+FilelistView::on_selection_changed (void)
+{
+    assert (fragmap != 0);
+    Glib::RefPtr<Gtk::TreeModel> model = get_model ();
+    fragmap->file_begin ();
+    std::vector<Gtk::TreeModel::Path> items = get_selection ()->get_selected_rows ();
+    for (int k = 0; k < items.size(); ++ k) {
+        Gtk::TreeModel::Row row = *(model->get_iter (items[k]));
+        fragmap->file_add (row [columns.col_fileid]);
+    }
 }

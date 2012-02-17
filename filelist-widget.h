@@ -43,7 +43,7 @@ class FilelistView : public Gtk::TreeView
         Fragmap *fragmap;
 
         virtual void on_filelist_header_clicked (int column_id);
-
+        virtual void on_selection_changed (void);
 };
 
 #endif
