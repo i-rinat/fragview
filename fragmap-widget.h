@@ -25,13 +25,9 @@ class Fragmap : public Gtk::HBox {
         Fragmap ();
         ~Fragmap ();
 
-        gboolean expose (GdkEventExpose *event);
-        gboolean size_allocate (GdkRectangle *allocation);
-
         int get_cluster_count();
         void attach_clusters (Clusters& cl);
         void attach_filelist_widget (FilelistView& fl);
-        void attach_scroll (GtkWidget *scroll_widget);
         void file_begin ();
         void file_add (int file_idx);
         void set_mode (enum FRAGMAP_MODE);

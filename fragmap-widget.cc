@@ -433,18 +433,3 @@ Fragmap::attach_filelist_widget (FilelistView& fl)
 {
     filelist = &fl;
 }
-
-/*
-void gtk_fragmap_file_begin (GtkFragmap *fm) {
-    if (selected_files) {
-        g_list_free (selected_files);
-        selected_files = NULL;
-    }
-    g_list_free (selected_files);
-}
-
-void gtk_fragmap_file_add (GtkFragmap *fm, int file_idx) {
-    selected_files = g_list_append (selected_files, GINT_TO_POINTER (file_idx));
-}
-
-*/
