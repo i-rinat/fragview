@@ -37,13 +37,20 @@ There is no install procedure yet. Just run binaries.
 Binaries
 --------
 
-There is one binary you can run: `fragview`. First one is GTK+
-GUI application which enables you to browse by clicking and scrolling.
-(Oops, sorry there are no second and third yet).
-And second one is command-line utility whose purpose is to collect number of
-fragments of files in specified directory storing it in sqlite3 database.
+There are three binaries you can run:
+
+* `fragview`
+* `fileseveriy`
+* `fragdb`
+
+`fragview` is a GTK+ GUI application which enables you to browse by clicking
+and scrolling. `fragdb` is a command-line utility whose purpose is to collect number of
+fragments of files in specified directory recursively while storing its result in sqlite3 database.
 Then it is possible to make some simple reports like displaying ten most
-fragmented files or files having more than 100 fragments.
+fragmented files or files having more than 100 fragments. `fileseverity` is
+similar to `filefrag` utility from e2fsprogs, but displays severity metric
+rather than fragment count. A few words about this metric can be found
+in draftpad.md file.
 
 Copying
 -------
