@@ -393,7 +393,6 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
 
                 filelist->add_file_info (fid, fi.extents.size(),
                         fi.severity, fi.name);
-                std::cout << fi.name << std::endl;
             }
         }
         flag_update = TRUE;
