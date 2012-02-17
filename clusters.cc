@@ -49,18 +49,6 @@ Clusters::unlock_files ()
     return pthread_mutex_unlock (&files_mutex);
 }
 
-Clusters::cluster_info&
-Clusters::at (int k)
-{
-    return clusters.at(k);
-}
-
-size_t
-Clusters::size ()
-{
-    return clusters.size ();
-}
-
 Clusters::file_list&
 Clusters::get_files ()
 {
