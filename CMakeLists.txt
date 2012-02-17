@@ -6,13 +6,16 @@ find_package (PkgConfig)
 
 pkg_check_modules (GTKMM gtkmm-3.0)
 pkg_check_modules (GLIBMM glibmm-2.4)
+pkg_check_modules (SQLITE3 sqlite3)
 
 link_directories (
 	${GTKMM_LIBRARY_DIRS}
+	${SQLITE3_LIBRARY_DIRS}
 )
 
 include_directories (
 	${GTKMM_INCLUDE_DIRS}
+	${SQLITE3_INCLUDE_DIRS}
 )
 
 add_library (clusters STATIC
@@ -36,5 +39,15 @@ target_link_libraries (fragview
 
 target_link_libraries (fileseverity
 	${GLIBMM_LIBRARIES}
+	clusters
+)
+
+add_executable (fragdb
+	fragdb.cc
+)
+
+target_link_libraries (fragdb
+	${GLIBMM_LIBRARIES}
+	${SQLITE3_LIBRARIES}
 	clusters
 )
