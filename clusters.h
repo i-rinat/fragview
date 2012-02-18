@@ -79,6 +79,8 @@ class Clusters {
         pthread_mutex_t files_mutex;
         uint64_t device_size;
         uint64_t cluster_count;
+
+        std::map<tuple, bool, tuple::compare> fill_cache;
 };
 
 #endif

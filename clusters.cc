@@ -120,11 +120,19 @@ Clusters::allocate (uint64_t cluster_count)
     this->cluster_count = cluster_count;
 
     clusters.clear ();
+    fill_cache.clear ();
 }
 
 void
 Clusters::__fill_clusters (uint64_t start, uint64_t length)
 {
+    Clusters::tuple interval (start, length);
+
+    if (fill_cache.end () != fill_cache.find (interval)) {
+        std::cout << "cache hit!" << std::endl;
+        return;
+    }
+
     // divide whole disk to clusters of blocks
     uint64_t cluster_size = (this->device_size - 1) / cluster_count + 1;
     std::cout << "cluster_size = " << cluster_size << std::endl;
@@ -159,6 +167,8 @@ Clusters::__fill_clusters (uint64_t start, uint64_t length)
             }
         }
     }
+
+    fill_cache [interval] = 1;
 
     delete [] entry_exist;
 }
