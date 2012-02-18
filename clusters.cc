@@ -127,7 +127,7 @@ Clusters::allocate (uint64_t cluster_count)
 }
 
 void
-Clusters::__fill_clusters (void)
+Clusters::__fill_clusters (uint64_t start, uint64_t length)
 {
     // divide whole disk to clusters of blocks
     uint64_t cluster_size = (this->device_size - 1) / clusters.size() + 1;

@@ -208,7 +208,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         clusters->lock_clusters ();
         clusters->lock_files ();
         clusters->allocate (total_clusters);
-        clusters->__fill_clusters ();
+        clusters->__fill_clusters (target_offset, cluster_map_width * cluster_map_height);
         force_fill_clusters = 0;
         cluster_count_changed = 0;
         clusters->unlock_clusters ();
