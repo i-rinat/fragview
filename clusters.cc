@@ -117,24 +117,20 @@ void
 Clusters::allocate (uint64_t cluster_count)
 {
     if (cluster_count == 0) cluster_count = 1;
-    clusters.resize (cluster_count);
-    for (int k = 0; k < clusters.size(); ++k) {
-        clusters.at(k).free = 1;
-        clusters.at(k).fragmented = 0;
-    }
+    this->cluster_count = cluster_count;
 
-
+    clusters.clear ();
 }
 
 void
 Clusters::__fill_clusters (uint64_t start, uint64_t length)
 {
     // divide whole disk to clusters of blocks
-    uint64_t cluster_size = (this->device_size - 1) / clusters.size() + 1;
+    uint64_t cluster_size = (this->device_size - 1) / cluster_count + 1;
     std::cout << "cluster_size = " << cluster_size << std::endl;
 
     typedef std::map<int, int> onecopy_t;
-    onecopy_t *entry_exist = new onecopy_t[clusters.size()];
+    onecopy_t *entry_exist = new onecopy_t [length];
 
     file_list::iterator item;
     int item_idx;
@@ -151,13 +147,15 @@ Clusters::__fill_clusters (uint64_t start, uint64_t length)
             for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
                 // N-th cluster start: cluster_size * N
                 // N-th cluster end:   (cluster_size+1)*N-1
-                if (entry_exist[k3].count(item_idx) == 0) {
-                    clusters.at(k3).files.push_back(item_idx);
-                    entry_exist[k3][item_idx] = 1;
+                if ((k3 < start) || (k3 >= start + length)) continue;
+                if (clusters.end() != clusters.find(k3)) continue;
+
+                if (entry_exist[k3 - start].count(item_idx) == 0) {
+                    clusters[k3].files.push_back(item_idx);
+                    entry_exist[k3 - start][item_idx] = 1;
                 }
-                clusters.at(k3).free = 0;
-                if (item->fragmented)
-                    clusters.at(k3).fragmented = 1;
+                clusters[k3].free = 0;
+                if (item->fragmented) clusters[k3].fragmented = 1;
             }
         }
     }

@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include <map>
 #include <glibmm/ustring.h>
 #include <pthread.h>
 
@@ -28,13 +29,15 @@ class Clusters {
         typedef std::vector<f_info> file_list;
         typedef std::vector<int> file_p_list;
 
-        typedef struct {
+        class cluster_info {
+            public:
             file_p_list files;
             int free;
             int fragmented;
-        } cluster_info;
+            cluster_info () { free = 1; fragmented = 0; };
+        };
 
-        typedef std::vector<cluster_info> cluster_list;
+        typedef std::map<int, cluster_info> cluster_list;
 
     public:
         Clusters ();
@@ -52,7 +55,7 @@ class Clusters {
         int unlock_clusters ();
         int unlock_files ();
 
-        cluster_info& at (int k) { return clusters.at(k); }
+        cluster_info& at (int k) { return clusters[k]; }
         size_t size () { return clusters.size(); }
         file_list& get_files ();
 
@@ -66,6 +69,7 @@ class Clusters {
         pthread_mutex_t clusters_mutex;
         pthread_mutex_t files_mutex;
         uint64_t device_size;
+        uint64_t cluster_count;
 };
 
 #endif
