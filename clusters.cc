@@ -113,12 +113,6 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
     std::cout << "files.size = " << files.size() << std::endl;
 }
 
-uint64_t
-Clusters::get_device_size ()
-{
-    return this->device_size;
-}
-
 void
 Clusters::__fill_clusters (uint64_t cluster_count)
 {
