@@ -207,7 +207,8 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         gettimeofday(&tv1, NULL);
         clusters->lock_clusters ();
         clusters->lock_files ();
-        clusters->__fill_clusters (total_clusters);
+        clusters->allocate (total_clusters);
+        clusters->__fill_clusters ();
         force_fill_clusters = 0;
         cluster_count_changed = 0;
         clusters->unlock_clusters ();

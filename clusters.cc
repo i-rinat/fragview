@@ -114,20 +114,23 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 }
 
 void
-Clusters::__fill_clusters (uint64_t cluster_count)
+Clusters::allocate (uint64_t cluster_count)
 {
     if (cluster_count == 0) cluster_count = 1;
-    // divide whole disk to clusters of blocks
-    uint64_t cluster_size = (this->device_size - 1) / cluster_count + 1;
-
-    clusters.resize(cluster_count);
-
-    int k, k2;
-    for (k = 0; k < clusters.size(); ++k) {
+    clusters.resize (cluster_count);
+    for (int k = 0; k < clusters.size(); ++k) {
         clusters.at(k).free = 1;
         clusters.at(k).fragmented = 0;
-        clusters.at(k).files.resize (0);
     }
+
+
+}
+
+void
+Clusters::__fill_clusters (void)
+{
+    // divide whole disk to clusters of blocks
+    uint64_t cluster_size = (this->device_size - 1) / clusters.size() + 1;
     std::cout << "cluster_size = " << cluster_size << std::endl;
 
     typedef std::map<int, int> onecopy_t;
@@ -137,7 +140,7 @@ Clusters::__fill_clusters (uint64_t cluster_count)
     int item_idx;
     for (item = files.begin(), item_idx = 0; item != files.end(); ++item, ++item_idx) {
         item->fragmented = (item->severity >= 2.0);
-        for (k2 = 0; k2 < item->extents.size(); k2 ++) {
+        for (int k2 = 0; k2 < item->extents.size(); k2 ++) {
             uint64_t estart_c, eend_c;
 
             estart_c = item->extents[k2].start / cluster_size;
