@@ -56,7 +56,7 @@ class Clusters {
         int unlock_files ();
 
         cluster_info& at (int k) { return clusters[k]; }
-        size_t size () { return clusters.size(); }
+        uint64_t size () { return cluster_count; }
         file_list& get_files ();
 
     private:
