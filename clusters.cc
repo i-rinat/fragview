@@ -302,8 +302,8 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
 
         int last_entry;
         for (int k = 0; k < (int)fiemap->fm_mapped_extents; ++k) {
-            tuple tempt = { fiemap->fm_extents[k].fe_physical / sb->st_blksize,
-                            fiemap->fm_extents[k].fe_length / sb->st_blksize };
+            tuple tempt ( fiemap->fm_extents[k].fe_physical / sb->st_blksize,
+                          fiemap->fm_extents[k].fe_length / sb->st_blksize );
 
             if (fi->extents.size() > 0) {
                 tuple *last = &fi->extents.back();

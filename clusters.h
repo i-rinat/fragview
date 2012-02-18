@@ -12,10 +12,19 @@
 class Clusters {
     public:
         // type definitions
-        typedef struct {
-            int64_t start;
-            int64_t length;
-        } tuple;
+        class tuple {
+            public:
+            uint64_t start;
+            uint64_t length;
+            tuple (uint64_t s, uint64_t l) { start = s; length = l; };
+            class compare {
+                public:
+                bool operator () (const tuple x, const tuple y) {
+                    if (x.start == y.start) return x.length < y.length;
+                    else return x.start < y.start;
+                }
+            };
+        };
 
         typedef std::vector<tuple> tuple_list;
 
