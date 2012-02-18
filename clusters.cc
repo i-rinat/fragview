@@ -120,7 +120,7 @@ Clusters::get_device_size ()
 }
 
 void
-Clusters::__fill_clusters (uint64_t cluster_count, int frag_limit)
+Clusters::__fill_clusters (uint64_t cluster_count)
 {
     if (cluster_count == 0) cluster_count = 1;
     // divide whole disk to clusters of blocks

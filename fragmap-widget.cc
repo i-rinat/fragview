@@ -15,7 +15,6 @@ Fragmap::Fragmap ()
     shift_x = 0;
     shift_y = 0;
     box_size = 7;
-    frag_limit = 1;
 
     display_mode = FRAGMAP_MODE_SHOW_ALL;
     selected_cluster = -1;
@@ -208,7 +207,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         gettimeofday(&tv1, NULL);
         clusters->lock_clusters ();
         clusters->lock_files ();
-        clusters->__fill_clusters (total_clusters, frag_limit);
+        clusters->__fill_clusters (total_clusters);
         force_fill_clusters = 0;
         cluster_count_changed = 0;
         clusters->unlock_clusters ();

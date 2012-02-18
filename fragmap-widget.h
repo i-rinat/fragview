@@ -44,7 +44,6 @@ class Fragmap : public Gtk::HBox {
         int widget_size_changed;
         int cluster_count_changed;
         int box_size;
-        int frag_limit;
 
         int target_cluster;
         int total_clusters;
