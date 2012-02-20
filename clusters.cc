@@ -58,11 +58,11 @@ Clusters::get_files ()
 void
 Clusters::collect_fragments (const Glib::ustring & initial_dir)
 {
-    struct stat64 sb;
+    struct stat64 sb_root;
 
     this->device_size = 0;
 
-    if (0 == stat64 (initial_dir.c_str(), &sb)) {
+    if (0 == stat64 (initial_dir.c_str(), &sb_root)) {
         std::string partition_name;
         std::fstream fp("/proc/partitions", std::ios_base::in);
         fp.ignore (1024, '\n'); // header
@@ -73,8 +73,8 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
             uint64_t blocks;
 
             fp >> major >> minor >> blocks >> partition_name;
-            if (sb.st_dev == (major << 8) + minor) {
-                this->device_size = blocks * 1024 / sb.st_blksize;
+            if (sb_root.st_dev == (major << 8) + minor) {
+                this->device_size = blocks * 1024 / sb_root.st_blksize;
                 break;
             }
         }
@@ -83,20 +83,21 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 
     // walk directory tree, don't cross mount borders
     char *dirs[2] = {const_cast<char *>(initial_dir.c_str()), 0};
-    FTS *fts_handle = fts_open (dirs, FTS_PHYSICAL | FTS_XDEV | FTS_NOCHDIR, NULL);
+    FTS *fts_handle = fts_open (dirs, FTS_PHYSICAL | FTS_XDEV | FTS_NOCHDIR | FTS_NOSTAT, NULL);
 
     while (1) {
         FTSENT *ent = fts_read (fts_handle);
         if (NULL == ent) break;
         switch (ent->fts_info) {
+            case FTS_NSOK:
+            case FTS_NS:
             case FTS_D:
-            case FTS_F:
                 {
                     f_info fi;
-                    struct stat64 sb;
-                    if (0 != lstat64 (ent->fts_path, &sb)) // something wrong
-                        break;
-                    if (get_file_extents (ent->fts_path, &sb, &fi)) {
+                    struct stat64 sb_ent;
+                    if (0 != lstat64 (ent->fts_path, &sb_ent)) break; // something wrong, skip
+                    if (sb_ent.st_dev != sb_root.st_dev) break; // another device, skip
+                    if (get_file_extents (ent->fts_path, &sb_ent, &fi)) {
                         this->lock_files ();
                         files.push_back (fi);
                         this->unlock_files ();
@@ -104,7 +105,7 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
                 }
                 break;
             default:
-                continue;
+                break;
         }
     }
 
