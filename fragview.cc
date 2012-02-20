@@ -29,6 +29,7 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
     fragmap.attach_filelist_widget (filelist);
 
     cl.collect_fragments (initial_dir);
+    cl.create_coarse_map (1000);
 
     Gtk::ScrolledWindow *scrolled_window = Gtk::manage (new Gtk::ScrolledWindow);
     scrolled_window->add (filelist);

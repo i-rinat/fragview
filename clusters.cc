@@ -2,6 +2,7 @@
 #include <map>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <fts.h>
 #include <fcntl.h>
 #include <assert.h>
@@ -56,6 +57,56 @@ Clusters::file_list&
 Clusters::get_files ()
 {
     return files;
+}
+
+void
+Clusters::create_coarse_map (int granularity)
+{
+    this->coarse_map_granularity = granularity;
+    int map_size = (get_device_size () - 1) / coarse_map_granularity + 1;
+    coarse_map.resize (map_size);
+
+    for (int k = 0; k < files.size(); ++ k) {
+        for (int k2 = 0; k2 < files[k].extents.size(); k2 ++) {
+            uint64_t estart_c, eend_c;
+
+            estart_c = files[k].extents[k2].start / coarse_map_granularity;
+            eend_c = (files[k].extents[k2].start + files[k].extents[k2].length - 1);
+            eend_c = eend_c / coarse_map_granularity;
+
+            for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
+                coarse_map[k3].insert (k);
+            }
+        }
+    }
+
+    std::cout << "I've done creating coarse_map and here is some statistics:" << std::endl;
+    unsigned int max = 0;
+    int max_idx = -1;
+    int min = 2000000000;
+    double mean = 0;
+    for (int k = 0; k < map_size; k++ ) {
+        if (coarse_map[k].size() > max) {
+            max = coarse_map[k].size();
+            max_idx = k;
+        }
+        min = std::min (min, (int)coarse_map[k].size());
+        mean += coarse_map[k].size();
+    }
+    std::cout << "coarse_map.size() == " << coarse_map.size() << std::endl;
+    std::cout << "max_depth of map: " << max << " files in one cluster idx=" << max_idx << std::endl;
+    std::cout << "min_depth of map: " << min << " files in one cluster" << std::endl;
+    std::cout << "mean depth of map: " << mean/map_size << " files in one cluster" << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "Here is list of files:" << std::endl;
+
+    for (std::set<uint64_t>::iterator it = coarse_map[max_idx].begin(); it != coarse_map[max_idx].end(); ++it) {
+        std::cout << " file: " << files[*it].name << std::endl;
+    }
+    std::cout << "done." << std::endl;
+
+
 }
 
 void

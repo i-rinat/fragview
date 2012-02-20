@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <set>
 #include <glibmm/ustring.h>
 #include <pthread.h>
 
@@ -58,6 +59,7 @@ class Clusters {
         void __fill_clusters (uint64_t start, uint64_t length);
         double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed);
         int get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi);
+        void create_coarse_map (int granularity);
 
         int lock_clusters ();
         int lock_files ();
@@ -83,6 +85,8 @@ class Clusters {
         bool hide_error_no_fiemap;
 
         std::map<tuple, bool, tuple::compare> fill_cache;
+        std::vector<std::set<uint64_t> > coarse_map;
+        int coarse_map_granularity;
 };
 
 #endif
