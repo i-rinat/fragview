@@ -79,6 +79,8 @@ class Clusters {
         pthread_mutex_t files_mutex;
         uint64_t device_size;
         uint64_t cluster_count;
+        bool hide_error_inaccessible_files;
+        bool hide_error_no_fiemap;
 
         std::map<tuple, bool, tuple::compare> fill_cache;
 };

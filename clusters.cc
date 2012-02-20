@@ -18,6 +18,9 @@ Clusters::Clusters ()
 {
     pthread_mutex_init (&files_mutex, NULL);
     pthread_mutex_init (&clusters_mutex, NULL);
+
+    hide_error_inaccessible_files = true;
+    hide_error_no_fiemap = true;
 }
 
 Clusters::~Clusters ()
@@ -278,9 +281,9 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
 
     int fd = open (fname, O_RDONLY | O_NOFOLLOW | O_LARGEFILE);
     if (-1 == fd) {
-#ifndef IGNORE_INACCESSIBLE_FILES
-        std::cerr << "can't open file/dir: " << fname << std::endl;
-#endif
+        if (! hide_error_inaccessible_files) {
+            std::cerr << "can't open file/dir: " << fname << std::endl;
+        }
         return 0;
     }
 
@@ -296,9 +299,9 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
 
         int ret = ioctl (fd, FS_IOC_FIEMAP, fiemap);
         if (ret == -1) {
-#ifndef IGNORE_UNAVAILABLE_FIEMAP
-            std::cerr << fname << ", fiemap get count error " << errno << ":\"" << strerror (errno) << "\"" << std::endl;
-#endif
+            if (! hide_error_no_fiemap) {
+                std::cerr << fname << ", fiemap get count error " << errno << ":\"" << strerror (errno) << "\"" << std::endl;
+            }
             // there is no FIEMAP or it's inaccessible, trying to emulate
             if (-1 == fibmap_fallback (fd, fname, sb, fiemap)) {
                 if (ENOTTY != errno) {
