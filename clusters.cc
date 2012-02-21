@@ -182,33 +182,43 @@ Clusters::__fill_clusters (uint64_t start, uint64_t length)
     uint64_t cluster_size = (this->device_size - 1) / cluster_count + 1;
     std::cout << "cluster_size = " << cluster_size << std::endl;
 
-    typedef std::map<int, int> onecopy_t;
-    onecopy_t *entry_exist = new onecopy_t [length];
+    std::set<uint64_t> *entry_exist = new std::set<uint64_t> [length];
 
-    file_list::iterator item;
-    int item_idx;
-    for (item = files.begin(), item_idx = 0; item != files.end(); ++item, ++item_idx) {
-        item->fragmented = (item->severity >= 2.0);
-        for (int k2 = 0; k2 < item->extents.size(); k2 ++) {
-            uint64_t estart_c, eend_c;
+    // первый и последний кластер в грубой карте, итерации между ними
+    uint64_t c_start = start * cluster_size / coarse_map_granularity;
+    uint64_t c_end = ((start + length) * cluster_size - 1) / coarse_map_granularity;
+    c_end = std::min (c_end, (uint64_t)coarse_map.size() - 1);
 
-            estart_c = item->extents[k2].start / cluster_size;
-            eend_c = (item->extents[k2].start +
-                      item->extents[k2].length - 1);
-            eend_c = eend_c / cluster_size;
+    std::cout << "c_start = " << c_start << "  c_end = " << c_end << std::endl;
+    std::cout << "" << coarse_map.size() << std::endl;
 
-            for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
-                // N-th cluster start: cluster_size * N
-                // N-th cluster end:   (cluster_size+1)*N-1
-                if ((k3 < start) || (k3 >= start + length)) continue;
-                if (clusters.end() != clusters.find(k3)) continue;
+    for (int c_block = c_start; c_block <= c_end; c_block ++) {
+        std::set<uint64_t>::iterator iter = coarse_map[c_block].begin();
+        for (; iter != coarse_map[c_block].end(); ++ iter) {
+            uint64_t item_idx = *iter;
+            f_info &fi = files[item_idx];
+            fi.fragmented = (fi.severity >= 2.0);
+            for (int k2 = 0; k2 < fi.extents.size(); k2 ++) {
+                uint64_t estart_c, eend_c;
 
-                if (entry_exist[k3 - start].count(item_idx) == 0) {
-                    clusters[k3].files.push_back(item_idx);
-                    entry_exist[k3 - start][item_idx] = 1;
+                estart_c = fi.extents[k2].start / cluster_size;
+                eend_c = (fi.extents[k2].start +
+                          fi.extents[k2].length - 1);
+                eend_c = eend_c / cluster_size;
+
+                for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
+                    // N-th cluster start: cluster_size * N
+                    // N-th cluster end:   (cluster_size+1)*N-1
+                    if ((k3 < start) || (k3 >= start + length)) continue;
+                    if (clusters.end() != clusters.find(k3)) continue;
+
+                    if (entry_exist[k3 - start].find (item_idx) == entry_exist[k3 - start].end ()) {
+                        clusters[k3].files.push_back (item_idx);
+                        entry_exist[k3 - start].insert (item_idx);
+                    }
+                    clusters[k3].free = 0;
+                    if (fi.fragmented) clusters[k3].fragmented = 1;
                 }
-                clusters[k3].free = 0;
-                if (item->fragmented) clusters[k3].fragmented = 1;
             }
         }
     }
