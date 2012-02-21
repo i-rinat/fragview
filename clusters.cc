@@ -97,16 +97,6 @@ Clusters::create_coarse_map (int granularity)
     std::cout << "max_depth of map: " << max << " files in one cluster idx=" << max_idx << std::endl;
     std::cout << "min_depth of map: " << min << " files in one cluster" << std::endl;
     std::cout << "mean depth of map: " << mean/map_size << " files in one cluster" << std::endl;
-
-    std::cout << std::endl;
-    std::cout << "Here is list of files:" << std::endl;
-
-    for (std::set<uint64_t>::iterator it = coarse_map[max_idx].begin(); it != coarse_map[max_idx].end(); ++it) {
-        std::cout << " file: " << files[*it].name << std::endl;
-    }
-    std::cout << "done." << std::endl;
-
-
 }
 
 void
