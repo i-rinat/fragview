@@ -210,6 +210,11 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
                     estart_c = fi.extents[k2].start / cluster_size;
                     eend_c = (fi.extents[k2].start + fi.extents[k2].length - 1) / cluster_size;
 
+                    if (estart_c > m_start + m_length - 1) continue;
+                    if (eend_c < m_start) continue;
+                    if (estart_c < m_start) estart_c = m_start;
+                    if (eend_c > m_start + m_length - 1) eend_c = m_start + m_length - 1;
+
                     for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
                         clusters[k3].files.push_back (item_idx);
                         clusters[k3].free = 0;
