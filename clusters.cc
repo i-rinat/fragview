@@ -211,14 +211,19 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
                     eend_c = (fi.extents[k2].start + fi.extents[k2].length - 1) / cluster_size;
 
                     for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
-                        //if (clusters.end() != clusters.find(k3)) continue;
-                        clusters[k3].files.insert (item_idx);
+                        clusters[k3].files.push_back (item_idx);
                         clusters[k3].free = 0;
                         if (fi.fragmented) clusters[k3].fragmented = 1;
                     } // k3
                 } // k2
             }
         }
+    }
+
+    for (int k3 = m_start; k3 < m_start + m_length; k3 ++) {
+        file_p_list &filesp = clusters[k3].files;
+        std::sort(filesp.begin(), filesp.end());
+        filesp.erase(std::unique(filesp.begin(), filesp.end()), filesp.end());
     }
 }
 
