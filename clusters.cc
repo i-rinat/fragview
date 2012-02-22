@@ -75,9 +75,15 @@ Clusters::create_coarse_map (int granularity)
             eend_c = eend_c / coarse_map_granularity;
 
             for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
-                coarse_map[k3].insert (k);
+                coarse_map[k3].push_back (k);
             }
         }
+    }
+
+    for (int k3 = 0; k3 < coarse_map.size(); k3 ++) {
+        std::vector<uint64_t>  &file_list = coarse_map[k3];
+        std::sort(file_list.begin(), file_list.end());
+        file_list.erase(std::unique(file_list.begin(), file_list.end()), file_list.end());
     }
 
     std::cout << "I've done creating coarse_map and here is some statistics:" << std::endl;
@@ -199,7 +205,7 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
         c_end2 /= coarse_map_granularity;
 
         for (uint64_t c_block = c_start2; c_block < c_end2; c_block ++) {
-            std::set<uint64_t>::iterator f_iter = coarse_map[c_block].begin ();
+            std::vector<uint64_t>::iterator f_iter = coarse_map[c_block].begin ();
             for (; f_iter != coarse_map[c_block].end (); ++ f_iter) {
                 unsigned int item_idx = *f_iter;
                 f_info &fi = files[item_idx];

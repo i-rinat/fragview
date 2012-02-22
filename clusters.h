@@ -89,7 +89,7 @@ class Clusters {
         typedef boost::icl::interval_set<uint64_t> interval_set_t;
 
         interval_set_t fill_cache;
-        std::vector<std::set<uint64_t> > coarse_map;
+        std::vector<std::vector<uint64_t> > coarse_map;
         unsigned int coarse_map_granularity;
 };
 
