@@ -8,7 +8,8 @@
 #include <set>
 #include <glibmm/ustring.h>
 #include <pthread.h>
-
+#include <boost/icl/interval_set.hpp>
+#include <boost/icl/discrete_interval.hpp>
 
 class Clusters {
     public:
@@ -84,9 +85,12 @@ class Clusters {
         bool hide_error_inaccessible_files;
         bool hide_error_no_fiemap;
 
-        std::map<tuple, bool, tuple::compare> fill_cache;
+        typedef boost::icl::discrete_interval<uint64_t> interval_t;
+        typedef boost::icl::interval_set<uint64_t> interval_set_t;
+
+        interval_set_t fill_cache;
         std::vector<std::set<uint64_t> > coarse_map;
-        int coarse_map_granularity;
+        unsigned int coarse_map_granularity;
 };
 
 #endif

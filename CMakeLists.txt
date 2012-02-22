@@ -3,6 +3,7 @@ cmake_minimum_required (VERSION 2.6)
 set (CMAKE_C_FLAGS_DEBUG "-ggdb3 -O0")
 
 find_package (PkgConfig)
+find_package (Boost REQUIRED)
 
 pkg_check_modules (GTKMM gtkmm-3.0)
 pkg_check_modules (GLIBMM glibmm-2.4)
@@ -16,6 +17,7 @@ link_directories (
 include_directories (
 	${GTKMM_INCLUDE_DIRS}
 	${SQLITE3_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIRS}
 )
 
 add_library (clusters STATIC

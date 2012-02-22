@@ -171,61 +171,55 @@ Clusters::allocate (uint64_t cluster_count)
 void
 Clusters::__fill_clusters (uint64_t start, uint64_t length)
 {
-    Clusters::tuple interval (start, length);
-
-    if (fill_cache.end () != fill_cache.find (interval)) {
-        std::cout << "cache hit!" << std::endl;
-        return;
-    }
-
-    // divide whole disk to clusters of blocks
+    // parameters are in cluster units, so compute cluster size
     uint64_t cluster_size = (this->device_size - 1) / cluster_count + 1;
-    std::cout << "cluster_size = " << cluster_size << std::endl;
 
-    std::set<uint64_t> *entry_exist = new std::set<uint64_t> [length];
-
-    // первый и последний кластер в грубой карте, итерации между ними
+    // get starting and ending items in coarse map
     uint64_t c_start = start * cluster_size / coarse_map_granularity;
-    uint64_t c_end = ((start + length) * cluster_size - 1) / coarse_map_granularity;
+    uint64_t c_end = ((start + length - 1) * cluster_size - 1) / coarse_map_granularity;
     c_end = std::min (c_end, (uint64_t)coarse_map.size() - 1);
 
-    std::cout << "c_start = " << c_start << "  c_end = " << c_end << std::endl;
-    std::cout << "" << coarse_map.size() << std::endl;
+    // convert to blocks
+    c_start = c_start * coarse_map_granularity;
+    c_end = (c_end + 1) * coarse_map_granularity - 1;
+    c_end = std::min (c_end, get_device_size ());
 
-    for (int c_block = c_start; c_block <= c_end; c_block ++) {
-        std::set<uint64_t>::iterator iter = coarse_map[c_block].begin();
-        for (; iter != coarse_map[c_block].end(); ++ iter) {
-            uint64_t item_idx = *iter;
-            f_info &fi = files[item_idx];
-            fi.fragmented = (fi.severity >= 2.0);
-            for (int k2 = 0; k2 < fi.extents.size(); k2 ++) {
-                uint64_t estart_c, eend_c;
+    interval_t requested_interval (c_start, c_end);
+    interval_set_t scan_intervals;
+    scan_intervals += requested_interval;
+    scan_intervals -= fill_cache;
 
-                estart_c = fi.extents[k2].start / cluster_size;
-                eend_c = (fi.extents[k2].start +
-                          fi.extents[k2].length - 1);
-                eend_c = eend_c / cluster_size;
+    fill_cache += requested_interval;
 
-                for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
-                    // N-th cluster start: cluster_size * N
-                    // N-th cluster end:   (cluster_size+1)*N-1
-                    if ((k3 < start) || (k3 >= start + length)) continue;
-                    if (clusters.end() != clusters.find(k3)) continue;
+    for (interval_set_t::iterator i_iter = scan_intervals.begin(); i_iter != scan_intervals.end(); ++ i_iter) {
+        // get block
+        uint64_t c_start2 = i_iter->lower();
+        uint64_t c_end2   = i_iter->upper();
+        c_start2 /= coarse_map_granularity;
+        c_end2 /= coarse_map_granularity;
 
-                    if (entry_exist[k3 - start].find (item_idx) == entry_exist[k3 - start].end ()) {
-                        clusters[k3].files.push_back (item_idx);
-                        entry_exist[k3 - start].insert (item_idx);
-                    }
-                    clusters[k3].free = 0;
-                    if (fi.fragmented) clusters[k3].fragmented = 1;
-                }
+        for (uint64_t c_block = c_start2; c_block < c_end2; c_block ++) {
+            std::set<uint64_t>::iterator f_iter = coarse_map[c_block].begin ();
+            for (; f_iter != coarse_map[c_block].end (); ++ f_iter) {
+                unsigned int item_idx = *f_iter;
+                f_info &fi = files[item_idx];
+                fi.fragmented = (fi.severity >= 2.0);
+                for (unsigned int k2 = 0; k2 < fi.extents.size(); k2 ++) {
+                    uint64_t estart_c, eend_c;
+
+                    estart_c = fi.extents[k2].start / cluster_size;
+                    eend_c = (fi.extents[k2].start + fi.extents[k2].length - 1) / cluster_size;
+
+                    for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
+                        //if (clusters.end() != clusters.find(k3)) continue;
+                        clusters[k3].files.insert (item_idx);
+                        clusters[k3].free = 0;
+                        if (fi.fragmented) clusters[k3].fragmented = 1;
+                    } // k3
+                } // k2
             }
         }
     }
-
-    fill_cache [interval] = 1;
-
-    delete [] entry_exist;
 }
 
 double
