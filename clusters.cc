@@ -169,14 +169,14 @@ Clusters::allocate (uint64_t cluster_count)
 }
 
 void
-Clusters::__fill_clusters (uint64_t start, uint64_t length)
+Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
 {
     // parameters are in cluster units, so compute cluster size
     uint64_t cluster_size = (this->device_size - 1) / cluster_count + 1;
 
     // get starting and ending items in coarse map
-    uint64_t c_start = start * cluster_size / coarse_map_granularity;
-    uint64_t c_end = ((start + length - 1) * cluster_size - 1) / coarse_map_granularity;
+    uint64_t c_start = m_start * cluster_size / coarse_map_granularity;
+    uint64_t c_end = ((m_start + m_length - 1) * cluster_size - 1) / coarse_map_granularity;
     c_end = std::min (c_end, (uint64_t)coarse_map.size() - 1);
 
     // convert to blocks

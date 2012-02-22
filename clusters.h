@@ -57,7 +57,7 @@ class Clusters {
         void collect_fragments (const Glib::ustring& initial_dir);
         uint64_t get_device_size () const { return this->device_size; }
         void allocate (uint64_t cluster_count);
-        void __fill_clusters (uint64_t start, uint64_t length);
+        void __fill_clusters (uint64_t m_start, uint64_t m_length);
         double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed);
         int get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi);
         void create_coarse_map (int granularity);
