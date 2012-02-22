@@ -386,12 +386,11 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
 
         if (filelist) {
             filelist->clear();
-            for (int k = 0; k < ci.files.size(); ++k) {
-                int fid = ci.files[k];
-                Clusters::f_info &fi = files[fid];
 
-                filelist->add_file_info (fid, fi.extents.size(),
-                        fi.severity, fi.name);
+            for (Clusters::file_p_list::iterator iter = ci.files.begin(); iter != ci.files.end(); ++ iter) {
+                unsigned int fid = *iter;
+                Clusters::f_info &fi = files[fid];
+                filelist->add_file_info (fid, fi.extents.size(), fi.severity, fi.name);
             }
         }
         flag_update = TRUE;

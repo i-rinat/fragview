@@ -37,7 +37,7 @@ class Clusters {
         } f_info;
 
         typedef std::vector<f_info> file_list;
-        typedef std::vector<int> file_p_list;
+        typedef std::set<unsigned int> file_p_list;
 
         class cluster_info {
             public:
