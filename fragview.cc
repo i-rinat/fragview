@@ -25,6 +25,7 @@ class GraphWindow : public Gtk::Window {
 
 GraphWindow::GraphWindow (const std::string& initial_dir) {
     set_title ("graph");
+    set_default_size (800, 560);
     fragmap.attach_clusters (cl);
     fragmap.attach_filelist_widget (filelist);
 
