@@ -19,7 +19,7 @@ lower than read speed of continuous ones will be considered fragmented.
 
 Compiling and installing
 ------------------------
-You'll need gtkmm-3.0 and sqlite3 headers to compile. Maybe you'll need to
+You'll need gtkmm-3.0, boost (icl) and sqlite3 headers to compile. Maybe you'll need to
 install kernel headers too.
 
 First, create directory, go there and run cmake:
@@ -57,6 +57,8 @@ Copying
 fragview is free software; you can redistribute it and/or modify it under the
 terms of the GNU General Public License as published by the Free Software
 Foundation; either version 2, or (at your option) any later version.
+
+fragview uses some of boost libraries (http://www.boost.org). See `LICENSE_1_0_BOOST.txt` for details.
 
 Contact
 -------
