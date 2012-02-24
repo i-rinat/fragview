@@ -148,6 +148,7 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
                     if (0 != lstat64 (ent->fts_path, &sb_ent)) break; // something wrong, skip
                     if (sb_ent.st_dev != sb_root.st_dev) break; // another device, skip
                     if (get_file_extents (ent->fts_path, &sb_ent, &fi)) {
+                        fi.fragmented = (fi.severity >= 2.0);
                         this->lock_files ();
                         files.push_back (fi);
                         this->unlock_files ();
@@ -220,7 +221,6 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
     for (file_queue_t::iterator f_iter = file_queue.begin(); f_iter != file_queue.end(); ++ f_iter) {
         unsigned int item_idx = *f_iter;
         f_info &fi = files[item_idx];
-        fi.fragmented = (fi.severity >= 2.0);
         for (unsigned int k2 = 0; k2 < fi.extents.size(); k2 ++) {
             uint64_t estart_c, eend_c;
 
