@@ -4,6 +4,8 @@
 #include <gtkmm/box.h>
 #include <gtkmm/paned.h>
 #include <gtkmm/scrolledwindow.h>
+#include <gtkmm/actiongroup.h>
+#include <gtkmm/uimanager.h>
 #include "clusters.h"
 #include "fragmap-widget.h"
 #include "filelist-widget.h"
@@ -21,6 +23,8 @@ class GraphWindow : public Gtk::Window {
         Clusters cl;
         FilelistView filelist;
         std::string initial_dir;
+        Glib::RefPtr<Gtk::ActionGroup> action_group_ref;
+        Glib::RefPtr<Gtk::UIManager> ui_manager_ref;
 };
 
 GraphWindow::GraphWindow (const std::string& initial_dir) {
@@ -31,6 +35,11 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
 
     cl.collect_fragments (initial_dir);
     cl.create_coarse_map (1000);
+
+    // set up menus
+    action_group_ref = Gtk::ActionGroup::create ();
+
+    // TODO: WIP
 
     Gtk::ScrolledWindow *scrolled_window = Gtk::manage (new Gtk::ScrolledWindow);
     scrolled_window->add (filelist);
