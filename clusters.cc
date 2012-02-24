@@ -197,6 +197,9 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
 
     fill_cache += requested_interval;
 
+    // collect file list
+    typedef std::vector<uint64_t> file_queue_t;
+    file_queue_t file_queue;
     for (interval_set_t::iterator i_iter = scan_intervals.begin(); i_iter != scan_intervals.end(); ++ i_iter) {
         // get block
         uint64_t c_start2 = i_iter->lower();
@@ -205,30 +208,36 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
         c_end2 /= coarse_map_granularity;
 
         for (uint64_t c_block = c_start2; c_block < c_end2; c_block ++) {
-            std::vector<uint64_t>::iterator f_iter = coarse_map[c_block].begin ();
-            for (; f_iter != coarse_map[c_block].end (); ++ f_iter) {
-                unsigned int item_idx = *f_iter;
-                f_info &fi = files[item_idx];
-                fi.fragmented = (fi.severity >= 2.0);
-                for (unsigned int k2 = 0; k2 < fi.extents.size(); k2 ++) {
-                    uint64_t estart_c, eend_c;
-
-                    estart_c = fi.extents[k2].start / cluster_size;
-                    eend_c = (fi.extents[k2].start + fi.extents[k2].length - 1) / cluster_size;
-
-                    if (estart_c > m_start + m_length - 1) continue;
-                    if (eend_c < m_start) continue;
-                    if (estart_c < m_start) estart_c = m_start;
-                    if (eend_c > m_start + m_length - 1) eend_c = m_start + m_length - 1;
-
-                    for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
-                        clusters[k3].files.push_back (item_idx);
-                        clusters[k3].free = 0;
-                        if (fi.fragmented) clusters[k3].fragmented = 1;
-                    } // k3
-                } // k2
-            }
+            file_queue.insert (file_queue.end(), coarse_map[c_block].begin(), coarse_map[c_block].end());
         }
+    }
+
+    // remove duplicates
+    std::sort(file_queue.begin(), file_queue.end());
+    file_queue.erase(std::unique(file_queue.begin(), file_queue.end()), file_queue.end());
+
+    // process collected file list
+    for (file_queue_t::iterator f_iter = file_queue.begin(); f_iter != file_queue.end(); ++ f_iter) {
+        unsigned int item_idx = *f_iter;
+        f_info &fi = files[item_idx];
+        fi.fragmented = (fi.severity >= 2.0);
+        for (unsigned int k2 = 0; k2 < fi.extents.size(); k2 ++) {
+            uint64_t estart_c, eend_c;
+
+            estart_c = fi.extents[k2].start / cluster_size;
+            eend_c = (fi.extents[k2].start + fi.extents[k2].length - 1) / cluster_size;
+
+            if (estart_c > m_start + m_length - 1) continue;
+            if (eend_c < m_start) continue;
+            if (estart_c < m_start) estart_c = m_start;
+            if (eend_c > m_start + m_length - 1) eend_c = m_start + m_length - 1;
+
+            for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
+                clusters[k3].files.push_back (item_idx);
+                clusters[k3].free = 0;
+                if (fi.fragmented) clusters[k3].fragmented = 1;
+            } // k3
+        } // k2
     }
 
     for (int k3 = m_start; k3 < m_start + m_length; k3 ++) {
