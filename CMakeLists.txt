@@ -53,3 +53,7 @@ target_link_libraries (fragdb
 	${SQLITE3_LIBRARIES}
 	clusters
 )
+
+install (TARGETS fileseverity fragdb fragview
+	RUNTIME DESTINATION "bin"
+)

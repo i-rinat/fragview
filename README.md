@@ -32,7 +32,11 @@ Then run make:
 
 `$ make`
 
-There is no install procedure yet. Just run binaries.
+Then install:
+
+`# make install`
+
+You can just run resulted binaries without installing them.
 
 Binaries
 --------
