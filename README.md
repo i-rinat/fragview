@@ -40,7 +40,7 @@ Binaries
 There are three binaries you can run:
 
 * `fragview`
-* `fileseveriy`
+* `fileseverity`
 * `fragdb`
 
 `fragview` is a GTK+ GUI application which enables you to browse by clicking
