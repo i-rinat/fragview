@@ -216,11 +216,14 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         gettimeofday(&tv2, NULL);
         printf("fill_clusters: %f sec\n", tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0);
     } else {
+        gettimeofday(&tv1, NULL);
         clusters->lock_clusters ();
         clusters->lock_files ();
         clusters->__fill_clusters (target_offset, cluster_map_width * cluster_map_height);
         clusters->unlock_clusters ();
         clusters->unlock_files ();
+        gettimeofday(&tv2, NULL);
+        printf("fill_clusters: %f sec\n", tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0);
     }
 
     gettimeofday(&tv1, NULL);
