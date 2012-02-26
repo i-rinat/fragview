@@ -21,7 +21,7 @@ class GraphWindow : public Gtk::Window {
     protected:
         Fragmap fragmap;
         Clusters cl;
-        FilelistView filelist;
+        FilelistView filelistview;
         std::string initial_dir;
         Glib::RefPtr<Gtk::ActionGroup> action_group_ref;
         Glib::RefPtr<Gtk::UIManager> ui_manager_ref;
@@ -46,7 +46,7 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
     set_title ("fragview");
     set_default_size (800, 560);
     fragmap.attach_clusters (cl);
-    fragmap.attach_filelist_widget (filelist);
+    fragmap.attach_filelist_widget (filelistview);
 
     cl.collect_fragments (initial_dir);
     cl.create_coarse_map (1000);
@@ -82,7 +82,7 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
     Gtk::Widget *menubar = ui_manager_ref->get_widget ("/MenuBar");
 
     Gtk::ScrolledWindow *scrolled_window = Gtk::manage (new Gtk::ScrolledWindow);
-    scrolled_window->add (filelist);
+    scrolled_window->add (filelistview);
 
     Gtk::VPaned *vpaned = Gtk::manage (new Gtk::VPaned);
     vpaned->pack1 (fragmap, true, false);
