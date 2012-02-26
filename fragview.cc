@@ -28,12 +28,37 @@ class GraphWindow : public Gtk::Window {
 
         void on_action_view_most_fragmented (void);
         void on_action_main_quit (void);
+        class sorter {
+            public:
+            bool operator() (const std::pair<uint64_t, uint64_t> &a, const std::pair<uint64_t, uint64_t> &b) const {
+                return a.second > b.second;
+            }
+        } sorter_object_desc;
 };
 
 void
 GraphWindow::on_action_view_most_fragmented (void)
 {
-    std::cout << "Ha!" << std::endl;
+    Clusters::file_list &fl = cl.get_files();
+
+    // sort files
+    typedef std::vector<std::pair<uint64_t, uint64_t> > mapping_t;
+
+    mapping_t mapping;
+    int k;
+    mapping.resize (fl.size());
+    for (k = 0; k < fl.size(); k ++) {
+        mapping[k].first = k;
+        mapping[k].second = fl[k].extents.size();
+    }
+    std::sort (mapping.begin(), mapping.end(), sorter_object_desc);
+
+    // fill filelistview widget with 'n' most fragmented
+    filelistview.clear ();
+    for (k = 0; k < 40; k ++) {
+        uint64_t idx = mapping[k].first;
+        filelistview.add_file_info (idx, fl[idx].extents.size(), fl[idx].severity, fl[idx].name);
+    }
 }
 
 void
