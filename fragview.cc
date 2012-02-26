@@ -28,6 +28,7 @@ class GraphWindow : public Gtk::Window {
 
         void on_action_view_most_fragmented (void);
         void on_action_view_most_severe (void);
+        void on_action_view_restore (void);
         void on_action_main_quit (void);
         class sorter {
             public:
@@ -91,6 +92,14 @@ GraphWindow::on_action_view_most_severe (void)
 }
 
 void
+GraphWindow::on_action_view_restore (void)
+{
+    fragmap.set_mode (Fragmap::FRAGMAP_MODE_SHOW_ALL);
+    filelistview.clear ();
+    fragmap.queue_draw ();
+}
+
+void
 GraphWindow::on_action_main_quit (void)
 {
     this->hide ();
@@ -117,6 +126,8 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
         sigc::mem_fun (*this, &GraphWindow::on_action_view_most_fragmented));
     action_group_ref->add (Gtk::Action::create ("ViewSevere", "Files with highest severity"),
         sigc::mem_fun (*this, &GraphWindow::on_action_view_most_severe));
+    action_group_ref->add (Gtk::Action::create ("ViewRestore", "Restore regular view"),
+        sigc::mem_fun (*this, &GraphWindow::on_action_view_restore));
 
     ui_manager_ref = Gtk::UIManager::create ();
     ui_manager_ref->insert_action_group (action_group_ref);
@@ -131,6 +142,8 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
         "    <menu action='MenuView'>"
         "      <menuitem action='ViewFragmented' />"
         "      <menuitem action='ViewSevere' />"
+        "      <separator />"
+        "      <menuitem action='ViewRestore' />"
         "    </menu>"
         "  </menubar>"
         "</ui>";
