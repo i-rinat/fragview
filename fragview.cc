@@ -27,6 +27,7 @@ class GraphWindow : public Gtk::Window {
         Glib::RefPtr<Gtk::UIManager> ui_manager_ref;
 
         void on_action_view_most_fragmented (void);
+        void on_action_view_most_severe (void);
         void on_action_main_quit (void);
         class sorter {
             public:
@@ -34,6 +35,12 @@ class GraphWindow : public Gtk::Window {
                 return a.second > b.second;
             }
         } sorter_object_desc;
+        class sorter_severity {
+            public:
+            bool operator() (const std::pair<uint64_t, double> &a, const std::pair<uint64_t, double> &b) const {
+                return a.second > b.second;
+            }
+        } sorter_object_severity_desc;
 };
 
 void
@@ -54,6 +61,28 @@ GraphWindow::on_action_view_most_fragmented (void)
     std::sort (mapping.begin(), mapping.end(), sorter_object_desc);
 
     // fill filelistview widget with 'n' most fragmented
+    filelistview.clear ();
+    for (k = 0; k < 40; k ++) {
+        uint64_t idx = mapping[k].first;
+        filelistview.add_file_info (idx, fl[idx].extents.size(), fl[idx].severity, fl[idx].name);
+    }
+}
+
+void
+GraphWindow::on_action_view_most_severe (void)
+{
+    Clusters::file_list &fl = cl.get_files();
+    int k;
+
+    std::vector<std::pair<uint64_t, double> > mapping;
+    mapping.resize (fl.size());
+    for (k = 0; k < fl.size(); k ++) {
+        mapping[k].first = k;
+        mapping[k].second = fl[k].severity;
+    }
+    std::sort (mapping.begin(), mapping.end(), sorter_object_severity_desc);
+
+    // fill filelistview widget with 'n' most fragmented (by severity)
     filelistview.clear ();
     for (k = 0; k < 40; k ++) {
         uint64_t idx = mapping[k].first;
@@ -84,8 +113,10 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
         sigc::mem_fun (*this, &GraphWindow::on_action_main_quit));
 
     action_group_ref->add (Gtk::Action::create ("MenuView", "View"));
-    action_group_ref->add (Gtk::Action::create ("ViewMostFragmentedFiles", "Most fragmented files"),
+    action_group_ref->add (Gtk::Action::create ("ViewFragmented", "Most fragmented files"),
         sigc::mem_fun (*this, &GraphWindow::on_action_view_most_fragmented));
+    action_group_ref->add (Gtk::Action::create ("ViewSevere", "Files with highest severity"),
+        sigc::mem_fun (*this, &GraphWindow::on_action_view_most_severe));
 
     ui_manager_ref = Gtk::UIManager::create ();
     ui_manager_ref->insert_action_group (action_group_ref);
@@ -98,7 +129,8 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
         "      <menuitem action='Quit' />"
         "    </menu>"
         "    <menu action='MenuView'>"
-        "      <menuitem action='ViewMostFragmentedFiles' />"
+        "      <menuitem action='ViewFragmented' />"
+        "      <menuitem action='ViewSevere' />"
         "    </menu>"
         "  </menubar>"
         "</ui>";
