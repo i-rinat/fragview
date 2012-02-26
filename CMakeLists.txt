@@ -2,12 +2,12 @@ project (fragview)
 cmake_minimum_required (VERSION 2.6)
 set (CMAKE_C_FLAGS_DEBUG "-ggdb3 -O0")
 
-find_package (PkgConfig)
+find_package (PkgConfig REQUIRED)
 find_package (Boost REQUIRED)
 
-pkg_check_modules (GTKMM gtkmm-3.0)
-pkg_check_modules (GLIBMM glibmm-2.4)
-pkg_check_modules (SQLITE3 sqlite3)
+pkg_check_modules (GTKMM REQUIRED gtkmm-3.0)
+pkg_check_modules (GLIBMM REQUIRED glibmm-2.4)
+pkg_check_modules (SQLITE3 REQUIRED sqlite3)
 
 link_directories (
 	${GTKMM_LIBRARY_DIRS}
