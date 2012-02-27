@@ -22,6 +22,8 @@ Clusters::Clusters ()
 
     hide_error_inaccessible_files = true;
     hide_error_no_fiemap = true;
+
+    desired_cluster_size = 3500;
 }
 
 Clusters::~Clusters ()
@@ -131,6 +133,9 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
         fp.close ();
     }
 
+    cluster_count = (device_size - 1) / desired_cluster_size + 1;
+    clusters.clear ();
+
     // walk directory tree, don't cross mount borders
     char *dirs[2] = {const_cast<char *>(initial_dir.c_str()), 0};
     FTS *fts_handle = fts_open (dirs, FTS_PHYSICAL | FTS_XDEV | FTS_NOCHDIR | FTS_NOSTAT, NULL);
@@ -163,16 +168,6 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
     fts_close (fts_handle);
 
     std::cout << "files.size = " << files.size() << std::endl;
-}
-
-void
-Clusters::allocate (uint64_t cluster_count)
-{
-    if (cluster_count == 0) cluster_count = 1;
-    this->cluster_count = cluster_count;
-
-    clusters.clear ();
-    fill_cache.clear ();
 }
 
 void

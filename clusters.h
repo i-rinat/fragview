@@ -56,7 +56,6 @@ class Clusters {
 
         void collect_fragments (const Glib::ustring& initial_dir);
         uint64_t get_device_size () const { return this->device_size; }
-        void allocate (uint64_t cluster_count);
         void __fill_clusters (uint64_t m_start, uint64_t m_length);
         double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed);
         int get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi);
@@ -68,12 +67,13 @@ class Clusters {
         int unlock_files ();
 
         cluster_info& at (int k) { return clusters[k]; }
-        uint64_t size () { return cluster_count; }
+        uint64_t get_count () { return cluster_count; }
+        void set_desired_cluster_size (uint64_t ds) { desired_cluster_size = ds; }
+        uint64_t get_desired_cluster_size (void) { return desired_cluster_size; }
         file_list& get_files ();
 
     private:
         int fibmap_fallback (int fd, const char *fname, const struct stat64 *sb, struct fiemap *fiemap);
-
 
     private:
         file_list files;
@@ -82,6 +82,7 @@ class Clusters {
         pthread_mutex_t files_mutex;
         uint64_t device_size;
         uint64_t cluster_count;
+        uint64_t desired_cluster_size;
         bool hide_error_inaccessible_files;
         bool hide_error_no_fiemap;
 

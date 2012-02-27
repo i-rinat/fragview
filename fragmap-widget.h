@@ -24,7 +24,6 @@ class Fragmap : public Gtk::HBox {
         Fragmap ();
         ~Fragmap ();
 
-        int get_cluster_count();
         void attach_clusters (Clusters& cl);
         void attach_filelist_widget (FilelistView& fl);
         void file_begin ();
@@ -39,14 +38,12 @@ class Fragmap : public Gtk::HBox {
         Gtk::DrawingArea drawing_area;
         Gtk::VScrollbar scrollbar;
 
-        int cluster_size_desired; // desired number of blocks each cluster contains
         int force_fill_clusters;
         int widget_size_changed;
         int cluster_count_changed;
         int box_size;
 
         int target_cluster;
-        int total_clusters;
 
         FRAGMAP_MODE display_mode;
         int selected_cluster;

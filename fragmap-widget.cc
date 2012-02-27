@@ -10,7 +10,6 @@ Fragmap::Fragmap ()
 
     widget_size_changed = 0;
     cluster_count_changed = 1;
-    total_clusters = 0;
     force_fill_clusters = 0;
     shift_x = 0;
     shift_y = 0;
@@ -20,7 +19,6 @@ Fragmap::Fragmap ()
     selected_cluster = -1;
 
     target_cluster = 0;
-    cluster_size_desired = 3500;
 
     filelist = 0;
 
@@ -91,22 +89,21 @@ Fragmap::on_drawarea_scroll_event (GdkEventScroll* event)
         force_fill_clusters = 1;
         clusters->lock_clusters ();
 
+        uint64_t old_size = clusters->get_desired_cluster_size ();
+        uint64_t new_size = old_size;
+
         if (GDK_SCROLL_UP == event->direction) {
-            cluster_size_desired = cluster_size_desired / 1.15;
-            if (cluster_size_desired == 0) cluster_size_desired = 1;
+            new_size /= 1.15;
+            if (new_size == 0) new_size = 1;
         }
 
         if (GDK_SCROLL_DOWN == event->direction) {
-            int old = cluster_size_desired;
-            cluster_size_desired = cluster_size_desired * 1.15;
-            if (old == cluster_size_desired) cluster_size_desired ++;
-
-            // clamp
-            if (cluster_size_desired > total_clusters) {
-                cluster_size_desired = total_clusters;
-            }
+            new_size *= 1.15;
+            if (old_size == new_size) new_size ++;
         }
-        std::cout << "updated cluster_size_desired = " << cluster_size_desired << std::endl;
+
+        clusters->set_desired_cluster_size (new_size);
+        std::cout << "updated cluster_size_desired = " << new_size << std::endl;
 
         Gtk::Allocation al(get_allocation());
         on_size_allocate (al);
@@ -145,8 +142,7 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
     assert (clusters != NULL);
     uint64_t device_size = clusters->get_device_size ();
     assert (device_size > 0);
-    total_clusters = (device_size - 1) / cluster_size_desired + 1;
-    cluster_map_full_height = (total_clusters - 1) / cluster_map_width + 1;
+    cluster_map_full_height = (clusters->get_count() - 1) / cluster_map_width + 1;
 
     if (cluster_map_full_height > cluster_map_height) {
         // map does not fit, show scrollbar
@@ -154,7 +150,7 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
         // and then recalculate sizes
         pix_width = allocation.get_width() - scrollbar.get_allocation().get_width();
         cluster_map_width = (pix_width - 1) / box_size;
-        cluster_map_full_height = (total_clusters - 1) / cluster_map_width + 1;
+        cluster_map_full_height = (clusters->get_count() - 1) / cluster_map_width + 1;
     } else {
         // we do not need scrollbar, hide it
         scrollbar.hide();
@@ -202,29 +198,14 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     struct timeval tv1, tv2;
 
-    if (cluster_count_changed || force_fill_clusters )
-    {
-        gettimeofday(&tv1, NULL);
-        clusters->lock_clusters ();
-        clusters->lock_files ();
-        clusters->allocate (total_clusters);
-        clusters->__fill_clusters (target_offset, cluster_map_width * cluster_map_height);
-        force_fill_clusters = 0;
-        cluster_count_changed = 0;
-        clusters->unlock_clusters ();
-        clusters->unlock_files ();
-        gettimeofday(&tv2, NULL);
-        printf("fill_clusters: %f sec\n", tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0);
-    } else {
-        gettimeofday(&tv1, NULL);
-        clusters->lock_clusters ();
-        clusters->lock_files ();
-        clusters->__fill_clusters (target_offset, cluster_map_width * cluster_map_height);
-        clusters->unlock_clusters ();
-        clusters->unlock_files ();
-        gettimeofday(&tv2, NULL);
-        printf("fill_clusters: %f sec\n", tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0);
-    }
+    gettimeofday(&tv1, NULL);
+    clusters->lock_clusters ();
+    clusters->lock_files ();
+    clusters->__fill_clusters (target_offset, cluster_map_width * cluster_map_height);
+    clusters->unlock_clusters ();
+    clusters->unlock_files ();
+    gettimeofday(&tv2, NULL);
+    printf("fill_clusters: %f sec\n", tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0);
 
     gettimeofday(&tv1, NULL);
     int ky, kx;
@@ -245,7 +226,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     for (ky = 0; ky < cluster_map_height; ++ky) {
         for (kx = 0; kx < cluster_map_width; ++kx) {
             int cluster_idx = ky*cluster_map_width + kx + target_offset;
-            if (cluster_idx < total_clusters && clusters->at(cluster_idx).free) {
+            if (cluster_idx < clusters->get_count() && clusters->at(cluster_idx).free) {
                 cr->rectangle (kx * box_size, ky * box_size, box_size - 1, box_size - 1);
             }
         }
@@ -267,7 +248,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     for (ky = 0; ky < cluster_map_height; ++ky) {
         for (kx = 0; kx < cluster_map_width; ++kx) {
             int cluster_idx = ky*cluster_map_width + kx + target_offset;
-            if (cluster_idx < total_clusters && !(clusters->at(cluster_idx).free) &&
+            if (cluster_idx < clusters->get_count() && !(clusters->at(cluster_idx).free) &&
                 clusters->at(cluster_idx).fragmented)
             {
                 cr->rectangle (kx * box_size, ky * box_size, box_size - 1, box_size - 1);
@@ -290,7 +271,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     for (ky = 0; ky < cluster_map_height; ++ky) {
         for (kx = 0; kx < cluster_map_width; ++kx) {
             int cluster_idx = ky*cluster_map_width + kx + target_offset;
-            if (cluster_idx < total_clusters && !(clusters->at(cluster_idx).free) &&
+            if (cluster_idx < clusters->get_count() && !(clusters->at(cluster_idx).free) &&
                 !(clusters->at(cluster_idx).fragmented))
             {
                 cr->rectangle (kx * box_size, ky * box_size, box_size - 1, box_size - 1);
@@ -299,7 +280,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     }
     cr->fill ();
 
-    if (selected_cluster > clusters->size()) selected_cluster = clusters->size() - 1;
+    if (selected_cluster > clusters->get_count()) selected_cluster = clusters->get_count() - 1;
 
     if (FRAGMAP_MODE_CLUSTER == display_mode && selected_cluster >= 0 ) {
         ky = selected_cluster / cluster_map_width;
@@ -324,7 +305,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         assert (clusters != NULL);
         uint64_t device_size = clusters->get_device_size ();
         assert (device_size > 0);
-        uint64_t cluster_size = (device_size - 1) / total_clusters + 1;
+        uint64_t cluster_size = (device_size - 1) / clusters->get_count() + 1;
 
         for (int k = 0; k < selected_files.size (); ++k) {
             int file_idx = selected_files[k];
@@ -377,8 +358,7 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
     int target_line = target_cluster / cluster_map_width;
     int cl_raw = (cl_y + target_line) * cluster_map_width + cl_x;
 
-    if (cl_raw >= clusters->size())
-        cl_raw = clusters->size() - 1;
+    if (cl_raw >= clusters->get_count()) cl_raw = clusters->get_count() - 1;
 
     Clusters::cluster_info& ci = clusters->at (cl_raw);
     Clusters::file_list& files = clusters->get_files ();
@@ -402,12 +382,6 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
     clusters->unlock_files ();
     clusters->unlock_clusters ();
     return flag_update;
-}
-
-int
-Fragmap::get_cluster_count()
-{
-    return total_clusters;
 }
 
 void
