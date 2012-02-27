@@ -62,6 +62,17 @@ Clusters::get_files ()
 }
 
 void
+Clusters::set_desired_cluster_size (uint64_t ds)
+{
+    if (desired_cluster_size != ds) { // changed
+        desired_cluster_size = ds;
+        cluster_count = (device_size - 1) / desired_cluster_size + 1;
+        fill_cache.clear();
+        clusters.clear();
+    }
+}
+
+void
 Clusters::create_coarse_map (int granularity)
 {
     this->coarse_map_granularity = granularity;
