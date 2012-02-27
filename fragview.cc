@@ -6,6 +6,8 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/actiongroup.h>
 #include <gtkmm/uimanager.h>
+#include <gtkmm/filechooserdialog.h>
+#include <gtkmm/stock.h>
 #include "clusters.h"
 #include "fragmap-widget.h"
 #include "filelist-widget.h"
@@ -29,6 +31,7 @@ class GraphWindow : public Gtk::Window {
         void on_action_view_most_fragmented (void);
         void on_action_view_most_severe (void);
         void on_action_view_restore (void);
+        void on_action_main_open (void);
         void on_action_main_quit (void);
         class sorter {
             public:
@@ -105,6 +108,23 @@ GraphWindow::on_action_main_quit (void)
     this->hide ();
 }
 
+void
+GraphWindow::on_action_main_open (void)
+{
+    std::cout << "Open directory" << std::endl;
+    Gtk::FileChooserDialog dialog ("Select directory", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
+    dialog.set_transient_for (*this);
+    dialog.add_button (Gtk::Stock::OK, Gtk::RESPONSE_OK);
+    dialog.add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+
+    int result = dialog.run ();
+    if (Gtk::RESPONSE_OK == result) {
+        std::cout << "Selected directory: " << dialog.get_filename() << std::endl;
+        cl.collect_fragments (dialog.get_filename ());
+        cl.create_coarse_map (2000);
+    }
+}
+
 GraphWindow::GraphWindow (const std::string& initial_dir) {
     set_title ("fragview");
     set_default_size (800, 560);
@@ -117,8 +137,10 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
     // set up menus
     action_group_ref = Gtk::ActionGroup::create ();
 
-    action_group_ref->add (Gtk::Action::create ("MenuMain", "fragview"));
-    action_group_ref->add (Gtk::Action::create ("Quit", "Quit"),
+    action_group_ref->add (Gtk::Action::create ("MenuMain", "Fragview"));
+    action_group_ref->add (Gtk::Action::create ("MainOpen", "Open directory..."),
+        sigc::mem_fun (*this, &GraphWindow::on_action_main_open));
+    action_group_ref->add (Gtk::Action::create ("MainQuit", "Quit"),
         sigc::mem_fun (*this, &GraphWindow::on_action_main_quit));
 
     action_group_ref->add (Gtk::Action::create ("MenuView", "View"));
@@ -137,7 +159,9 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
         "<ui>"
         "  <menubar name='MenuBar'>"
         "    <menu action='MenuMain'>"
-        "      <menuitem action='Quit' />"
+        "      <menuitem action='MainOpen' />"
+        "      <separator />"
+        "      <menuitem action='MainQuit' />"
         "    </menu>"
         "    <menu action='MenuView'>"
         "      <menuitem action='ViewFragmented' />"

@@ -77,6 +77,7 @@ Clusters::create_coarse_map (int granularity)
 {
     this->coarse_map_granularity = granularity;
     int map_size = (get_device_size () - 1) / coarse_map_granularity + 1;
+    coarse_map.clear ();
     coarse_map.resize (map_size);
 
     for (int k = 0; k < files.size(); ++ k) {
@@ -150,6 +151,9 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
     // walk directory tree, don't cross mount borders
     char *dirs[2] = {const_cast<char *>(initial_dir.c_str()), 0};
     FTS *fts_handle = fts_open (dirs, FTS_PHYSICAL | FTS_XDEV | FTS_NOCHDIR | FTS_NOSTAT, NULL);
+
+    files.clear ();
+    clusters.clear ();
 
     while (1) {
         FTSENT *ent = fts_read (fts_handle);
