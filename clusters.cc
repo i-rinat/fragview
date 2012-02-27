@@ -65,7 +65,7 @@ void
 Clusters::set_desired_cluster_size (uint64_t ds)
 {
     if (desired_cluster_size != ds) { // changed
-        desired_cluster_size = ds;
+        desired_cluster_size = std::min (ds, device_size / 100 );
         cluster_count = (device_size - 1) / desired_cluster_size + 1;
         fill_cache.clear();
         clusters.clear();
