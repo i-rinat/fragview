@@ -15,9 +15,8 @@ FilelistView::FilelistView ()
     default_sort_order [append_column ("Name", columns.col_name) - 1] = Gtk::SORT_ASCENDING;
     default_sort_order [append_column ("Dir", columns.col_dir) - 1] = Gtk::SORT_ASCENDING;
 
-    int k;
     std::vector<Gtk::TreeViewColumn *> columns = get_columns ();
-    for (k = 0; k < columns.size(); ++k) {
+    for (unsigned int k = 0; k < columns.size(); ++k) {
         columns[k]->set_resizable ();
         columns[k]->set_reorderable ();
         columns[k]->set_clickable ();
@@ -105,7 +104,7 @@ FilelistView::on_selection_changed (void)
     Glib::RefPtr<Gtk::TreeModel> model = get_model ();
     fragmap->file_begin ();
     std::vector<Gtk::TreeModel::Path> items = get_selection ()->get_selected_rows ();
-    for (int k = 0; k < items.size(); ++ k) {
+    for (unsigned int k = 0; k < items.size(); ++ k) {
         Gtk::TreeModel::Row row = *(model->get_iter (items[k]));
         fragmap->file_add (row [columns.col_fileid]);
     }

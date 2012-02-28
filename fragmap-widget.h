@@ -46,7 +46,7 @@ class Fragmap : public Gtk::HBox {
         int target_cluster;
 
         FRAGMAP_MODE display_mode;
-        int selected_cluster;
+        uint64_t selected_cluster;
         std::vector<int> selected_files;
 
         int shift_x;

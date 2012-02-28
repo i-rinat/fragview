@@ -16,7 +16,6 @@ Fragmap::Fragmap ()
     box_size = 7;
 
     display_mode = FRAGMAP_MODE_SHOW_ALL;
-    selected_cluster = -1;
 
     target_cluster = 0;
 
@@ -225,7 +224,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     for (ky = 0; ky < cluster_map_height; ++ky) {
         for (kx = 0; kx < cluster_map_width; ++kx) {
-            int cluster_idx = ky*cluster_map_width + kx + target_offset;
+            uint64_t cluster_idx = ky*cluster_map_width + kx + target_offset;
             if (cluster_idx < clusters->get_count() && clusters->at(cluster_idx).free) {
                 cr->rectangle (kx * box_size, ky * box_size, box_size - 1, box_size - 1);
             }
@@ -247,7 +246,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     for (ky = 0; ky < cluster_map_height; ++ky) {
         for (kx = 0; kx < cluster_map_width; ++kx) {
-            int cluster_idx = ky*cluster_map_width + kx + target_offset;
+            uint64_t cluster_idx = ky*cluster_map_width + kx + target_offset;
             if (cluster_idx < clusters->get_count() && !(clusters->at(cluster_idx).free) &&
                 clusters->at(cluster_idx).fragmented)
             {
@@ -270,7 +269,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     for (ky = 0; ky < cluster_map_height; ++ky) {
         for (kx = 0; kx < cluster_map_width; ++kx) {
-            int cluster_idx = ky*cluster_map_width + kx + target_offset;
+            uint64_t cluster_idx = ky*cluster_map_width + kx + target_offset;
             if (cluster_idx < clusters->get_count() && !(clusters->at(cluster_idx).free) &&
                 !(clusters->at(cluster_idx).fragmented))
             {
@@ -282,7 +281,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
     if (selected_cluster > clusters->get_count()) selected_cluster = clusters->get_count() - 1;
 
-    if (FRAGMAP_MODE_CLUSTER == display_mode && selected_cluster >= 0 ) {
+    if (FRAGMAP_MODE_CLUSTER == display_mode) {
         ky = selected_cluster / cluster_map_width;
         kx = selected_cluster - ky * cluster_map_width;
         ky = ky - target_line;              // to screen coordinates
@@ -307,7 +306,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         assert (device_size > 0);
         uint64_t cluster_size = (device_size - 1) / clusters->get_count() + 1;
 
-        for (int k = 0; k < selected_files.size (); ++k) {
+        for (unsigned int k = 0; k < selected_files.size (); ++k) {
             int file_idx = selected_files[k];
             if (files.at(file_idx).fragmented) {
                 cairo_set_source_rgbv (cr, color_frag);
@@ -315,7 +314,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
                 cairo_set_source_rgbv (cr, color_nfrag);
             }
 
-            for (int k2 = 0; k2 < files.at(file_idx).extents.size(); k2 ++) {
+            for (unsigned int k2 = 0; k2 < files.at(file_idx).extents.size(); k2 ++) {
                 uint64_t estart_c, eend_c;
 
                 estart_c = files.at(file_idx).extents[k2].start / cluster_size;
@@ -356,7 +355,7 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
     int cl_y = (int) (y - shift_y) / box_size;
 
     int target_line = target_cluster / cluster_map_width;
-    int cl_raw = (cl_y + target_line) * cluster_map_width + cl_x;
+    uint64_t cl_raw = (cl_y + target_line) * cluster_map_width + cl_x;
 
     if (cl_raw >= clusters->get_count()) cl_raw = clusters->get_count() - 1;
 
