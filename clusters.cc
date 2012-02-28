@@ -65,7 +65,7 @@ void
 Clusters::set_desired_cluster_size (uint64_t ds)
 {
     if (desired_cluster_size != ds) { // changed
-        desired_cluster_size = std::min (ds, device_size / 100 );
+        desired_cluster_size = std::min (ds, device_size / 100 + 1);
         cluster_count = (device_size - 1) / desired_cluster_size + 1;
         fill_cache.clear();
         clusters.clear();
@@ -124,7 +124,7 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 {
     struct stat64 sb_root;
 
-    this->device_size = 0;
+    this->device_size = 1;
 
     if (0 == stat64 (initial_dir.c_str(), &sb_root)) {
         std::string partition_name;
