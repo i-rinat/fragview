@@ -181,7 +181,6 @@ void show_over_severity (sqlite3 *db, double over_count) {
 int main (int argc, char *argv[]) {
 
     sqlite3 *db;
-    int res;
 
     const char *dir = 0;
 

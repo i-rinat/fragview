@@ -73,15 +73,15 @@ Clusters::set_desired_cluster_size (uint64_t ds)
 }
 
 void
-Clusters::create_coarse_map (int granularity)
+Clusters::create_coarse_map (unsigned int granularity)
 {
     this->coarse_map_granularity = granularity;
-    int map_size = (get_device_size () - 1) / coarse_map_granularity + 1;
+    unsigned int map_size = (get_device_size () - 1) / coarse_map_granularity + 1;
     coarse_map.clear ();
     coarse_map.resize (map_size);
 
-    for (int k = 0; k < files.size(); ++ k) {
-        for (int k2 = 0; k2 < files[k].extents.size(); k2 ++) {
+    for (unsigned int k = 0; k < files.size(); ++ k) {
+        for (unsigned int k2 = 0; k2 < files[k].extents.size(); k2 ++) {
             uint64_t estart_c, eend_c;
 
             estart_c = files[k].extents[k2].start / coarse_map_granularity;
@@ -94,7 +94,7 @@ Clusters::create_coarse_map (int granularity)
         }
     }
 
-    for (int k3 = 0; k3 < coarse_map.size(); k3 ++) {
+    for (unsigned int k3 = 0; k3 < coarse_map.size(); k3 ++) {
         std::vector<uint64_t>  &file_list = coarse_map[k3];
         std::sort(file_list.begin(), file_list.end());
         file_list.erase(std::unique(file_list.begin(), file_list.end()), file_list.end());
@@ -105,7 +105,7 @@ Clusters::create_coarse_map (int granularity)
     int max_idx = -1;
     int min = 2000000000;
     double mean = 0;
-    for (int k = 0; k < map_size; k++ ) {
+    for (unsigned int k = 0; k < map_size; k ++) {
         if (coarse_map[k].size() > max) {
             max = coarse_map[k].size();
             max_idx = k;
@@ -250,7 +250,7 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
         } // k2
     }
 
-    for (int k3 = m_start; k3 < m_start + m_length; k3 ++) {
+    for (unsigned int k3 = m_start; k3 < m_start + m_length; k3 ++) {
         file_p_list &filesp = clusters[k3].files;
         std::sort(filesp.begin(), filesp.end());
         filesp.erase(std::unique(filesp.begin(), filesp.end()), filesp.end());
@@ -262,10 +262,10 @@ Clusters::get_file_severity (const f_info *fi, int64_t window, int shift, int pe
 {
     double overall_severity = 1.0; // continuous files have severity equal to 1.0
 
-    for (int k1 = 0; k1 < fi->extents.size(); k1 ++) {
-        int64_t span = window;
+    for (unsigned int k1 = 0; k1 < fi->extents.size(); k1 ++) {
+        uint64_t span = window;
         double read_time = 1e-3 * penalty;
-        for (int k2 = k1; k2 < fi->extents.size() && span > 0; k2 ++) {
+        for (unsigned int k2 = k1; k2 < fi->extents.size() && span > 0; k2 ++) {
             if (fi->extents[k2].length <= span) {
                 span -= fi->extents[k2].length;
                 read_time += fi->extents[k2].length / speed;
@@ -303,7 +303,7 @@ Clusters::fibmap_fallback(int fd, const char *fname, const struct stat64 *sb, st
     uint64_t block_start = fiemap->fm_start / sb->st_blksize;
     fiemap->fm_mapped_extents = 0;
     struct fiemap_extent *extents = &fiemap->fm_extents[0];
-    int idx = 0; // index for extents array
+    uint32_t idx = 0; // index for extents array
 
     for (uint64_t k = block_start;
          k < block_count && idx < fiemap->fm_extent_count;
@@ -395,7 +395,7 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
         if (0 == fiemap->fm_mapped_extents) break; // there are no more left
 
         int last_entry;
-        for (int k = 0; k < (int)fiemap->fm_mapped_extents; ++k) {
+        for (unsigned int k = 0; k < fiemap->fm_mapped_extents; ++k) {
             tuple tempt ( fiemap->fm_extents[k].fe_physical / sb->st_blksize,
                           fiemap->fm_extents[k].fe_length / sb->st_blksize );
 
