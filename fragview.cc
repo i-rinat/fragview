@@ -53,10 +53,7 @@ GraphWindow::on_action_view_most_fragmented (void)
     Clusters::file_list &fl = cl.get_files();
 
     // sort files
-    typedef std::vector<std::pair<uint64_t, uint64_t> > mapping_t;
-
-    mapping_t mapping;
-    mapping.resize (fl.size());
+    std::vector<std::pair<uint64_t, uint64_t> > mapping (fl.size());
     for (unsigned int k = 0; k < fl.size(); k ++) {
         mapping[k].first = k;
         mapping[k].second = fl[k].extents.size();
@@ -65,7 +62,7 @@ GraphWindow::on_action_view_most_fragmented (void)
 
     // fill filelistview widget with 'n' most fragmented
     filelistview.clear ();
-    for (unsigned int k = 0; k < 40; k ++) {
+    for (unsigned int k = 0; k < std::min ((size_t)40, fl.size()); k ++) {
         uint64_t idx = mapping[k].first;
         filelistview.add_file_info (idx, fl[idx].extents.size(), fl[idx].severity, fl[idx].name);
     }
@@ -76,8 +73,7 @@ GraphWindow::on_action_view_most_severe (void)
 {
     Clusters::file_list &fl = cl.get_files();
 
-    std::vector<std::pair<uint64_t, double> > mapping;
-    mapping.resize (fl.size());
+    std::vector<std::pair<uint64_t, double> > mapping (fl.size());
     for (unsigned int k = 0; k < fl.size(); k ++) {
         mapping[k].first = k;
         mapping[k].second = fl[k].severity;
@@ -86,7 +82,7 @@ GraphWindow::on_action_view_most_severe (void)
 
     // fill filelistview widget with 'n' most fragmented (by severity)
     filelistview.clear ();
-    for (unsigned int k = 0; k < 40; k ++) {
+    for (unsigned int k = 0; k < std::min ((size_t)40, fl.size()); k ++) {
         uint64_t idx = mapping[k].first;
         filelistview.add_file_info (idx, fl[idx].extents.size(), fl[idx].severity, fl[idx].name);
     }
