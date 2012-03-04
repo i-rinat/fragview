@@ -75,14 +75,20 @@ FilelistView::cell_data_func_size (Gtk::CellRenderer *cell, const Gtk::TreeModel
 
     if (size < 1024) {
         ss << size << " B";
-    } else if (size < __UINT64_C(1048576)) {
-        ss << std::setprecision(1) << (double)size/__UINT64_C(1024) << " kiB";
+        renderer->property_text() = ss.str();
+        return;
+    }
+
+    ss << std::fixed << std::setprecision(1);
+
+    if (size < __UINT64_C(1048576)) {
+        ss << (double)size/__UINT64_C(1024) << " kiB";
     } else if (size < __UINT64_C(1073741824)) {
-        ss << std::setprecision(1) << (double)size/__UINT64_C(1048576) << " MiB";
+        ss << (double)size/__UINT64_C(1048576) << " MiB";
     } else if (size < __UINT64_C(1099511627776)) {
-        ss << std::setprecision(1) << (double)size/__UINT64_C(1073741824) << " GiB";
+        ss << (double)size/__UINT64_C(1073741824) << " GiB";
     } else {
-        ss << std::setprecision(1) << (double)size/__UINT64_C(1099511627776) << " TiB";
+        ss << (double)size/__UINT64_C(1099511627776) << " TiB";
     }
 
     renderer->property_text() = ss.str();
