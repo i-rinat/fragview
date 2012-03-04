@@ -10,12 +10,6 @@ class Fragmap;
 
 class FilelistView : public Gtk::TreeView
 {
-    public:
-        enum FileType {
-            TYPE_FILE = 0,
-            TYPE_DIR = 1
-        };
-
     class ModelColumns : public Gtk::TreeModelColumnRecord {
         public:
             ModelColumns ()

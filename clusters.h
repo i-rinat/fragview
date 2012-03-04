@@ -30,6 +30,11 @@ class Clusters {
 
         typedef std::vector<tuple> tuple_list;
 
+        enum FileType {
+            TYPE_FILE = 0,
+            TYPE_DIR = 1
+        };
+
         typedef struct {
             tuple_list extents;
             std::string name;

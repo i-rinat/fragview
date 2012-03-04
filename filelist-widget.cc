@@ -56,10 +56,10 @@ FilelistView::cell_data_func_filetype (Gtk::CellRenderer *cell, const Gtk::TreeM
     Gtk::CellRendererText *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
 
     switch ((*iter)[columns.col_filetype]) {
-        case TYPE_FILE:
+        case Clusters::TYPE_FILE:
             renderer->property_text() = "File";
             break;
-        case TYPE_DIR:
+        case Clusters::TYPE_DIR:
             renderer->property_text() = "Directory";
             break;
     }
