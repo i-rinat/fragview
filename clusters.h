@@ -40,6 +40,8 @@ class Clusters {
             std::string name;
             double severity;
             int fragmented;
+            int filetype;
+            uint64_t size;
         } f_info;
 
         typedef std::vector<f_info> file_list;

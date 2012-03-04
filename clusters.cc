@@ -169,6 +169,9 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
                     if (sb_ent.st_dev != sb_root.st_dev) break; // another device, skip
                     if (get_file_extents (ent->fts_path, &sb_ent, &fi)) {
                         fi.fragmented = (fi.severity >= 2.0);
+                        fi.name = ent->fts_path;
+                        fi.size = sb_ent.st_size;
+                        if (S_ISDIR (sb_ent.st_mode)) fi.filetype = TYPE_DIR; else fi.filetype = TYPE_FILE;
                         this->lock_files ();
                         files.push_back (fi);
                         this->unlock_files ();
@@ -352,8 +355,6 @@ int
 Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi)
 {
     static char fiemap_buffer[16*1024];
-
-    fi->name = fname;
 
     if (!S_ISREG(sb->st_mode) && !S_ISDIR(sb->st_mode) && !S_ISLNK(sb->st_mode)) {
         return 0; // not regular file or directory
