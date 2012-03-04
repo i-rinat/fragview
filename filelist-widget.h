@@ -4,11 +4,18 @@
 
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
+#include <stdint.h>
 
 class Fragmap;
 
 class FilelistView : public Gtk::TreeView
 {
+    public:
+        enum FileType {
+            TYPE_FILE = 0,
+            TYPE_DIR = 1
+        };
+
     class ModelColumns : public Gtk::TreeModelColumnRecord {
         public:
             ModelColumns ()
@@ -18,6 +25,8 @@ class FilelistView : public Gtk::TreeView
                 add (col_severity);
                 add (col_name);
                 add (col_dir);
+                add (col_filetype);
+                add (col_size);
             };
 
             Gtk::TreeModelColumn<int> col_fileid;
@@ -25,6 +34,8 @@ class FilelistView : public Gtk::TreeView
             Gtk::TreeModelColumn<double> col_severity;
             Gtk::TreeModelColumn<Glib::ustring> col_name;
             Gtk::TreeModelColumn<Glib::ustring> col_dir;
+            Gtk::TreeModelColumn<int> col_filetype;
+            Gtk::TreeModelColumn<uint64_t> col_size;
     };
 
     public:
@@ -44,6 +55,9 @@ class FilelistView : public Gtk::TreeView
 
         virtual void on_filelist_header_clicked (int column_id);
         virtual void on_selection_changed (void);
+
+        void cell_data_func_filetype (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
+        void cell_data_func_size (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
 };
 
 #endif

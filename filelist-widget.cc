@@ -1,5 +1,7 @@
+#define __STDC_LIMIT_MACROS
 #include "filelist-widget.h"
 #include <iostream>
+#include <iomanip>
 #include <cassert>
 #include "fragmap-widget.h"
 
@@ -14,6 +16,19 @@ FilelistView::FilelistView ()
     default_sort_order [append_column ("Severity", columns.col_severity) - 1] = Gtk::SORT_DESCENDING;
     default_sort_order [append_column ("Name", columns.col_name) - 1] = Gtk::SORT_ASCENDING;
     default_sort_order [append_column ("Dir", columns.col_dir) - 1] = Gtk::SORT_ASCENDING;
+
+    int column_id;
+    Gtk::CellRendererText *renderer;
+
+    renderer = Gtk::manage (new Gtk::CellRendererText ());
+    column_id = append_column ("Type", *renderer) - 1;
+    default_sort_order [column_id] = Gtk::SORT_ASCENDING;
+    get_column (column_id)->set_cell_data_func (*renderer, sigc::mem_fun (*this, &FilelistView::cell_data_func_filetype));
+
+    renderer = Gtk::manage (new Gtk::CellRendererText ());
+    column_id = append_column ("Size", *renderer) - 1;
+    default_sort_order [column_id] = Gtk::SORT_DESCENDING;
+    get_column (column_id)->set_cell_data_func (*renderer, sigc::mem_fun (*this, &FilelistView::cell_data_func_size));
 
     std::vector<Gtk::TreeViewColumn *> columns = get_columns ();
     for (unsigned int k = 0; k < columns.size(); ++k) {
@@ -33,6 +48,44 @@ FilelistView::FilelistView ()
 FilelistView::~FilelistView ()
 {
 
+}
+
+void
+FilelistView::cell_data_func_filetype (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter)
+{
+    Gtk::CellRendererText *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
+
+    switch ((*iter)[columns.col_filetype]) {
+        case TYPE_FILE:
+            renderer->property_text() = "File";
+            break;
+        case TYPE_DIR:
+            renderer->property_text() = "Directory";
+            break;
+    }
+}
+
+void
+FilelistView::cell_data_func_size (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter)
+{
+    Gtk::CellRendererText *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
+
+    uint64_t size = (*iter)[columns.col_size];
+    std::stringstream ss;
+
+    if (size < 1024) {
+        ss << size << " B";
+    } else if (size < __UINT64_C(1048576)) {
+        ss << std::setprecision(1) << (double)size/__UINT64_C(1024) << " kiB";
+    } else if (size < __UINT64_C(1073741824)) {
+        ss << std::setprecision(1) << (double)size/__UINT64_C(1048576) << " MiB";
+    } else if (size < __UINT64_C(1099511627776)) {
+        ss << std::setprecision(1) << (double)size/__UINT64_C(1073741824) << " GiB";
+    } else {
+        ss << std::setprecision(1) << (double)size/__UINT64_C(1099511627776) << " TiB";
+    }
+
+    renderer->property_text() = ss.str();
 }
 
 void
@@ -70,6 +123,8 @@ FilelistView::add_file_info (int id, int fragments, double severity, int filetyp
     row [columns.col_fileid] = id;
     row [columns.col_fragments] = fragments;
     row [columns.col_severity] = severity;
+    row [columns.col_filetype] = filetype;
+    row [columns.col_size] = size;
     row [columns.col_name] = name;
     row [columns.col_dir] = dir;
 }
@@ -82,6 +137,8 @@ FilelistView::add_file_info (int id, int fragments, double severity, int filetyp
     row [columns.col_fileid] = id;
     row [columns.col_fragments] = fragments;
     row [columns.col_severity] = severity;
+    row [columns.col_filetype] = filetype;
+    row [columns.col_size] = size;
 
     size_t slash_pos = full_path.rfind ('/');
     std::string filename = full_path.substr (slash_pos + 1, -1);
