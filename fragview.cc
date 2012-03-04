@@ -12,6 +12,7 @@
 #include "fragmap-widget.h"
 #include "filelist-widget.h"
 #include <iostream>
+#include <locale>
 #include <pwd.h>
 #include <cassert>
 
@@ -192,6 +193,8 @@ GraphWindow::~GraphWindow () {
 
 int main (int argc, char *argv[]) {
     Gtk::Main kit(argc, argv);
+
+    std::locale::global (std::locale (""));
 
     std::string initial_dir;
     if (argc > 1) {
