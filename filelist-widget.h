@@ -32,8 +32,8 @@ class FilelistView : public Gtk::TreeView
         ~FilelistView ();
 
         void clear ();
-        void add_file_info (int id, int fragments, double severity, const std::string& name, const std::string& dir);
-        void add_file_info (int id, int fragments, double severity, const std::string& full_path);
+        void add_file_info (int id, int fragments, double severity, int filetype, uint64_t size, const std::string& name, const std::string& dir);
+        void add_file_info (int id, int fragments, double severity, int filetype, uint64_t size, const std::string& full_path);
         void attach_fragmap (Fragmap *fm) { fragmap = fm; }
 
     protected:
