@@ -372,7 +372,7 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
             for (Clusters::file_p_list::iterator iter = ci.files.begin(); iter != ci.files.end(); ++ iter) {
                 unsigned int fid = *iter;
                 Clusters::f_info &fi = files[fid];
-                filelist->add_file_info (fid, fi.extents.size(), fi.severity, 0, 0, fi.name);
+                filelist->add_file_info (fid, fi.extents.size(), fi.severity, fi.filetype, fi.size, fi.name);
             }
         }
         flag_update = TRUE;

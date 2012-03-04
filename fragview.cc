@@ -64,7 +64,8 @@ GraphWindow::on_action_view_most_fragmented (void)
     filelistview.clear ();
     for (unsigned int k = 0; k < std::min ((size_t)40, fl.size()); k ++) {
         uint64_t idx = mapping[k].first;
-        filelistview.add_file_info (idx, fl[idx].extents.size(), fl[idx].severity, 0, 0, fl[idx].name);
+        filelistview.add_file_info (idx, fl[idx].extents.size(), fl[idx].severity,
+            fl[idx].filetype, fl[idx].size, fl[idx].name);
     }
 }
 
@@ -84,7 +85,8 @@ GraphWindow::on_action_view_most_severe (void)
     filelistview.clear ();
     for (unsigned int k = 0; k < std::min ((size_t)40, fl.size()); k ++) {
         uint64_t idx = mapping[k].first;
-        filelistview.add_file_info (idx, fl[idx].extents.size(), fl[idx].severity, 0, 0, fl[idx].name);
+        filelistview.add_file_info (idx, fl[idx].extents.size(), fl[idx].severity,
+            fl[idx].filetype, fl[idx].size, fl[idx].name);
     }
 }
 
