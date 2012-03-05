@@ -19,7 +19,7 @@ FilelistView::FilelistView ()
     default_sort_order [column] = Gtk::SORT_DESCENDING;
     view_to_model [column] = &columns.col_fragments;
 
-    column = get_column (append_column ("Severity", columns.col_severity) - 1);
+    column = get_column (append_column_numeric ("Severity", columns.col_severity, "%.1f") - 1);
     default_sort_order [column] = Gtk::SORT_DESCENDING;
     view_to_model [column] = &columns.col_severity;
 
