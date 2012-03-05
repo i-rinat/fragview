@@ -11,6 +11,7 @@
 #include "clusters.h"
 #include "fragmap-widget.h"
 #include "filelist-widget.h"
+#include "mountpoint-select-dialog.h"
 #include <iostream>
 #include <locale>
 #include <pwd.h>
@@ -33,6 +34,7 @@ class GraphWindow : public Gtk::Window {
         void on_action_view_most_severe (void);
         void on_action_view_restore (void);
         void on_action_main_open (void);
+        void on_action_main_open_mountpoint (void);
         void on_action_main_quit (void);
         class sorter {
             public:
@@ -122,6 +124,15 @@ GraphWindow::on_action_main_open (void)
     }
 }
 
+void
+GraphWindow::on_action_main_open_mountpoint (void)
+{
+    std::cout << "Open mountpoint" << std::endl;
+    MountpointSelectDialog msd;
+    int result = msd.run ();
+    std::cout << "result = " << result << std::endl;
+}
+
 GraphWindow::GraphWindow (const std::string& initial_dir) {
     set_title ("fragview");
     set_default_size (800, 560);
@@ -137,6 +148,8 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
     action_group_ref->add (Gtk::Action::create ("MenuMain", "Fragview"));
     action_group_ref->add (Gtk::Action::create ("MainOpen", "Open directory..."),
         sigc::mem_fun (*this, &GraphWindow::on_action_main_open));
+    action_group_ref->add (Gtk::Action::create ("MainOpenMountpoint", "Open mountpoint..."),
+        sigc::mem_fun (*this, &GraphWindow::on_action_main_open_mountpoint));
     action_group_ref->add (Gtk::Action::create ("MainQuit", "Quit"),
         sigc::mem_fun (*this, &GraphWindow::on_action_main_quit));
 
@@ -157,6 +170,7 @@ GraphWindow::GraphWindow (const std::string& initial_dir) {
         "  <menubar name='MenuBar'>"
         "    <menu action='MenuMain'>"
         "      <menuitem action='MainOpen' />"
+        "      <menuitem action='MainOpenMountpoint' />"
         "      <separator />"
         "      <menuitem action='MainQuit' />"
         "    </menu>"

@@ -28,6 +28,7 @@ add_executable (fragview
 	fragview.cc
 	fragmap-widget.cc
 	filelist-widget.cc
+	mountpoint-select-dialog.cc
 )
 
 add_executable (fileseverity
