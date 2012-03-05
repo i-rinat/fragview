@@ -11,24 +11,37 @@ FilelistView::FilelistView ()
 
     liststore = Gtk::ListStore::create (columns);
     set_model (liststore);
-    default_sort_order [append_column ("fileid", columns.col_fileid) - 1] = Gtk::SORT_ASCENDING;
-    default_sort_order [append_column ("Fragments", columns.col_fragments) - 1] = Gtk::SORT_DESCENDING;
-    default_sort_order [append_column ("Severity", columns.col_severity) - 1] = Gtk::SORT_DESCENDING;
-    default_sort_order [append_column ("Name", columns.col_name) - 1] = Gtk::SORT_ASCENDING;
-    default_sort_order [append_column ("Dir", columns.col_dir) - 1] = Gtk::SORT_ASCENDING;
 
-    int column_id;
+    Gtk::TreeViewColumn *column;
     Gtk::CellRendererText *renderer;
 
-    renderer = Gtk::manage (new Gtk::CellRendererText ());
-    column_id = append_column ("Type", *renderer) - 1;
-    default_sort_order [column_id] = Gtk::SORT_ASCENDING;
-    get_column (column_id)->set_cell_data_func (*renderer, sigc::mem_fun (*this, &FilelistView::cell_data_func_filetype));
+    column = get_column (append_column ("Fragments", columns.col_fragments) - 1);
+    default_sort_order [column] = Gtk::SORT_DESCENDING;
+    view_to_model [column] = &columns.col_fragments;
+
+    column = get_column (append_column ("Severity", columns.col_severity) - 1);
+    default_sort_order [column] = Gtk::SORT_DESCENDING;
+    view_to_model [column] = &columns.col_severity;
+
+    column = get_column (append_column ("Name", columns.col_name) - 1);
+    default_sort_order [column] = Gtk::SORT_ASCENDING;
+    view_to_model [column] = &columns.col_name;
+
+    column = get_column (append_column ("Dir", columns.col_dir) - 1);
+    default_sort_order [column] = Gtk::SORT_ASCENDING;
+    view_to_model [column] = &columns.col_dir;
 
     renderer = Gtk::manage (new Gtk::CellRendererText ());
-    column_id = append_column ("Size", *renderer) - 1;
-    default_sort_order [column_id] = Gtk::SORT_DESCENDING;
-    get_column (column_id)->set_cell_data_func (*renderer, sigc::mem_fun (*this, &FilelistView::cell_data_func_size));
+    column = get_column (append_column ("Type", *renderer) - 1);
+    view_to_model [column] = &columns.col_filetype;
+    default_sort_order [column] = Gtk::SORT_ASCENDING;
+    column->set_cell_data_func (*renderer, sigc::mem_fun (*this, &FilelistView::cell_data_func_filetype));
+
+    renderer = Gtk::manage (new Gtk::CellRendererText ());
+    column = get_column (append_column ("Size", *renderer) - 1);
+    default_sort_order [column] = Gtk::SORT_DESCENDING;
+    view_to_model [column] = &columns.col_size;
+    column->set_cell_data_func (*renderer, sigc::mem_fun (*this, &FilelistView::cell_data_func_size));
 
     std::vector<Gtk::TreeViewColumn *> columns = get_columns ();
     for (unsigned int k = 0; k < columns.size(); ++k) {
@@ -36,8 +49,13 @@ FilelistView::FilelistView ()
         columns[k]->set_reorderable ();
         columns[k]->set_clickable ();
         columns[k]->signal_clicked ().connect(
-            sigc::bind<int>(sigc::mem_fun (*this, &FilelistView::on_filelist_header_clicked), k));
+            sigc::bind<Gtk::TreeViewColumn *>(sigc::mem_fun (*this, &FilelistView::on_filelist_header_clicked),
+                columns[k]));
     }
+
+    Gtk::TreeViewColumn *fake_column = Gtk::manage (new Gtk::TreeViewColumn);
+    fake_column->set_max_width (0);
+    append_column (*fake_column);
 
     // manage selection properties
     Glib::RefPtr<Gtk::TreeSelection> selection = get_selection ();
@@ -95,30 +113,31 @@ FilelistView::cell_data_func_size (Gtk::CellRenderer *cell, const Gtk::TreeModel
 }
 
 void
-FilelistView::on_filelist_header_clicked (int column_id)
+FilelistView::on_filelist_header_clicked (Gtk::TreeViewColumn *column)
 {
-    static int last_column_id = 0;
+    static Gtk::TreeViewColumn *last_column = 0;
+    assert (column != NULL);
+    Gtk::TreeModelColumnBase *model_column = view_to_model [column];
+    assert (model_column != NULL);
 
-    Gtk::TreeViewColumn *col = get_column (column_id);
-    if (column_id == last_column_id) {
-        if (Gtk::SORT_ASCENDING == col->get_sort_order ()) {
-            col->set_sort_order (Gtk::SORT_DESCENDING);
-            liststore->set_sort_column (column_id, Gtk::SORT_DESCENDING);
+    if (column == last_column) {
+        if (Gtk::SORT_ASCENDING == column->get_sort_order ()) {
+            column->set_sort_order (Gtk::SORT_DESCENDING);
+            liststore->set_sort_column (*model_column, Gtk::SORT_DESCENDING);
         } else {
-            col->set_sort_order (Gtk::SORT_ASCENDING);
-            liststore->set_sort_column (column_id, Gtk::SORT_ASCENDING);
+            column->set_sort_order (Gtk::SORT_ASCENDING);
+            liststore->set_sort_column (*model_column, Gtk::SORT_ASCENDING);
         }
     } else {
         // hide indicator on previous column
-        get_column (last_column_id)->set_sort_indicator (false);
-
-        col->set_sort_indicator (true);
-        Gtk::SortType sort_type = default_sort_order [column_id];
-        col->set_sort_order (sort_type);
-        liststore->set_sort_column (column_id, sort_type);
+        if (last_column) last_column->set_sort_indicator (false);
+        column->set_sort_indicator (true);
+        Gtk::SortType sort_type = default_sort_order [column];
+        column->set_sort_order (sort_type);
+        liststore->set_sort_column (*model_column, sort_type);
     }
 
-    last_column_id = column_id;
+    last_column = column;
 }
 
 void

@@ -44,10 +44,11 @@ class FilelistView : public Gtk::TreeView
     protected:
         ModelColumns columns;
         Glib::RefPtr<Gtk::ListStore> liststore;
-        std::map<int, enum Gtk::SortType> default_sort_order;
+        std::map<void *, enum Gtk::SortType> default_sort_order;
+        std::map<void *, Gtk::TreeModelColumnBase *> view_to_model;
         Fragmap *fragmap;
 
-        virtual void on_filelist_header_clicked (int column_id);
+        virtual void on_filelist_header_clicked (Gtk::TreeViewColumn *column);
         virtual void on_selection_changed (void);
 
         void cell_data_func_filetype (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
