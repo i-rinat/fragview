@@ -11,16 +11,9 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     set_size_request (400, 300);
     set_border_width (10);
 
-    Gtk::Box *box = Gtk::manage (new Gtk::Box (Gtk::ORIENTATION_HORIZONTAL));
-    Gtk::Button *button_ok = Gtk::manage (new Gtk::Button (Gtk::Stock::OK));
-    Gtk::Button *button_cancel = Gtk::manage (new Gtk::Button (Gtk::Stock::CANCEL));
-
-    box->pack_end (*button_ok, Gtk::PACK_SHRINK);
-    box->pack_end (*button_cancel, Gtk::PACK_SHRINK, 10);
-
+    Gtk::Button *button_cancel = add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+    Gtk::Button *button_ok = add_button (Gtk::Stock::OK, Gtk::RESPONSE_OK);
     get_vbox ()->pack_start (tv, Gtk::PACK_EXPAND_WIDGET, 10);
-    get_vbox ()->pack_start (*box, Gtk::PACK_SHRINK);
-
     show_all_children ();
 }
 
