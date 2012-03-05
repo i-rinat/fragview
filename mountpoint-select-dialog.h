@@ -25,7 +25,7 @@ class MountpointSelectDialog : public Gtk::Dialog
                 add (used);
                 add (available);
                 add (type);
-                add (available_percentage);
+                add (used_percentage);
             }
 
             Gtk::TreeModelColumn<int> id;
@@ -34,7 +34,7 @@ class MountpointSelectDialog : public Gtk::Dialog
             Gtk::TreeModelColumn<uint64_t> used;
             Gtk::TreeModelColumn<uint64_t> available;
             Gtk::TreeModelColumn<Glib::ustring> type;
-            Gtk::TreeModelColumn<int> available_percentage;
+            Gtk::TreeModelColumn<int> used_percentage;
         };
 
         ModelColumns columns;
