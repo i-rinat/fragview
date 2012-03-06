@@ -43,6 +43,8 @@ MountpointSelectDialog::MountpointSelectDialog (void)
         if (0 != statfs (m_mountpoint.c_str(), &sfsb)) continue;
         if (0 != lstat64 (m_mountpoint.c_str(), &sb)) continue;
         if (sfsb.f_blocks == 0) continue; // pseudo-fs's have zero size
+        if ("tmpfs" == m_type) continue; // tmpfs has neither FIEMAP not FIBMAP
+        if ("devtmpfs" == m_type) continue; // the same as tmpfs
 
         Gtk::TreeModel::Row row = *(liststore->append ());
         row[columns.mountpoint] = m_mountpoint;
