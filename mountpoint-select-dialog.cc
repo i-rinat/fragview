@@ -3,6 +3,7 @@
 #include <gtkmm/button.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/treemodelcolumn.h>
+#include <gtkmm/cellrendererprogress.h>
 #include <iostream>
 #include <fstream>
 #include <sys/vfs.h>
@@ -26,7 +27,10 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     tv.append_column ("Used", columns.used);
     tv.append_column ("Available", columns.available);
     tv.append_column ("Type", columns.type);
-    tv.append_column ("Used %", columns.used_percentage);
+
+    Gtk::CellRendererProgress *renderer = Gtk::manage (new Gtk::CellRendererProgress ());
+    int column_id = tv.append_column ("Used %", *renderer) - 1;
+    tv.get_column (column_id)->add_attribute (renderer->property_value (), columns.used_percentage);
 
     tv.get_selection ()->signal_changed ().connect (
         sigc::mem_fun (*this, &MountpointSelectDialog::on_list_selection_changed));
