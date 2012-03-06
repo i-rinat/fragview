@@ -117,6 +117,7 @@ GraphWindow::on_action_main_open (void)
 
     int result = dialog.run ();
     if (Gtk::RESPONSE_OK == result) {
+        set_title ("fragview - " + dialog.get_filename());
         cl.collect_fragments (dialog.get_filename ());
         cl.create_coarse_map (2000);
     }
@@ -129,6 +130,7 @@ GraphWindow::on_action_main_open_mountpoint (void)
     int result = msd.run ();
     std::cout << "result = " << result << std::endl;
     if (Gtk::RESPONSE_OK == result) {
+        set_title ("fragview - " + msd.get_path());
         cl.collect_fragments (msd.get_path ());
         cl.create_coarse_map (2000);
     }
