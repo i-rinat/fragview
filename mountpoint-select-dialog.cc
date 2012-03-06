@@ -28,6 +28,9 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     tv.append_column ("Type", columns.type);
     tv.append_column ("Used %", columns.used_percentage);
 
+    tv.get_selection ()->signal_changed ().connect (
+        sigc::mem_fun (*this, &MountpointSelectDialog::on_list_selection_changed));
+
     // populate
     std::ifstream m_f;
     m_f.open("/proc/mounts");
@@ -35,15 +38,15 @@ MountpointSelectDialog::MountpointSelectDialog (void)
 
     while (! m_f.eof ()) {
         m_f >> m_device >> m_mountpoint >> m_type >> m_options >> m_freq >> m_passno;
-        Gtk::TreeModel::Row row = *(liststore->append ());
-        row[columns.mountpoint] = m_mountpoint;
-        row[columns.type] = m_type;
 
         struct statfs sfsb;
         struct stat64 sb;
         if (0 != statfs (m_mountpoint.c_str(), &sfsb)) continue;
         if (0 != lstat64 (m_mountpoint.c_str(), &sb)) continue;
 
+        Gtk::TreeModel::Row row = *(liststore->append ());
+        row[columns.mountpoint] = m_mountpoint;
+        row[columns.type] = m_type;
         row[columns.size] = sfsb.f_blocks * sb.st_blksize;
         row[columns.used] = (sfsb.f_blocks - sfsb.f_bfree) * sb.st_blksize;
         row[columns.available] = sfsb.f_bavail * sb.st_blksize;
@@ -57,4 +60,17 @@ MountpointSelectDialog::MountpointSelectDialog (void)
 MountpointSelectDialog::~MountpointSelectDialog (void)
 {
 
+}
+
+Glib::ustring&
+MountpointSelectDialog::get_path (void)
+{
+    return selected_path;
+}
+
+void
+MountpointSelectDialog::on_list_selection_changed (void)
+{
+    Gtk::TreeModel::Row row = *(tv.get_selection ()->get_selected ());
+    selected_path = row[columns.mountpoint];
 }

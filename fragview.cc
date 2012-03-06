@@ -128,6 +128,10 @@ GraphWindow::on_action_main_open_mountpoint (void)
     MountpointSelectDialog msd;
     int result = msd.run ();
     std::cout << "result = " << result << std::endl;
+    if (Gtk::RESPONSE_OK == result) {
+        cl.collect_fragments (msd.get_path ());
+        cl.create_coarse_map (2000);
+    }
 }
 
 GraphWindow::GraphWindow (const std::string& initial_dir) {
