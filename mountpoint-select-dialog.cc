@@ -21,7 +21,6 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     // prepare table
     liststore = Gtk::ListStore::create (columns);
     tv.set_model (liststore);
-    tv.append_column ("id", columns.id);
     tv.append_column ("Mount point", columns.mountpoint);
     tv.append_column ("Size", columns.size);
     tv.append_column ("Used", columns.used);
@@ -34,11 +33,9 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     m_f.open("/proc/mounts");
     std::string m_device, m_mountpoint, m_type, m_options, m_freq, m_passno;
 
-    int id = 0;
     while (! m_f.eof ()) {
         m_f >> m_device >> m_mountpoint >> m_type >> m_options >> m_freq >> m_passno;
         Gtk::TreeModel::Row row = *(liststore->append ());
-        row[columns.id] = id ++;
         row[columns.mountpoint] = m_mountpoint;
         row[columns.type] = m_type;
 
