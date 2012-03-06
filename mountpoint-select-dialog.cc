@@ -34,6 +34,7 @@ MountpointSelectDialog::MountpointSelectDialog (void)
 
     tv.get_selection ()->signal_changed ().connect (
         sigc::mem_fun (*this, &MountpointSelectDialog::on_list_selection_changed));
+    tv.signal_row_activated ().connect (sigc::mem_fun (*this, &MountpointSelectDialog::on_list_row_activated));
 
     // populate
     std::ifstream m_f;
@@ -78,4 +79,12 @@ MountpointSelectDialog::on_list_selection_changed (void)
 {
     Gtk::TreeModel::Row row = *(tv.get_selection ()->get_selected ());
     selected_path = row[columns.mountpoint];
+}
+
+void
+MountpointSelectDialog::on_list_row_activated (const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
+{
+    Gtk::TreeModel::iterator iter = liststore->get_iter (path);
+    selected_path = (*iter)[columns.mountpoint];
+    response (Gtk::RESPONSE_OK);
 }
