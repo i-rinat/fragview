@@ -110,7 +110,6 @@ GraphWindow::on_action_main_quit (void)
 void
 GraphWindow::on_action_main_open (void)
 {
-    std::cout << "Open directory" << std::endl;
     Gtk::FileChooserDialog dialog ("Select directory", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
     dialog.set_transient_for (*this);
     dialog.add_button (Gtk::Stock::OK, Gtk::RESPONSE_OK);
@@ -118,7 +117,6 @@ GraphWindow::on_action_main_open (void)
 
     int result = dialog.run ();
     if (Gtk::RESPONSE_OK == result) {
-        std::cout << "Selected directory: " << dialog.get_filename() << std::endl;
         cl.collect_fragments (dialog.get_filename ());
         cl.create_coarse_map (2000);
     }
@@ -127,7 +125,6 @@ GraphWindow::on_action_main_open (void)
 void
 GraphWindow::on_action_main_open_mountpoint (void)
 {
-    std::cout << "Open mountpoint" << std::endl;
     MountpointSelectDialog msd;
     int result = msd.run ();
     std::cout << "result = " << result << std::endl;
