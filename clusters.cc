@@ -24,6 +24,10 @@ Clusters::Clusters ()
     hide_error_no_fiemap = true;
 
     desired_cluster_size = 3500;
+    cluster_count = 1;
+    coarse_map_granularity = 1;
+    device_size = 1;
+    create_coarse_map (1); // we need at least one element in coarse map
 }
 
 Clusters::~Clusters ()
