@@ -19,8 +19,9 @@
 
 class GraphWindow : public Gtk::Window {
     public:
-        GraphWindow (const std::string& initial_dir);
+        GraphWindow ();
         virtual ~GraphWindow ();
+        void scan_dir (const Glib::ustring& dir);
 
     protected:
         Fragmap fragmap;
@@ -136,14 +137,19 @@ GraphWindow::on_action_main_open_mountpoint (void)
     }
 }
 
-GraphWindow::GraphWindow (const std::string& initial_dir) {
+void
+GraphWindow::scan_dir (const Glib::ustring& dir)
+{
+    cl.collect_fragments (dir);
+    cl.create_coarse_map (2000);
+}
+
+GraphWindow::GraphWindow (void)
+{
     set_title ("fragview");
     set_default_size (800, 560);
     fragmap.attach_clusters (cl);
     fragmap.attach_filelist_widget (filelistview);
-
-    cl.collect_fragments (initial_dir);
-    cl.create_coarse_map (1000);
 
     // set up menus
     action_group_ref = Gtk::ActionGroup::create ();
@@ -213,16 +219,13 @@ int main (int argc, char *argv[]) {
 
     std::locale::global (std::locale (""));
 
+    GraphWindow window;
+
     std::string initial_dir;
     if (argc > 1) {
         initial_dir = argv[1];
-    } else {
-        struct passwd *pw = getpwuid(getuid());
-        assert(pw != NULL);
-        initial_dir = pw->pw_dir;
+        window.scan_dir (initial_dir);
     }
-
-    GraphWindow window (initial_dir);
 
     Gtk::Main::run (window);
 }
