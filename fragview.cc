@@ -213,11 +213,29 @@ GraphWindow::GraphWindow (void)
 GraphWindow::~GraphWindow () {
 }
 
+class numpunct_spacets : public std::numpunct_byname<char> {
+public:
+    numpunct_spacets (const char *name) : std::numpunct_byname<char> (name) { }
+private:
+    char do_thousands_sep () const { return ' ';}
+};
+
 
 int main (int argc, char *argv[]) {
     Gtk::Main kit(argc, argv);
 
-    std::locale::global (std::locale (""));
+    // current libstdc++ implementation have a bug with UTF-8 locale
+    // as it's byte-based and therefore two-byte nonbreakable space
+    // character truncated to one byte.
+    // Using own numpunct implementation with plain space as thousand
+    // separator.
+    std::locale current_locale ("");
+    if ('\xc2' == std::use_facet< std::numpunct<char> > (current_locale).thousands_sep () ) {
+        std::locale modified_locale (current_locale, new numpunct_spacets(""));
+        std::locale::global (modified_locale);
+    } else {
+        std::locale::global (current_locale);
+    }
 
     GraphWindow window;
 

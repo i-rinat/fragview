@@ -39,6 +39,8 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     // populate
     std::ifstream m_f;
     m_f.open("/proc/mounts");
+    std::locale clocale("C");
+    fp.imbue (clocale);
     std::string m_device, m_mountpoint, m_type, m_options, m_freq, m_passno;
 
     while (! m_f.eof ()) {

@@ -134,6 +134,9 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
                     // Anyway there is no sense to continue
     std::string partition_name;
     std::fstream fp("/proc/partitions", std::ios_base::in);
+    std::locale clocale("C");
+    fp.imbue (clocale);
+
     fp.ignore (1024, '\n'); // header
     fp.ignore (1024, '\n'); // empty line
 
