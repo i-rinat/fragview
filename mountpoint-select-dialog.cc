@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <sys/vfs.h>
+#include "util.h"
 
 MountpointSelectDialog::MountpointSelectDialog (void)
 {
@@ -22,15 +23,37 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     // prepare table
     liststore = Gtk::ListStore::create (columns);
     tv.set_model (liststore);
+
     tv.append_column ("Mount point", columns.mountpoint);
-    tv.append_column ("Size", columns.size);
-    tv.append_column ("Used", columns.used);
-    tv.append_column ("Available", columns.available);
+
+    {
+        Gtk::CellRenderer *renderer = Gtk::manage (new Gtk::CellRendererText ());
+        int column_id = tv.append_column ("Size", *renderer) - 1;
+        tv.get_column (column_id)->set_cell_data_func (*renderer,
+            sigc::bind (sigc::mem_fun (*this, &MountpointSelectDialog::cell_data_func_size), &columns.size));
+    }
+
+    {
+        Gtk::CellRenderer *renderer = Gtk::manage (new Gtk::CellRendererText ());
+        int column_id = tv.append_column ("Used", *renderer) - 1;
+        tv.get_column (column_id)->set_cell_data_func (*renderer,
+            sigc::bind (sigc::mem_fun (*this, &MountpointSelectDialog::cell_data_func_size), &columns.used));
+    }
+
+    {
+        Gtk::CellRenderer *renderer = Gtk::manage (new Gtk::CellRendererText ());
+        int column_id = tv.append_column ("Available", *renderer) - 1;
+        tv.get_column (column_id)->set_cell_data_func (*renderer,
+            sigc::bind (sigc::mem_fun (*this, &MountpointSelectDialog::cell_data_func_size), &columns.available));
+    }
+
     tv.append_column ("Type", columns.type);
 
-    Gtk::CellRendererProgress *renderer = Gtk::manage (new Gtk::CellRendererProgress ());
-    int column_id = tv.append_column ("Used %", *renderer) - 1;
-    tv.get_column (column_id)->add_attribute (renderer->property_value (), columns.used_percentage);
+    {
+        Gtk::CellRendererProgress *renderer = Gtk::manage (new Gtk::CellRendererProgress ());
+        int column_id = tv.append_column ("Used %", *renderer) - 1;
+        tv.get_column (column_id)->add_attribute (renderer->property_value (), columns.used_percentage);
+    }
 
     tv.get_selection ()->signal_changed ().connect (
         sigc::mem_fun (*this, &MountpointSelectDialog::on_list_selection_changed));
@@ -89,4 +112,16 @@ MountpointSelectDialog::on_list_row_activated (const Gtk::TreeModel::Path& path,
     Gtk::TreeModel::iterator iter = liststore->get_iter (path);
     selected_path = (*iter)[columns.mountpoint];
     response (Gtk::RESPONSE_OK);
+}
+
+void
+MountpointSelectDialog::cell_data_func_size (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter,
+    Gtk::TreeModelColumn<uint64_t> *column)
+{
+    Gtk::CellRendererText *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
+    std::string filesize_string;
+    uint64_t size = (*iter)[*column];
+
+    Util::format_filesize (size, filesize_string);
+    renderer->property_text () = filesize_string;
 }

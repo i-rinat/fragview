@@ -43,6 +43,8 @@ class MountpointSelectDialog : public Gtk::Dialog
 
         void on_list_selection_changed (void);
         void on_list_row_activated (const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column);
+        void cell_data_func_size (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter,
+                                  Gtk::TreeModelColumn<uint64_t> *column);
 };
 
 #endif
