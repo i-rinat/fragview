@@ -1,3 +1,4 @@
+#define __STDC_LIMIT_MACROS
 #include "util.h"
 #include <sstream>
 #include <iomanip>

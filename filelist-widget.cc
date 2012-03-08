@@ -1,4 +1,3 @@
-#define __STDC_LIMIT_MACROS
 #include "filelist-widget.h"
 #include <iostream>
 #include <iomanip>
