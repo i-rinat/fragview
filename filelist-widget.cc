@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <cassert>
 #include "fragmap-widget.h"
+#include "util.h"
 
 FilelistView::FilelistView ()
 {
@@ -87,29 +88,11 @@ void
 FilelistView::cell_data_func_size (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter)
 {
     Gtk::CellRendererText *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
+    std::string filesize_string;
 
     uint64_t size = (*iter)[columns.col_size];
-    std::stringstream ss;
-
-    if (size < 1024) {
-        ss << size << " B";
-        renderer->property_text() = ss.str();
-        return;
-    }
-
-    ss << std::fixed << std::setprecision(1);
-
-    if (size < __UINT64_C(1048576)) {
-        ss << (double)size/__UINT64_C(1024) << " kiB";
-    } else if (size < __UINT64_C(1073741824)) {
-        ss << (double)size/__UINT64_C(1048576) << " MiB";
-    } else if (size < __UINT64_C(1099511627776)) {
-        ss << (double)size/__UINT64_C(1073741824) << " GiB";
-    } else {
-        ss << (double)size/__UINT64_C(1099511627776) << " TiB";
-    }
-
-    renderer->property_text() = ss.str();
+    Util::format_filesize (size, filesize_string);
+    renderer->property_text() = filesize_string;
 }
 
 void

@@ -22,6 +22,7 @@ include_directories (
 
 add_library (clusters STATIC
 	clusters.cc
+	util.cc
 )
 
 add_executable (fragview
