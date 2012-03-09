@@ -103,24 +103,6 @@ Clusters::create_coarse_map (unsigned int granularity)
         std::sort(file_list.begin(), file_list.end());
         file_list.erase(std::unique(file_list.begin(), file_list.end()), file_list.end());
     }
-
-    std::cout << "I've done creating coarse_map and here is some statistics:" << std::endl;
-    unsigned int max = 0;
-    int max_idx = -1;
-    int min = 2000000000;
-    double mean = 0;
-    for (unsigned int k = 0; k < map_size; k ++) {
-        if (coarse_map[k].size() > max) {
-            max = coarse_map[k].size();
-            max_idx = k;
-        }
-        min = std::min (min, (int)coarse_map[k].size());
-        mean += coarse_map[k].size();
-    }
-    std::cout << "coarse_map.size() == " << coarse_map.size() << std::endl;
-    std::cout << "max_depth of map: " << max << " files in one cluster idx=" << max_idx << std::endl;
-    std::cout << "min_depth of map: " << min << " files in one cluster" << std::endl;
-    std::cout << "mean depth of map: " << mean/map_size << " files in one cluster" << std::endl;
 }
 
 void
