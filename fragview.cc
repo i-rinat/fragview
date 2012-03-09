@@ -121,6 +121,8 @@ GraphWindow::on_action_main_open (void)
         set_title ("fragview - " + dialog.get_filename());
         cl.collect_fragments (dialog.get_filename ());
         cl.create_coarse_map (2000);
+        fragmap.recalculate_sizes ();
+        fragmap.queue_draw ();
     }
 }
 
@@ -133,6 +135,8 @@ GraphWindow::on_action_main_open_mountpoint (void)
         set_title ("fragview - " + msd.get_path());
         cl.collect_fragments (msd.get_path ());
         cl.create_coarse_map (2000);
+        fragmap.recalculate_sizes ();
+        fragmap.queue_draw ();
     }
 }
 
