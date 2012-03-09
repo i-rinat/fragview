@@ -81,6 +81,7 @@ class Clusters {
 
     private:
         int fibmap_fallback (int fd, const char *fname, const struct stat64 *sb, struct fiemap *fiemap);
+        void clear_caches ();
 
     private:
         file_list files;

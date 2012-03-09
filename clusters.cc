@@ -71,8 +71,7 @@ Clusters::set_desired_cluster_size (uint64_t ds)
     if (desired_cluster_size != ds) { // changed
         desired_cluster_size = std::min (ds, device_size / 100 + 1);
         cluster_count = (device_size - 1) / desired_cluster_size + 1;
-        fill_cache.clear();
-        clusters.clear();
+        clear_caches ();
     }
 }
 
@@ -135,15 +134,12 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
     fp.close ();
 
     cluster_count = (device_size - 1) / desired_cluster_size + 1;
-    clusters.clear ();
+
+    clear_caches();
 
     // walk directory tree, don't cross mount borders
     char *dirs[2] = {const_cast<char *>(initial_dir.c_str()), 0};
     FTS *fts_handle = fts_open (dirs, FTS_PHYSICAL | FTS_XDEV | FTS_NOCHDIR | FTS_NOSTAT, NULL);
-
-    files.clear ();
-    clusters.clear ();
-
     while (1) {
         FTSENT *ent = fts_read (fts_handle);
         if (NULL == ent) break;
@@ -415,4 +411,11 @@ Clusters::get_file_extents (const char *fname, const struct stat64 *sb, f_info *
 
     close (fd);
     return 1;
+}
+
+void
+Clusters::clear_caches (void)
+{
+    fill_cache.clear();
+    clusters.clear();
 }
