@@ -123,18 +123,16 @@ Fragmap::on_drawarea_scroll_event (GdkEventScroll* event)
 }
 
 void
-Fragmap::on_size_allocate (Gtk::Allocation& allocation)
+Fragmap::recalculate_sizes (void)
 {
-    Gtk::HBox::on_size_allocate (allocation); // parent
+    std::cout << "recalculate_sizes called" << std::endl;
+    recalculate_sizes (get_allocation().get_width(), get_allocation().get_height());
+}
 
-    Glib::RefPtr<Gtk::Adjustment> scroll_adj = scrollbar.get_adjustment ();
-    int pix_width;
-    int pix_height;
-
+void
+Fragmap::recalculate_sizes (int pix_width, int pix_height)
+{
     // estimate map size without scrollbar
-    pix_width = allocation.get_width();
-    pix_height = allocation.get_height();
-
     cluster_map_width = (pix_width - 1) / box_size;
     cluster_map_height = (pix_height - 1) / box_size;
 
@@ -147,7 +145,7 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
         // map does not fit, show scrollbar
         scrollbar.show();
         // and then recalculate sizes
-        pix_width = allocation.get_width() - scrollbar.get_allocation().get_width();
+        pix_width = pix_width - scrollbar.get_allocation().get_width();
         cluster_map_width = (pix_width - 1) / box_size;
         cluster_map_full_height = (clusters->get_count() - 1) / cluster_map_width + 1;
     } else {
@@ -159,9 +157,18 @@ Fragmap::on_size_allocate (Gtk::Allocation& allocation)
     scrollbar.set_increments (1.0, cluster_map_height);
 
     // upper limit for scroll bar is one page shorter, so we must recalculate page size
+    Glib::RefPtr<Gtk::Adjustment> scroll_adj = scrollbar.get_adjustment ();
     scroll_adj->set_page_size ((double)cluster_map_height);
 
     widget_size_changed = 1;
+}
+
+void
+Fragmap::on_size_allocate (Gtk::Allocation& allocation)
+{
+    Gtk::HBox::on_size_allocate (allocation); // parent
+
+    recalculate_sizes (allocation.get_width(), allocation.get_height());
 }
 
 void

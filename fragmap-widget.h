@@ -30,6 +30,8 @@ class Fragmap : public Gtk::HBox {
         void file_add (int file_idx);
         void set_mode (enum FRAGMAP_MODE);
         bool highlight_cluster_at (double x, double y);
+        void recalculate_sizes (int pix_width, int pix_height);
+        void recalculate_sizes (void);
 
     protected:
         Clusters *clusters;
