@@ -129,7 +129,6 @@ GraphWindow::on_action_main_open_mountpoint (void)
 {
     MountpointSelectDialog msd;
     int result = msd.run ();
-    std::cout << "result = " << result << std::endl;
     if (Gtk::RESPONSE_OK == result) {
         set_title ("fragview - " + msd.get_path());
         cl.collect_fragments (msd.get_path ());
