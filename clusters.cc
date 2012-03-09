@@ -135,7 +135,8 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 
     cluster_count = (device_size - 1) / desired_cluster_size + 1;
 
-    clear_caches();
+    clear_caches ();
+    files.clear ();
 
     // walk directory tree, don't cross mount borders
     char *dirs[2] = {const_cast<char *>(initial_dir.c_str()), 0};
