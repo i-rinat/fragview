@@ -104,8 +104,7 @@ Fragmap::on_drawarea_scroll_event (GdkEventScroll* event)
         clusters->set_desired_cluster_size (new_size);
         std::cout << "updated cluster_size_desired = " << clusters->get_desired_cluster_size() << std::endl;
 
-        Gtk::Allocation al(get_allocation());
-        on_size_allocate (al);
+        recalculate_sizes ();
         drawing_area.queue_draw ();
         clusters->unlock_clusters ();
     } else {
