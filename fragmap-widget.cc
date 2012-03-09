@@ -18,6 +18,7 @@ Fragmap::Fragmap ()
     display_mode = FRAGMAP_MODE_SHOW_ALL;
 
     target_cluster = 0;
+    selected_cluster = 0;
 
     filelist = 0;
 
