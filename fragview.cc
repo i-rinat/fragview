@@ -146,7 +146,7 @@ GraphWindow::scan_dir (const Glib::ustring& dir)
 
 GraphWindow::GraphWindow (void)
 {
-    set_title ("fragview");
+    set_title ("fragview - view");
     set_default_size (800, 560);
     fragmap.attach_clusters (cl);
     fragmap.attach_filelist_widget (filelistview);
