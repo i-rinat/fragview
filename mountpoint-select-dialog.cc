@@ -102,16 +102,20 @@ MountpointSelectDialog::get_path (void)
 void
 MountpointSelectDialog::on_list_selection_changed (void)
 {
-    Gtk::TreeModel::Row row = *(tv.get_selection ()->get_selected ());
-    selected_path = row[columns.mountpoint];
+    Gtk::TreeIter iter = tv.get_selection ()->get_selected ();
+    if (0 != iter) {
+        selected_path = (*iter) [columns.mountpoint];
+    }
 }
 
 void
 MountpointSelectDialog::on_list_row_activated (const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column)
 {
     Gtk::TreeModel::iterator iter = liststore->get_iter (path);
-    selected_path = (*iter)[columns.mountpoint];
-    response (Gtk::RESPONSE_OK);
+    if (0 != iter) {
+        selected_path = (*iter)[columns.mountpoint];
+        response (Gtk::RESPONSE_OK);
+    }
 }
 
 void
