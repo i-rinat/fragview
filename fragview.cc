@@ -113,8 +113,8 @@ GraphWindow::on_action_main_open (void)
 {
     Gtk::FileChooserDialog dialog ("Select directory", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
     dialog.set_transient_for (*this);
-    dialog.add_button (Gtk::Stock::OK, Gtk::RESPONSE_OK);
     dialog.add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+    dialog.add_button (Gtk::Stock::OK, Gtk::RESPONSE_OK);
 
     int result = dialog.run ();
     if (Gtk::RESPONSE_OK == result) {
