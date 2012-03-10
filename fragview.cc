@@ -7,6 +7,7 @@
 #include <gtkmm/actiongroup.h>
 #include <gtkmm/uimanager.h>
 #include <gtkmm/filechooserdialog.h>
+#include <gtkmm/statusbar.h>
 #include <gtkmm/stock.h>
 #include "clusters.h"
 #include "fragmap-widget.h"
@@ -30,6 +31,8 @@ class GraphWindow : public Gtk::Window {
         std::string initial_dir;
         Glib::RefPtr<Gtk::ActionGroup> action_group_ref;
         Glib::RefPtr<Gtk::UIManager> ui_manager_ref;
+        Gtk::Statusbar statusbar;
+        unsigned int statusbar_context;
 
         void on_action_view_most_fragmented (void);
         void on_action_view_most_severe (void);
@@ -155,6 +158,7 @@ GraphWindow::GraphWindow (void)
     set_default_size (800, 560);
     fragmap.attach_clusters (cl);
     fragmap.attach_filelist_widget (filelistview);
+    statusbar_context = statusbar.get_context_id ("main");
 
     // set up menus
     action_group_ref = Gtk::ActionGroup::create ();
@@ -211,6 +215,7 @@ GraphWindow::GraphWindow (void)
     Gtk::VBox *vbox = Gtk::manage (new Gtk::VBox);
     vbox->pack_start (*menubar, false, false);
     vbox->pack_start (*vpaned, true, true);
+    vbox->pack_start (statusbar, false, false);
 
     add (*vbox);
     show_all_children ();
