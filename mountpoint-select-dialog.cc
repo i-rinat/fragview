@@ -25,6 +25,7 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     tv.set_model (liststore);
 
     tv.append_column ("Mount point", columns.mountpoint);
+    tv.set_search_column (columns.mountpoint);
 
     {
         Gtk::CellRenderer *renderer = Gtk::manage (new Gtk::CellRendererText ());
