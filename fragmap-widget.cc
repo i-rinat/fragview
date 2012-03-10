@@ -39,6 +39,7 @@ Fragmap::Fragmap ()
         color_back_bleached[k] = 1.0 - (1.0 - color_back[k]) * bleach_factor;
     }
 
+    scrollbar.set_orientation (Gtk::ORIENTATION_VERTICAL);
     pack_start (drawing_area, true, true);
     pack_start (scrollbar, false, true);
 

@@ -201,7 +201,8 @@ GraphWindow::GraphWindow (void)
     Gtk::ScrolledWindow *scrolled_window = Gtk::manage (new Gtk::ScrolledWindow);
     scrolled_window->add (filelistview);
 
-    Gtk::VPaned *vpaned = Gtk::manage (new Gtk::VPaned);
+    Gtk::Paned *vpaned = Gtk::manage (new Gtk::Paned);
+    vpaned->set_orientation (Gtk::ORIENTATION_VERTICAL);
     vpaned->pack1 (fragmap, true, false);
     vpaned->pack2 (*scrolled_window, true, false);
 

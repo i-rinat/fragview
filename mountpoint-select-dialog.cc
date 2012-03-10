@@ -17,7 +17,7 @@ MountpointSelectDialog::MountpointSelectDialog (void)
 
     Gtk::Button *button_cancel = add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     Gtk::Button *button_ok = add_button (Gtk::Stock::OK, Gtk::RESPONSE_OK);
-    get_vbox ()->pack_start (tv, Gtk::PACK_EXPAND_WIDGET, 10);
+    get_content_area ()->pack_start (tv, Gtk::PACK_EXPAND_WIDGET, 10);
     show_all_children ();
 
     // prepare table

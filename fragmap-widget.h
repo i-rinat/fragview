@@ -38,7 +38,7 @@ class Fragmap : public Gtk::HBox {
         FilelistView *filelist;
 
         Gtk::DrawingArea drawing_area;
-        Gtk::VScrollbar scrollbar;
+        Gtk::Scrollbar scrollbar;
 
         int force_fill_clusters;
         int widget_size_changed;
