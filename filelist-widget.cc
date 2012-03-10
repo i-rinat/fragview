@@ -24,6 +24,7 @@ FilelistView::FilelistView ()
     view_to_model [column] = &columns.col_severity;
 
     column = get_column (append_column ("Name", columns.col_name) - 1);
+    set_search_column (columns.col_name);
     default_sort_order [column] = Gtk::SORT_ASCENDING;
     view_to_model [column] = &columns.col_name;
 
