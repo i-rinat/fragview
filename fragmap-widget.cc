@@ -21,6 +21,8 @@ Fragmap::Fragmap ()
     selected_cluster = 0;
 
     filelist = 0;
+    statusbar = NULL;
+    statusbar_context = 0;
 
     drawing_area.set_events (Gdk::BUTTON_PRESS_MASK | Gdk::POINTER_MOTION_MASK | Gdk::SCROLL_MASK);
 
@@ -395,6 +397,13 @@ void
 Fragmap::attach_clusters (Clusters& cl)
 {
     clusters = &cl;
+}
+
+void
+Fragmap::attach_statusbar (Gtk::Statusbar *sb, unsigned int sb_context)
+{
+    statusbar = sb;
+    statusbar_context = sb_context;
 }
 
 void

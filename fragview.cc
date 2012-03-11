@@ -159,6 +159,7 @@ GraphWindow::GraphWindow (void)
     fragmap.attach_clusters (cl);
     fragmap.attach_filelist_widget (filelistview);
     statusbar_context = statusbar.get_context_id ("main");
+    fragmap.attach_statusbar (&statusbar, statusbar_context);
 
     // set up menus
     action_group_ref = Gtk::ActionGroup::create ();

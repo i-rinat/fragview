@@ -4,6 +4,7 @@
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/widget.h>
 #include <gtkmm/scrollbar.h>
+#include <gtkmm/statusbar.h>
 #include <gtkmm/adjustment.h>
 #include <gtkmm/box.h>
 #include <stdint.h>
@@ -26,6 +27,7 @@ class Fragmap : public Gtk::HBox {
 
         void attach_clusters (Clusters& cl);
         void attach_filelist_widget (FilelistView& fl);
+        void attach_statusbar (Gtk::Statusbar *sb, unsigned int sb_context);
         void file_begin ();
         void file_add (int file_idx);
         void set_mode (enum FRAGMAP_MODE);
@@ -36,6 +38,8 @@ class Fragmap : public Gtk::HBox {
     protected:
         Clusters *clusters;
         FilelistView *filelist;
+        Gtk::Statusbar *statusbar;
+        unsigned int statusbar_context;
 
         Gtk::DrawingArea drawing_area;
         Gtk::Scrollbar scrollbar;
