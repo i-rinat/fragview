@@ -75,6 +75,12 @@ Clusters::set_desired_cluster_size (uint64_t ds)
     }
 }
 
+uint64_t
+Clusters::get_actual_cluster_size (void)
+{
+    return ((device_size - 1) / cluster_count + 1);
+}
+
 void
 Clusters::create_coarse_map (unsigned int granularity)
 {

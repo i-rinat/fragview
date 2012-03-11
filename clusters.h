@@ -77,6 +77,7 @@ class Clusters {
         uint64_t get_count () { return cluster_count; }
         void set_desired_cluster_size (uint64_t ds);
         uint64_t get_desired_cluster_size (void) { return desired_cluster_size; }
+        uint64_t get_actual_cluster_size (void);
         file_list& get_files ();
 
     private:
