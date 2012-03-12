@@ -138,6 +138,7 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
         }
     }
     fp.close ();
+    cluster_count = (device_size - 1) / cluster_size + 1;
 
     clear_caches ();
     files.clear ();
