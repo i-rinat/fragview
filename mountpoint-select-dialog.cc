@@ -69,9 +69,9 @@ MountpointSelectDialog::MountpointSelectDialog (void)
 
     while (! m_f.eof ()) {
         m_f >> m_device >> m_mountpoint >> m_type >> m_options >> m_freq >> m_passno;
-        struct statfs sfsb;
+        struct statfs64 sfsb;
         struct stat64 sb;
-        if (0 != statfs (m_mountpoint.c_str(), &sfsb)) continue;
+        if (0 != statfs64 (m_mountpoint.c_str(), &sfsb)) continue;
         if (0 != lstat64 (m_mountpoint.c_str(), &sb)) continue;
         if (sfsb.f_blocks == 0) continue; // pseudo-fs's have zero size
         if ("tmpfs" == m_type) continue; // tmpfs has neither FIEMAP not FIBMAP
