@@ -8,9 +8,6 @@ Fragmap::Fragmap ()
 {
     clusters = NULL;
 
-    widget_size_changed = 0;
-    cluster_count_changed = 1;
-    force_fill_clusters = 0;
     shift_x = 0;
     shift_y = 0;
     box_size = 7;
@@ -89,7 +86,6 @@ Fragmap::on_drawarea_scroll_event (GdkEventScroll* event)
 {
     if (event->state & Gdk::CONTROL_MASK) {
         // scroll with Ctrl key
-        force_fill_clusters = 1;
         clusters->lock_clusters ();
 
         uint64_t old_size = clusters->get_desired_cluster_size ();
@@ -167,8 +163,6 @@ Fragmap::recalculate_sizes (int pix_width, int pix_height)
     // upper limit for scroll bar is one page shorter, so we must recalculate page size
     Glib::RefPtr<Gtk::Adjustment> scroll_adj = scrollbar.get_adjustment ();
     scroll_adj->set_page_size ((double)cluster_map_height);
-
-    widget_size_changed = 1;
 }
 
 void

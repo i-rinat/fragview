@@ -44,9 +44,6 @@ class Fragmap : public Gtk::HBox {
         Gtk::DrawingArea drawing_area;
         Gtk::Scrollbar scrollbar;
 
-        int force_fill_clusters;
-        int widget_size_changed;
-        int cluster_count_changed;
         int box_size;
 
         int target_cluster;
