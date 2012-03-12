@@ -209,7 +209,7 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
         c_start2 /= coarse_map_granularity;
         c_end2 /= coarse_map_granularity;
 
-        for (uint64_t c_block = c_start2; c_block < c_end2; c_block ++) {
+        for (uint64_t c_block = c_start2; c_block <= c_end2; c_block ++) {
             file_queue.insert (file_queue.end(), coarse_map[c_block].begin(), coarse_map[c_block].end());
         }
     }
