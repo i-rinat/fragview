@@ -183,13 +183,13 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
 {
     // get starting and ending items in coarse map
     uint64_t c_start = m_start * cluster_size / coarse_map_granularity;
-    uint64_t c_end = ((m_start + m_length - 1) * cluster_size - 1) / coarse_map_granularity;
+    uint64_t c_end = ((m_start + m_length) * cluster_size - 1) / coarse_map_granularity;
     c_end = std::min (c_end, (uint64_t)coarse_map.size() - 1);
 
     // convert to blocks
     c_start = c_start * coarse_map_granularity;
     c_end = (c_end + 1) * coarse_map_granularity - 1;
-    c_end = std::min (c_end, get_device_size ());
+    c_end = std::min (c_end, device_size - 1);
 
     interval_t requested_interval (c_start, c_end);
     interval_set_t scan_intervals;
