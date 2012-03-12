@@ -88,7 +88,7 @@ Fragmap::on_drawarea_scroll_event (GdkEventScroll* event)
         // scroll with Ctrl key
         clusters->lock_clusters ();
 
-        uint64_t old_size = clusters->get_desired_cluster_size ();
+        uint64_t old_size = clusters->get_actual_cluster_size ();
         uint64_t new_size = old_size;
 
         if (GDK_SCROLL_UP == event->direction) {
@@ -313,7 +313,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         assert (clusters != NULL);
         uint64_t device_size = clusters->get_device_size ();
         assert (device_size > 0);
-        uint64_t cluster_size = (device_size - 1) / clusters->get_count() + 1;
+        uint64_t cluster_size = clusters->get_actual_cluster_size ();
 
         for (unsigned int k = 0; k < selected_files.size (); ++k) {
             int file_idx = selected_files[k];

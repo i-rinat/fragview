@@ -76,7 +76,6 @@ class Clusters {
         cluster_info& at (unsigned int k) { return clusters[k]; }
         uint64_t get_count () { return cluster_count; }
         void set_desired_cluster_size (uint64_t ds);
-        uint64_t get_desired_cluster_size (void) { return desired_cluster_size; }
         uint64_t get_actual_cluster_size (void);
         file_list& get_files ();
 
@@ -91,7 +90,7 @@ class Clusters {
         pthread_mutex_t files_mutex;
         uint64_t device_size;
         uint64_t cluster_count;
-        uint64_t desired_cluster_size;
+        uint64_t cluster_size;
         bool hide_error_inaccessible_files;
         bool hide_error_no_fiemap;
 

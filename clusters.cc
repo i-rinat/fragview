@@ -23,7 +23,7 @@ Clusters::Clusters ()
     hide_error_inaccessible_files = true;
     hide_error_no_fiemap = true;
 
-    desired_cluster_size = 3500;
+    cluster_size = 3500;
     cluster_count = 1;
     coarse_map_granularity = 1;
     device_size = 1;
@@ -68,9 +68,9 @@ Clusters::get_files ()
 void
 Clusters::set_desired_cluster_size (uint64_t ds)
 {
-    if (desired_cluster_size != ds) { // changed
-        desired_cluster_size = std::min (ds, device_size / 100 + 1);
-        cluster_count = (device_size - 1) / desired_cluster_size + 1;
+    if (cluster_size != ds) { // changed
+        cluster_size = std::min (ds, device_size / 100 + 1);
+        cluster_count = (device_size - 1) / cluster_size + 1;
         clear_caches ();
     }
 }
@@ -78,7 +78,7 @@ Clusters::set_desired_cluster_size (uint64_t ds)
 uint64_t
 Clusters::get_actual_cluster_size (void)
 {
-    return ((device_size - 1) / cluster_count + 1);
+    return cluster_size;
 }
 
 void
@@ -139,8 +139,6 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
     }
     fp.close ();
 
-    cluster_count = (device_size - 1) / desired_cluster_size + 1;
-
     clear_caches ();
     files.clear ();
 
@@ -183,9 +181,6 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 void
 Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
 {
-    // parameters are in cluster units, so compute cluster size
-    uint64_t cluster_size = (this->device_size - 1) / cluster_count + 1;
-
     // get starting and ending items in coarse map
     uint64_t c_start = m_start * cluster_size / coarse_map_granularity;
     uint64_t c_end = ((m_start + m_length - 1) * cluster_size - 1) / coarse_map_granularity;
