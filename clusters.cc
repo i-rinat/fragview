@@ -182,17 +182,17 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
 void
 Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
 {
-    // get starting and ending items in coarse map
-    uint64_t c_start = m_start * cluster_size / coarse_map_granularity;
-    uint64_t c_end = ((m_start + m_length) * cluster_size - 1) / coarse_map_granularity;
-    c_end = std::min (c_end, (uint64_t)coarse_map.size() - 1);
+    // express interval in coarse map's clusters
+    uint64_t icc_start = m_start * cluster_size / coarse_map_granularity;
+    uint64_t icc_end = ((m_start + m_length) * cluster_size - 1) / coarse_map_granularity;
+    icc_end = std::min (icc_end, (uint64_t)coarse_map.size() - 1);
 
-    // convert to blocks
-    c_start = c_start * coarse_map_granularity;
-    c_end = (c_end + 1) * coarse_map_granularity - 1;
-    c_end = std::min (c_end, device_size - 1);
+    // convert to device block units
+    uint64_t ib_start = icc_start * coarse_map_granularity;
+    uint64_t ib_end = (icc_end + 1) * coarse_map_granularity - 1;
+    ib_end = std::min (ib_end, device_size - 1);
 
-    interval_t requested_interval (c_start, c_end);
+    interval_t requested_interval (ib_start, ib_end);
     interval_set_t scan_intervals;
     scan_intervals += requested_interval;
     scan_intervals -= fill_cache;
@@ -203,14 +203,11 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
     typedef std::vector<uint64_t> file_queue_t;
     file_queue_t file_queue;
     for (interval_set_t::iterator i_iter = scan_intervals.begin(); i_iter != scan_intervals.end(); ++ i_iter) {
-        // get block
-        uint64_t c_start2 = i_iter->lower();
-        uint64_t c_end2   = i_iter->upper();
-        c_start2 /= coarse_map_granularity;
-        c_end2 /= coarse_map_granularity;
-
-        for (uint64_t c_block = c_start2; c_block <= c_end2; c_block ++) {
-            file_queue.insert (file_queue.end(), coarse_map[c_block].begin(), coarse_map[c_block].end());
+        // for every cluster in coarse map
+        for (uint64_t ccc_block = i_iter->lower() / coarse_map_granularity;
+             ccc_block <= i_iter->upper() / coarse_map_granularity; ccc_block ++)
+        {
+            file_queue.insert (file_queue.end(), coarse_map[ccc_block].begin(), coarse_map[ccc_block].end());
         }
     }
 
@@ -226,15 +223,12 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
             uint64_t estart_c = fi.extents[k2].start;
             uint64_t eend_c = fi.extents[k2].start + fi.extents[k2].length - 1;
 
-            if (estart_c > c_end) continue;
-            if (eend_c < c_start) continue;
-            if (estart_c < c_start) estart_c = c_start;
-            if (eend_c > c_end) eend_c = c_end;
+            if (estart_c > ib_end) continue;
+            if (eend_c < ib_start) continue;
+            estart_c  = std::max (estart_c, ib_start);
+            eend_c = std::min (eend_c, ib_end);
 
-            estart_c /= cluster_size;
-            eend_c /= cluster_size;
-
-            for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
+            for (uint64_t k3 = estart_c / cluster_size; k3 <= eend_c / cluster_size; k3 ++ ) {
                 clusters[k3].files.push_back (item_idx);
                 clusters[k3].free = 0;
                 if (fi.fragmented) clusters[k3].fragmented = 1;
