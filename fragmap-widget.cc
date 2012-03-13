@@ -129,7 +129,6 @@ Fragmap::on_drawarea_scroll_event (GdkEventScroll* event)
 void
 Fragmap::recalculate_sizes (void)
 {
-    std::cout << "recalculate_sizes called" << std::endl;
     recalculate_sizes (get_allocation().get_width(), get_allocation().get_height());
 }
 
@@ -204,18 +203,12 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     int target_line = target_cluster / cluster_map_width;
     int target_offset = target_line * cluster_map_width;
 
-    struct timeval tv1, tv2;
-
-    gettimeofday(&tv1, NULL);
     clusters->lock_clusters ();
     clusters->lock_files ();
     clusters->__fill_clusters (target_offset, cluster_map_width * cluster_map_height);
     clusters->unlock_clusters ();
     clusters->unlock_files ();
-    gettimeofday(&tv2, NULL);
-    printf("fill_clusters: %f sec\n", tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0);
 
-    gettimeofday(&tv1, NULL);
     int ky, kx;
 
     clusters->lock_clusters ();
@@ -346,9 +339,6 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     }
 
     clusters->unlock_clusters ();
-
-    gettimeofday(&tv2, NULL);
-    std::cout << "cairo draw: " << (tv2.tv_sec-tv1.tv_sec+(tv2.tv_usec-tv1.tv_usec)/1000000.0) << " sec" << std::endl;
 
     return true;
 }
