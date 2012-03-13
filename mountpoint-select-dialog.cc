@@ -15,8 +15,8 @@ MountpointSelectDialog::MountpointSelectDialog (void)
     set_size_request (400, 300);
     set_border_width (10);
 
-    Gtk::Button *button_cancel = add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-    Gtk::Button *button_ok = add_button (Gtk::Stock::OK, Gtk::RESPONSE_OK);
+    add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+    add_button (Gtk::Stock::OK, Gtk::RESPONSE_OK);
     get_content_area ()->pack_start (tv, Gtk::PACK_EXPAND_WIDGET, 10);
     show_all_children ();
 
