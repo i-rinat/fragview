@@ -14,7 +14,7 @@ Fragmap::Fragmap ()
 
     display_mode = FRAGMAP_MODE_SHOW_ALL;
 
-    target_cluster = 0;
+    target_block = 0;
     selected_cluster = 0;
 
     filelist = 0;
@@ -158,6 +158,7 @@ Fragmap::recalculate_sizes (int pix_width, int pix_height)
 
     scrollbar.set_range (0.0, cluster_map_full_height);
     scrollbar.set_increments (1.0, cluster_map_height);
+    scrollbar.set_value (target_block / clusters->get_actual_cluster_size () / cluster_map_width);
 
     // upper limit for scroll bar is one page shorter, so we must recalculate page size
     Glib::RefPtr<Gtk::Adjustment> scroll_adj = scrollbar.get_adjustment ();
@@ -200,7 +201,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     cr->rectangle (0, 0, width, height);
     cr->fill ();
 
-    int target_line = target_cluster / cluster_map_width;
+    int target_line = target_block / clusters->get_actual_cluster_size () / cluster_map_width;
     int target_offset = target_line * cluster_map_width;
 
     clusters->lock_clusters ();
@@ -353,7 +354,7 @@ Fragmap::highlight_cluster_at (gdouble x, gdouble y)
     int cl_x = (int) (x - shift_x) / box_size;
     int cl_y = (int) (y - shift_y) / box_size;
 
-    int target_line = target_cluster / cluster_map_width;
+    int target_line = target_block / clusters->get_actual_cluster_size () / cluster_map_width;
     uint64_t cl_raw = (cl_y + target_line) * cluster_map_width + cl_x;
 
     if (cl_raw >= clusters->get_count()) cl_raw = clusters->get_count() - 1;
@@ -398,7 +399,7 @@ Fragmap::attach_statusbar (Gtk::Statusbar *sb, unsigned int sb_context)
 void
 Fragmap::on_scrollbar_value_changed (void)
 {
-    target_cluster = cluster_map_width * round (scrollbar.get_value ());
+    target_block = cluster_map_width * clusters->get_actual_cluster_size () * round (scrollbar.get_value ());
     drawing_area.queue_draw ();
 }
 
