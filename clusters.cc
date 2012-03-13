@@ -223,15 +223,16 @@ Clusters::__fill_clusters (uint64_t m_start, uint64_t m_length)
         unsigned int item_idx = *f_iter;
         f_info &fi = files[item_idx];
         for (unsigned int k2 = 0; k2 < fi.extents.size(); k2 ++) {
-            uint64_t estart_c, eend_c;
+            uint64_t estart_c = fi.extents[k2].start;
+            uint64_t eend_c = fi.extents[k2].start + fi.extents[k2].length - 1;
 
-            estart_c = fi.extents[k2].start / cluster_size;
-            eend_c = (fi.extents[k2].start + fi.extents[k2].length - 1) / cluster_size;
+            if (estart_c > c_end) continue;
+            if (eend_c < c_start) continue;
+            if (estart_c < c_start) estart_c = c_start;
+            if (eend_c > c_end) eend_c = c_end;
 
-            if (estart_c > m_start + m_length - 1) continue;
-            if (eend_c < m_start) continue;
-            if (estart_c < m_start) estart_c = m_start;
-            if (eend_c > m_start + m_length - 1) eend_c = m_start + m_length - 1;
+            estart_c /= cluster_size;
+            eend_c /= cluster_size;
 
             for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
                 clusters[k3].files.push_back (item_idx);
