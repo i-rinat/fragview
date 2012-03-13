@@ -40,14 +40,13 @@ int main (int argc, char *argv[]) {
             Clusters::f_info fi;
             if (clusters.get_file_extents (argv[fileidx], &st, &fi)) {
                 if (flag_kilo) {
-                    printf ("%7d %s\n", (int)(fi.severity * 1000.0), fi.name.c_str());
+                    printf ("%7d %s\n", (int)(fi.severity * 1000.0), argv[fileidx]);
                 } else {
-                    printf ("%7.1f %s\n", fi.severity, fi.name.c_str());
+                    printf ("%7.1f %s\n", fi.severity, argv[fileidx]);
                 }
             }
         }
     }
-
 
     return 0;
 }
