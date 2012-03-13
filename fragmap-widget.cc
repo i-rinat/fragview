@@ -136,7 +136,7 @@ void
 Fragmap::recalculate_sizes (int pix_width, int pix_height)
 {
     // estimate map size without scrollbar
-    cluster_map_width = (pix_width - 1) / box_size;
+    cluster_map_width = std::max (1, (pix_width - 1) / box_size);
     cluster_map_height = (pix_height - 1) / box_size;
 
     assert (clusters != NULL);
@@ -149,7 +149,7 @@ Fragmap::recalculate_sizes (int pix_width, int pix_height)
         scrollbar.show();
         // and then recalculate sizes
         pix_width = pix_width - scrollbar.get_allocation().get_width();
-        cluster_map_width = (pix_width - 1) / box_size;
+        cluster_map_width = std::max (1, (pix_width - 1) / box_size);
         cluster_map_full_height = (clusters->get_count() - 1) / cluster_map_width + 1;
     } else {
         // we do not need scrollbar, hide it
