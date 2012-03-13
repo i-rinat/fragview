@@ -122,12 +122,7 @@ GraphWindow::on_action_main_open (void)
 
     int result = dialog.run ();
     if (Gtk::RESPONSE_OK == result) {
-        show_directory_in_title (dialog.get_filename());
-        filelistview.clear ();
-        cl.collect_fragments (dialog.get_filename ());
-        cl.create_coarse_map (2000);
-        fragmap.recalculate_sizes ();
-        fragmap.queue_draw ();
+        scan_dir (dialog.get_filename());
     }
 }
 
@@ -137,12 +132,7 @@ GraphWindow::on_action_main_open_mountpoint (void)
     MountpointSelectDialog msd;
     int result = msd.run ();
     if (Gtk::RESPONSE_OK == result) {
-        show_directory_in_title (msd.get_path());
-        filelistview.clear ();
-        cl.collect_fragments (msd.get_path ());
-        cl.create_coarse_map (2000);
-        fragmap.recalculate_sizes ();
-        fragmap.queue_draw ();
+        scan_dir (msd.get_path());
     }
 }
 
@@ -150,8 +140,11 @@ void
 GraphWindow::scan_dir (const Glib::ustring& dir)
 {
     show_directory_in_title (dir);
+    filelistview.clear ();
     cl.collect_fragments (dir);
     cl.create_coarse_map (2000);
+    fragmap.recalculate_sizes ();
+    fragmap.queue_draw ();
 }
 
 void
