@@ -23,6 +23,7 @@ class GraphWindow : public Gtk::Window {
         GraphWindow ();
         virtual ~GraphWindow ();
         void scan_dir (const Glib::ustring& dir);
+        void show_directory_in_title (const Glib::ustring& dir);
 
     protected:
         Fragmap fragmap;
@@ -121,7 +122,7 @@ GraphWindow::on_action_main_open (void)
 
     int result = dialog.run ();
     if (Gtk::RESPONSE_OK == result) {
-        set_title ("fragview - " + dialog.get_filename());
+        show_directory_in_title (dialog.get_filename());
         filelistview.clear ();
         cl.collect_fragments (dialog.get_filename ());
         cl.create_coarse_map (2000);
@@ -136,7 +137,7 @@ GraphWindow::on_action_main_open_mountpoint (void)
     MountpointSelectDialog msd;
     int result = msd.run ();
     if (Gtk::RESPONSE_OK == result) {
-        set_title ("fragview - " + msd.get_path());
+        show_directory_in_title (msd.get_path());
         filelistview.clear ();
         cl.collect_fragments (msd.get_path ());
         cl.create_coarse_map (2000);
@@ -148,13 +149,20 @@ GraphWindow::on_action_main_open_mountpoint (void)
 void
 GraphWindow::scan_dir (const Glib::ustring& dir)
 {
+    show_directory_in_title (dir);
     cl.collect_fragments (dir);
     cl.create_coarse_map (2000);
 }
 
+void
+GraphWindow::show_directory_in_title (const Glib::ustring& dir)
+{
+    set_title (Glib::ustring ("fragview - ") + dir);
+}
+
 GraphWindow::GraphWindow (void)
 {
-    set_title ("fragview - void");
+    show_directory_in_title ("void");
     set_default_size (800, 560);
     fragmap.attach_clusters (cl);
     fragmap.attach_filelist_widget (filelistview);
