@@ -153,6 +153,7 @@ Clusters::collect_fragments (const Glib::ustring & initial_dir)
             case FTS_NSOK:
             case FTS_NS:
             case FTS_D:
+            case FTS_F:
                 {
                     f_info fi;
                     struct stat64 sb_ent;
