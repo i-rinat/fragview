@@ -5,6 +5,7 @@
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
 #include <stdint.h>
+#include <map>
 
 class Fragmap;
 
