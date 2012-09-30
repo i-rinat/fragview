@@ -284,54 +284,70 @@ Clusters::get_file_severity (const f_info *fi, int64_t window, int shift, int pe
 int
 Clusters::fibmap_fallback(int fd, const char *fname, const struct stat64 *sb, struct fiemap *fiemap)
 {
-    uint64_t block;
-    uint64_t block_count = (0 == sb->st_size) ? 0 :
-                        (sb->st_size - 1) / sb->st_blksize + 1;
-    uint64_t block_start = fiemap->fm_start / sb->st_blksize;
-    fiemap->fm_mapped_extents = 0;
-    struct fiemap_extent *extents = &fiemap->fm_extents[0];
-    uint32_t idx = 0; // index for extents array
+    // FIBMAP uses its own units. Determine it.
+    uint32_t fib_blocksize;
+    int ret = ioctl(fd, FIGETBSZ, &fib_blocksize);
+    if (0 != ret) {
+        std::cout << fname << " FIGETBSZ unavailable, " << errno << std::endl;
+        return ret;
+    }
 
-    for (uint64_t k = block_start;
-         k < block_count && idx < fiemap->fm_extent_count;
-         k ++)
-    {
-        block = k;
-        int ret = ioctl(fd, FIBMAP, &block);
+    uint64_t block_count = (0 == sb->st_size) ? 0 : (sb->st_size - 1) / fib_blocksize + 1;
+    uint64_t block_start = fiemap->fm_start / fib_blocksize;
+    fiemap->fm_mapped_extents = 0;
+
+    if (block_start >= block_count)     // requested block outside file.
+        return 0;
+
+    if (fiemap->fm_extent_count < 1)    // not enough space in structure
+        return -1;
+
+    struct fiemap_extent *extents = &fiemap->fm_extents[0];
+    // fill first extent record
+    uint64_t physical_block = 0;
+    if (0 != ioctl(fd, FIBMAP, &physical_block))
+        return -1;
+
+    extents[0].fe_logical  = block_start * fib_blocksize; // enforce alignment by / and then *
+    extents[0].fe_physical = physical_block * fib_blocksize;
+    extents[0].fe_length = fib_blocksize;
+    extents[0].fe_flags = 0;
+    uint64_t k = block_start + 1;
+    uint32_t e_idx = 0; // extent array index
+    while (k < block_count && e_idx < fiemap->fm_extent_count) {
+        physical_block = k;
+        ret = ioctl(fd, FIBMAP, &physical_block);
         if (0 != ret) {
-            if (ENOTTY != errno) {
-                std::cout << fname << " FIBMAP unavailable, " << errno << ", " << strerror (errno) << std::endl;
-            }
+            if (ENOTTY != errno)
+                std::cout << fname << " FIBMAP unavailable, " << errno << ", "
+                    << strerror (errno) << std::endl;
             return ret;
         }
-        if (0 == block) {
-            // '0' here means block is not allocated, there is hole in file.
-            // we should try next block, skipping current
-            continue;
-        }
 
-        fiemap->fm_start += sb->st_blksize;
+        // physical_block may be equal to zero if there is a hole in the file
+        if (0 != physical_block) {
+            // extend extent, if next one is adjacent to current
+            if (extents[e_idx].fe_physical + extents[e_idx].fe_length == physical_block * fib_blocksize) {
+                extents[e_idx].fe_length += fib_blocksize;
+                extents[e_idx].fe_flags |= FIEMAP_EXTENT_MERGED;
+            } else {
+                // otherwise, create new extent, if there are place in structures
+                if (e_idx == fiemap->fm_extent_count - 1)
+                    break; // no room
+                e_idx ++;
+                extents[e_idx].fe_logical  = k * fib_blocksize;
+                extents[e_idx].fe_physical = physical_block * fib_blocksize;
+                extents[e_idx].fe_length = fib_blocksize;
+                extents[e_idx].fe_flags = 0;
 
-        int flag_very_first_extent = (k == block_start);
-        if (!flag_very_first_extent &&
-            extents[idx].fe_logical + extents[idx].fe_length == block * sb->st_blksize)
-        {
-            extents[idx].fe_length += sb->st_blksize;
-        } else {
-            if (!flag_very_first_extent) idx ++;
-            if (idx >= fiemap->fm_extent_count)
-                break;    // there is no room left in the extent table
-            extents[idx].fe_logical  = k * sb->st_blksize;
-            extents[idx].fe_physical = block * sb->st_blksize;
-            extents[idx].fe_length = sb->st_blksize;
-            extents[idx].fe_flags = FIEMAP_EXTENT_MERGED;
+            }
         }
-        if (k == block_count - 1) {
-            extents[idx].fe_flags |= FIEMAP_EXTENT_LAST;
-        }
+        k ++;
     }
-    fiemap->fm_mapped_extents = idx;
-
+    if (k == block_count) {
+        extents[e_idx].fe_flags |= FIEMAP_EXTENT_LAST;
+    }
+    fiemap->fm_mapped_extents = e_idx + 1;
     return 0;
 }
 
