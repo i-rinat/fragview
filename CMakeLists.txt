@@ -43,13 +43,13 @@ add_executable (fileseverity
 )
 
 target_link_libraries (fragview
-	${GTKMM_LIBRARIES}
 	clusters
+	${GTKMM_LIBRARIES}
 )
 
 target_link_libraries (fileseverity
-	${GLIBMM_LIBRARIES}
 	clusters
+	${GLIBMM_LIBRARIES}
 )
 
 add_executable (fragdb
@@ -57,9 +57,9 @@ add_executable (fragdb
 )
 
 target_link_libraries (fragdb
+	clusters
 	${GLIBMM_LIBRARIES}
 	${SQLITE3_LIBRARIES}
-	clusters
 )
 
 install (TARGETS fileseverity fragdb fragview
