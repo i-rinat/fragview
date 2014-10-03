@@ -97,7 +97,7 @@ Clusters::create_coarse_map (unsigned int granularity)
             eend_c = (files[k].extents[k2].start + files[k].extents[k2].length - 1);
             eend_c = eend_c / coarse_map_granularity;
 
-            for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++ ) {
+            for (uint64_t k3 = estart_c; k3 <= std::min((unsigned)eend_c, map_size - 1); k3 ++ ) {
                 coarse_map[k3].push_back (k);
             }
         }
