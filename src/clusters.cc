@@ -134,33 +134,26 @@ Clusters::create_coarse_map(unsigned int granularity)
 }
 
 void
-Clusters::collect_fragments(const Glib::ustring & initial_dir)
+Clusters::collect_fragments(const Glib::ustring &initial_dir)
 {
     struct stat64 sb_root;
+    struct statfs64 sfs;
+
     this->device_size = 1;
+    cluster_count = 1;
 
-    if (0 != stat64(initial_dir.c_str(), &sb_root))
-        return;     // can't stat root directory. Either have no rights or not a path.
-                    // Anyway there is no sense to continue
-    std::string partition_name;
-    std::fstream fp("/proc/partitions", std::ios_base::in);
-    std::locale clocale("C");
-    fp.imbue(clocale);
-
-    fp.ignore(1024, '\n'); // header
-    fp.ignore(1024, '\n'); // empty line
-
-    while (! fp.eof()){
-        unsigned int major, minor;
-        uint64_t blocks;
-
-        fp >> major >> minor >> blocks >> partition_name;
-        if (sb_root.st_dev == (major << 8) + minor) {
-            this->device_size = blocks * 1024 / sb_root.st_blksize;
-            break;
-        }
+    if (stat64(initial_dir.c_str(), &sb_root) != 0) {
+        // can't stat root directory. Either have no rights or not a path.
+        // Anyway there is no sense to continue
+        return;
     }
-    fp.close();
+
+    if (statfs64(initial_dir.c_str(), &sfs) != 0) {
+        std::cerr << "statfs64 error\n";
+        return;
+    }
+
+    device_size = sfs.f_blocks;
     cluster_count = (device_size - 1) / cluster_size + 1;
 
     clear_caches();
