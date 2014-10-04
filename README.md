@@ -19,24 +19,13 @@ lower than read speed of continuous ones will be considered fragmented.
 
 Compiling and installing
 ------------------------
-You'll need gtkmm-3.0, boost (icl) and sqlite3 headers to compile. Maybe you'll need to
-install kernel headers too.
-
-First, create directory, go there and run cmake:
-
-`$ mkdir build` <br>
-`$ cd build` <br>
-`$ cmake ..` <br>
-
-Then run make:
-
-`$ make`
-
-Then install:
-
-`# make install`
-
-You can just run resulted binaries without installing them.
+```
+$ sudo apt-get install libboost-dev libgtkmm-3.0-dev libglibmm-2.4-dev libsqlite3-dev
+$ mkdir build && cd build
+$ cmake -DCMAKE_BUILD_TYPE=Release ..
+$ make
+$ sudo make install
+```
 
 Binaries
 --------
@@ -56,15 +45,7 @@ similar to `filefrag` utility from e2fsprogs, but displays severity metric
 rather than fragment count. A few words about this metric can be found
 in draftpad.md file.
 
-Copying
+License
 -------
-fragview is free software; you can redistribute it and/or modify it under the
-terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2, or (at your option) any later version.
 
-fragview uses some of boost libraries (http://www.boost.org). See `LICENSE_1_0_BOOST.txt` for details.
-
-Contact
--------
-Author can be reached at email
-`ibragimovrinat-at-mail.ru` or at github: https://github.com/i-rinat/fragview
+fragview is distributed under the terms of the MIT License. See LICENSE.MIT for full text.
