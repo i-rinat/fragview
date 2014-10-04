@@ -98,12 +98,12 @@ scan(sqlite3 *db, const char *dir)
 
     Clusters::file_list &files = clusters.get_files();
 
-    for (Clusters::file_list::iterator item = files.begin(); item != files.end(); ++item) {
+    for (const auto item: files) {
         sqlite3_reset(stmt);
         sqlite3_clear_bindings(stmt);
-        sqlite3_bind_text(stmt, 1, item->name.c_str(), -1, SQLITE_STATIC);
-        sqlite3_bind_int(stmt, 2, item->extents.size());
-        sqlite3_bind_double(stmt, 3, item->severity);
+        sqlite3_bind_text(stmt, 1, item.name.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 2, item.extents.size());
+        sqlite3_bind_double(stmt, 3, item.severity);
         res = sqlite3_step(stmt);
         if (SQLITE_DONE != res) {
             std::cerr << "error: something wrong with sqlite3_step" << std::endl;

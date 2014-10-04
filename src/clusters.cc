@@ -230,12 +230,13 @@ Clusters::__fill_clusters(uint64_t m_start, uint64_t m_length)
     // collect file list
     typedef std::vector<uint64_t> file_queue_t;
     file_queue_t file_queue;
-    for (interval_set_t::iterator i_iter = scan_intervals.begin(); i_iter != scan_intervals.end(); ++ i_iter) {
+    for (const auto i_iter: scan_intervals) {
         // for every cluster in coarse map
-        for (uint64_t ccc_block = i_iter->lower() / coarse_map_granularity;
-             ccc_block <= i_iter->upper() / coarse_map_granularity; ccc_block ++)
+        for (uint64_t ccc_block = i_iter.lower() / coarse_map_granularity;
+             ccc_block <= i_iter.upper() / coarse_map_granularity; ccc_block ++)
         {
-            file_queue.insert(file_queue.end(), coarse_map[ccc_block].begin(), coarse_map[ccc_block].end());
+            file_queue.insert(file_queue.end(), coarse_map[ccc_block].begin(),
+                              coarse_map[ccc_block].end());
         }
     }
 
@@ -244,8 +245,7 @@ Clusters::__fill_clusters(uint64_t m_start, uint64_t m_length)
     file_queue.erase(std::unique(file_queue.begin(), file_queue.end()), file_queue.end());
 
     // process collected file list
-    for (file_queue_t::iterator f_iter = file_queue.begin(); f_iter != file_queue.end(); ++ f_iter) {
-        unsigned int item_idx = *f_iter;
+    for (auto item_idx: file_queue) {
         f_info &fi = files[item_idx];
         for (unsigned int k2 = 0; k2 < fi.extents.size(); k2 ++) {
             uint64_t estart_c = fi.extents[k2].start;

@@ -400,8 +400,7 @@ Fragmap::highlight_cluster_at(gdouble x, gdouble y)
         if (filelist) {
             filelist->clear();
 
-            for (Clusters::file_p_list::iterator iter = ci.files.begin(); iter != ci.files.end(); ++ iter) {
-                unsigned int fid = *iter;
+            for (auto const fid: ci.files) {
                 Clusters::f_info &fi = files[fid];
                 filelist->add_file_info(fid, fi.extents.size(), fi.severity, fi.filetype, fi.size,
                                         fi.name);

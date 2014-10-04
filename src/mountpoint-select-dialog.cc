@@ -137,18 +137,17 @@ MountpointSelectDialog::get_path(void)
 void
 MountpointSelectDialog::on_list_selection_changed(void)
 {
-    Gtk::TreeIter iter = tv.get_selection()->get_selected();
-    if (0 != iter) {
+    auto iter = tv.get_selection()->get_selected();
+    if (iter)
         selected_path = (*iter)[columns.mountpoint];
-    }
 }
 
 void
 MountpointSelectDialog::on_list_row_activated(const Gtk::TreeModel::Path &path,
                                               Gtk::TreeViewColumn *column)
 {
-    Gtk::TreeModel::iterator iter = liststore->get_iter(path);
-    if (0 != iter) {
+    auto iter = liststore->get_iter(path);
+    if (iter) {
         selected_path = (*iter)[columns.mountpoint];
         response(Gtk::RESPONSE_OK);
     }
@@ -159,7 +158,7 @@ MountpointSelectDialog::cell_data_func_size(Gtk::CellRenderer *cell,
                                             const Gtk::TreeModel::iterator &iter,
                                             Gtk::TreeModelColumn<uint64_t> *column)
 {
-    Gtk::CellRendererText *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
+    auto *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
     std::string filesize_string;
     uint64_t size = (*iter)[*column];
 
