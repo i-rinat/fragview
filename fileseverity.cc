@@ -7,42 +7,44 @@
 #include "clusters.h"
 
 void print_usage() {
-    printf ("Usage: fileseverity [-k] file [file] [file] ...\n");
+    printf("Usage: fileseverity [-k] file [file] [file] ...\n");
 }
 
-int main (int argc, char *argv[]) {
+int
+main(int argc, char *argv[])
+{
     int opt;
     int flag_kilo;
 
     flag_kilo = 0;
     while ((opt = getopt(argc, argv, "k")) != -1) {
         switch (opt) {
-            case 'k':
-                flag_kilo = 1;
-                break;
-            default:
-                print_usage();
-                exit (1);
-                break;
+        case 'k':
+            flag_kilo = 1;
+            break;
+        default:
+            print_usage();
+            exit (1);
+            break;
         }
     }
 
     if (optind >= argc) {
         print_usage();
-        exit (1);
+        exit(1);
     }
 
     Clusters clusters;
 
     for (int fileidx = optind; fileidx < argc; fileidx ++) {
         struct stat64 st;
-        if (-1 != stat64 (argv[fileidx], &st)) {
+        if (-1 != stat64(argv[fileidx], &st)) {
             Clusters::f_info fi;
-            if (clusters.get_file_extents (argv[fileidx], &st, &fi)) {
+            if (clusters.get_file_extents(argv[fileidx], &st, &fi)) {
                 if (flag_kilo) {
-                    printf ("%7d %s\n", (int)(fi.severity * 1000.0), argv[fileidx]);
+                    printf("%7d %s\n", (int)(fi.severity * 1000.0), argv[fileidx]);
                 } else {
-                    printf ("%7.1f %s\n", fi.severity, argv[fileidx]);
+                    printf("%7.1f %s\n", fi.severity, argv[fileidx]);
                 }
             }
         }

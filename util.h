@@ -1,15 +1,14 @@
-#pragma once
-#ifndef __UTILS_H__
-#define __UTILS_H__
+#ifndef FRAGVIEW_UTIL_H
+#define FRAGVIEW_UTIL_H
 
 #include <string>
 #include <stdint.h>
 
 class Util {
     public:
-        static void format_filesize (uint64_t size, std::string& res);
+        static void format_filesize(uint64_t size, std::string &res);
     private:
-        Util () { }
+        Util() {}
 };
 
-#endif
+#endif // FRAGVIEW_UTIL_H

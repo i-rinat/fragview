@@ -15,13 +15,13 @@ class FilelistView : public Gtk::TreeView
         public:
             ModelColumns ()
             {
-                add (col_fileid);
-                add (col_fragments);
-                add (col_severity);
-                add (col_name);
-                add (col_dir);
-                add (col_filetype);
-                add (col_size);
+                add(col_fileid);
+                add(col_fragments);
+                add(col_severity);
+                add(col_name);
+                add(col_dir);
+                add(col_filetype);
+                add(col_size);
             };
 
             Gtk::TreeModelColumn<int> col_fileid;
@@ -34,13 +34,15 @@ class FilelistView : public Gtk::TreeView
     };
 
     public:
-        FilelistView ();
-        ~FilelistView ();
+        FilelistView();
+        ~FilelistView();
 
-        void clear ();
-        void add_file_info (int id, int fragments, double severity, int filetype, uint64_t size, const std::string& name, const std::string& dir);
-        void add_file_info (int id, int fragments, double severity, int filetype, uint64_t size, const std::string& full_path);
-        void attach_fragmap (Fragmap *fm) { fragmap = fm; }
+        void clear();
+        void add_file_info(int id, int fragments, double severity, int filetype, uint64_t size,
+                           const std::string& name, const std::string& dir);
+        void add_file_info(int id, int fragments, double severity, int filetype, uint64_t size,
+                           const std::string& full_path);
+        void attach_fragmap(Fragmap *fm) { fragmap = fm; }
 
     protected:
         ModelColumns columns;
@@ -49,11 +51,11 @@ class FilelistView : public Gtk::TreeView
         std::map<void *, Gtk::TreeModelColumnBase *> view_to_model;
         Fragmap *fragmap;
 
-        virtual void on_filelist_header_clicked (Gtk::TreeViewColumn *column);
-        virtual void on_selection_changed (void);
+        virtual void on_filelist_header_clicked(Gtk::TreeViewColumn *column);
+        virtual void on_selection_changed(void);
 
-        void cell_data_func_filetype (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
-        void cell_data_func_size (Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
+        void cell_data_func_filetype(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
+        void cell_data_func_size(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __FRAGMAP_WIDGET_H__
-#define __FRAGMAP_WIDGET_H__
+#ifndef FRAGVIEW_FRAGMAP_WIDGET_H
+#define FRAGVIEW_FRAGMAP_WIDGET_H
 
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/widget.h>
@@ -14,26 +14,25 @@
 
 class Fragmap : public Gtk::HBox {
     public:
-        // types
-        enum FRAGMAP_MODE {
+        enum mode {
             FRAGMAP_MODE_SHOW_ALL = 0,
             FRAGMAP_MODE_CLUSTER,
             FRAGMAP_MODE_FILE
         };
 
     public:
-        Fragmap ();
-        ~Fragmap ();
+        Fragmap();
+        ~Fragmap();
 
-        void attach_clusters (Clusters& cl);
-        void attach_filelist_widget (FilelistView& fl);
-        void attach_statusbar (Gtk::Statusbar *sb, unsigned int sb_context);
-        void file_begin ();
-        void file_add (int file_idx);
-        void set_mode (enum FRAGMAP_MODE);
-        bool highlight_cluster_at (double x, double y);
-        void recalculate_sizes (int pix_width, int pix_height);
-        void recalculate_sizes (void);
+        void attach_clusters(Clusters &cl);
+        void attach_filelist_widget(FilelistView &fl);
+        void attach_statusbar(Gtk::Statusbar *sb, unsigned int sb_context);
+        void file_begin();
+        void file_add(int file_idx);
+        void set_mode(enum Fragmap::mode);
+        bool highlight_cluster_at(double x, double y);
+        void recalculate_sizes(int pix_width, int pix_height);
+        void recalculate_sizes(void);
 
     protected:
         Clusters *clusters;
@@ -46,7 +45,7 @@ class Fragmap : public Gtk::HBox {
 
         int box_size;
 
-        FRAGMAP_MODE display_mode;
+        Fragmap::mode display_mode;
         uint64_t selected_cluster;
         uint64_t target_block;
         std::vector<int> selected_files;
@@ -72,16 +71,14 @@ class Fragmap : public Gtk::HBox {
 
     protected:
         // signal handlers
-        virtual bool on_drawarea_draw (const Cairo::RefPtr<Cairo::Context>& cr);
-        virtual bool on_motion_notify_event (GdkEventMotion *event);
-        virtual bool on_button_press_event (GdkEventButton* event);
-        virtual bool on_drawarea_scroll_event (GdkEventScroll* event);
-        virtual void on_size_allocate (Gtk::Allocation& allocation);
-        virtual void on_scrollbar_value_changed (void);
+        virtual bool on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr);
+        virtual bool on_motion_notify_event(GdkEventMotion *event);
+        virtual bool on_button_press_event(GdkEventButton *event);
+        virtual bool on_drawarea_scroll_event(GdkEventScroll *event);
+        virtual void on_size_allocate(Gtk::Allocation &allocation);
+        virtual void on_scrollbar_value_changed(void);
     private:
-        void cairo_set_source_rgbv (const Cairo::RefPtr<Cairo::Context>& cr, double const color[]);
+        void cairo_set_source_rgbv(const Cairo::RefPtr<Cairo::Context> &cr, double const color[]);
 };
 
-
-
-#endif
+#endif // FRAGVIEW_FRAGMAP_WIDGET_H

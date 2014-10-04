@@ -18,10 +18,10 @@ class Clusters {
             public:
             uint64_t start;
             uint64_t length;
-            tuple (uint64_t s, uint64_t l) { start = s; length = l; };
+            tuple(uint64_t s, uint64_t l) { start = s; length = l; };
             class compare {
                 public:
-                bool operator () (const tuple x, const tuple y) {
+                bool operator()(const tuple x, const tuple y) {
                     if (x.start == y.start) return x.length < y.length;
                     else return x.start < y.start;
                 }
@@ -58,30 +58,30 @@ class Clusters {
         typedef std::map<int, cluster_info> cluster_list;
 
     public:
-        Clusters ();
-        ~Clusters ();
+        Clusters();
+        ~Clusters();
 
-        void collect_fragments (const Glib::ustring& initial_dir);
-        uint64_t get_device_size () const { return this->device_size; }
-        void __fill_clusters (uint64_t m_start, uint64_t m_length);
-        double get_file_severity (const f_info *fi, int64_t window, int shift, int penalty, double speed);
-        int get_file_extents (const char *fname, const struct stat64 *sb, f_info *fi);
-        void create_coarse_map (unsigned int granularity);
+        void collect_fragments(const Glib::ustring& initial_dir);
+        uint64_t get_device_size() const { return this->device_size; }
+        void __fill_clusters(uint64_t m_start, uint64_t m_length);
+        double get_file_severity(const f_info *fi, int64_t window, int shift, int penalty, double speed);
+        int get_file_extents(const char *fname, const struct stat64 *sb, f_info *fi);
+        void create_coarse_map(unsigned int granularity);
 
-        int lock_clusters ();
-        int lock_files ();
-        int unlock_clusters ();
-        int unlock_files ();
+        int lock_clusters();
+        int lock_files();
+        int unlock_clusters();
+        int unlock_files();
 
-        cluster_info& at (unsigned int k) { return clusters[k]; }
-        uint64_t get_count () { return cluster_count; }
-        void set_desired_cluster_size (uint64_t ds);
-        uint64_t get_actual_cluster_size (void);
-        file_list& get_files ();
+        cluster_info& at(unsigned int k) { return clusters[k]; }
+        uint64_t get_count() { return cluster_count; }
+        void set_desired_cluster_size(uint64_t ds);
+        uint64_t get_actual_cluster_size(void);
+        file_list& get_files();
 
     private:
-        int fibmap_fallback (int fd, const char *fname, const struct stat64 *sb, struct fiemap *fiemap);
-        void clear_caches ();
+        int fibmap_fallback(int fd, const char *fname, const struct stat64 *sb, struct fiemap *fiemap);
+        void clear_caches();
 
     private:
         file_list files;

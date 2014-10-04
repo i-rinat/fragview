@@ -4,7 +4,7 @@
 #include <iomanip>
 
 void
-Util::format_filesize (uint64_t size, std::string& res)
+Util::format_filesize(uint64_t size, std::string &res)
 {
     std::stringstream ss;
 
