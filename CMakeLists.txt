@@ -1,9 +1,17 @@
 project(fragview)
 cmake_minimum_required(VERSION 2.6)
-set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -O0")
-set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0")
-set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+# request pthreads and c++11
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror=format-security")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=implicit-function-declaration")
+
+# add missing NDEBUG in RelWithDebugInfo
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DNDEBUG -g3")
+
+# generate more debug info for Debug build type
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3")
 
 find_package (PkgConfig REQUIRED)
 find_package (Boost REQUIRED)
