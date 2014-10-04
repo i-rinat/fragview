@@ -65,22 +65,6 @@ class GraphWindow : public Gtk::Window {
         void on_action_main_open(void);
         void on_action_main_open_mountpoint(void);
         void on_action_main_quit(void);
-        class sorter {
-            public:
-            bool operator()(const std::pair<uint64_t, uint64_t> &a, const std::pair<uint64_t,
-                            uint64_t> &b) const
-            {
-                return a.second > b.second;
-            }
-        } sorter_object_desc;
-        class sorter_severity {
-            public:
-            bool operator()(const std::pair<uint64_t, double> &a, const std::pair<uint64_t,
-                            double> &b) const
-            {
-                return a.second > b.second;
-            }
-        } sorter_object_severity_desc;
 };
 
 void
@@ -94,7 +78,11 @@ GraphWindow::on_action_view_most_fragmented(void)
         mapping[k].first = k;
         mapping[k].second = fl[k].extents.size();
     }
-    std::sort(mapping.begin(), mapping.end(), sorter_object_desc);
+    std::sort(mapping.begin(), mapping.end(),
+        [](const std::pair<uint64_t, uint64_t> &a, const std::pair<uint64_t, uint64_t> &b) {
+            return a.second > b.second;
+        }
+    );
 
     // fill filelistview widget with 'n' most fragmented
     filelistview.clear();
@@ -115,7 +103,11 @@ GraphWindow::on_action_view_most_severe(void)
         mapping[k].first = k;
         mapping[k].second = fl[k].severity;
     }
-    std::sort(mapping.begin(), mapping.end(), sorter_object_severity_desc);
+    std::sort(mapping.begin(), mapping.end(),
+        [](const std::pair<uint64_t, double> &a, const std::pair<uint64_t, double> &b) {
+            return a.second > b.second;
+        }
+    );
 
     // fill filelistview widget with 'n' most fragmented (by severity)
     filelistview.clear();
