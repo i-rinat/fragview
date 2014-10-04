@@ -1,5 +1,5 @@
-#ifndef FRAGVIEW_UTIL_H
-#define FRAGVIEW_UTIL_H
+#ifndef FRAGVIEW_UTIL_HH
+#define FRAGVIEW_UTIL_HH
 
 #include <string>
 #include <stdint.h>
@@ -11,4 +11,4 @@ class Util {
         Util() {}
 };
 
-#endif // FRAGVIEW_UTIL_H
+#endif // FRAGVIEW_UTIL_HH

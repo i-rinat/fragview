@@ -1,5 +1,5 @@
-#ifndef FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_H
-#define FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_H
+#ifndef FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_HH
+#define FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_HH
 
 #include <gtkmm/dialog.h>
 #include <gtkmm/treeview.h>
@@ -46,4 +46,4 @@ class MountpointSelectDialog : public Gtk::Dialog
                                  Gtk::TreeModelColumn<uint64_t> *column);
 };
 
-#endif // FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_H
+#endif // FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_HH

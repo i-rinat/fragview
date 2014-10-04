@@ -1,4 +1,3 @@
-#include "mountpoint-select-dialog.h"
 #include <gtkmm/box.h>
 #include <gtkmm/button.h>
 #include <gtkmm/stock.h>
@@ -7,7 +6,9 @@
 #include <iostream>
 #include <fstream>
 #include <sys/vfs.h>
-#include "util.h"
+#include "util.hh"
+#include "mountpoint-select-dialog.hh"
+
 
 MountpointSelectDialog::MountpointSelectDialog(void)
 {

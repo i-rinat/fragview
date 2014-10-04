@@ -9,14 +9,14 @@
 #include <gtkmm/filechooserdialog.h>
 #include <gtkmm/statusbar.h>
 #include <gtkmm/stock.h>
-#include "clusters.h"
-#include "fragmap-widget.h"
-#include "filelist-widget.h"
-#include "mountpoint-select-dialog.h"
 #include <iostream>
 #include <locale>
 #include <pwd.h>
 #include <cassert>
+#include "clusters.hh"
+#include "fragmap-widget.hh"
+#include "filelist-widget.hh"
+#include "mountpoint-select-dialog.hh"
 
 class GraphWindow : public Gtk::Window {
     public:

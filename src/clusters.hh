@@ -1,5 +1,5 @@
-#ifndef __CLUSTERS_H__
-#define __CLUSTERS_H__
+#ifndef FRAGVIEW_CLUSTERS_HH
+#define FRAGVIEW_CLUSTERS_HH
 
 #include <stdint.h>
 #include <vector>
@@ -102,4 +102,4 @@ class Clusters {
         unsigned int coarse_map_granularity;
 };
 
-#endif
+#endif // FRAGVIEW_CLUSTERS_HH

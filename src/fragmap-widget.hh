@@ -1,5 +1,5 @@
-#ifndef FRAGVIEW_FRAGMAP_WIDGET_H
-#define FRAGVIEW_FRAGMAP_WIDGET_H
+#ifndef FRAGVIEW_FRAGMAP_WIDGET_HH
+#define FRAGVIEW_FRAGMAP_WIDGET_HH
 
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/widget.h>
@@ -9,8 +9,9 @@
 #include <gtkmm/box.h>
 #include <stdint.h>
 #include <pthread.h>
-#include "clusters.h"
-#include "filelist-widget.h"
+#include "clusters.hh"
+#include "filelist-widget.hh"
+
 
 class Fragmap : public Gtk::HBox {
     public:
@@ -81,4 +82,4 @@ class Fragmap : public Gtk::HBox {
         void cairo_set_source_rgbv(const Cairo::RefPtr<Cairo::Context> &cr, double const color[]);
 };
 
-#endif // FRAGVIEW_FRAGMAP_WIDGET_H
+#endif // FRAGVIEW_FRAGMAP_WIDGET_HH

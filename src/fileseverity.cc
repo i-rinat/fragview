@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "clusters.h"
+#include "clusters.hh"
 
 void print_usage() {
     printf("Usage: fileseverity [-k] file [file] [file] ...\n");

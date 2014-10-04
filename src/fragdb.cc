@@ -5,12 +5,12 @@
  * list of most fragmented files from previous scan
  */
 
-#include "clusters.h"
 #include <sqlite3.h>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <iomanip>
+#include "clusters.hh"
 
 const char *sql_create_tables =
     "DROP TABLE IF EXISTS items; "

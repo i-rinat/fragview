@@ -1,9 +1,9 @@
-#include "filelist-widget.h"
 #include <iostream>
 #include <iomanip>
 #include <cassert>
-#include "fragmap-widget.h"
-#include "util.h"
+#include "filelist-widget.hh"
+#include "fragmap-widget.hh"
+#include "util.hh"
 
 FilelistView::FilelistView()
 {

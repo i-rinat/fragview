@@ -1,11 +1,11 @@
-#pragma once
-#ifndef __FILELIST_WIDGET_H__
-#define __FILELIST_WIDGET_H__
+#ifndef FRAGVIEW_FILELIST_WIDGET_HH
+#define FRAGVIEW_FILELIST_WIDGET_HH
 
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
 #include <stdint.h>
 #include <map>
+
 
 class Fragmap;
 
@@ -58,4 +58,4 @@ class FilelistView : public Gtk::TreeView
         void cell_data_func_size(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
 };
 
-#endif
+#endif // FRAGVIEW_FILELIST_WIDGET_HH

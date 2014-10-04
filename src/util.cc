@@ -1,7 +1,7 @@
 #define __STDC_LIMIT_MACROS
-#include "util.h"
 #include <sstream>
 #include <iomanip>
+#include "util.hh"
 
 void
 Util::format_filesize(uint64_t size, std::string &res)
