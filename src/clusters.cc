@@ -41,16 +41,16 @@
 
 Clusters::Clusters()
 {
-    pthread_mutex_init(&files_mutex, NULL);
-    pthread_mutex_init(&clusters_mutex, NULL);
+    pthread_mutex_init(&files_mutex_, NULL);
+    pthread_mutex_init(&clusters_mutex_, NULL);
 
-    hide_error_inaccessible_files = true;
-    hide_error_no_fiemap = true;
+    hide_error_inaccessible_files_ = true;
+    hide_error_no_fiemap_ = true;
 
-    cluster_size = 3500;
-    cluster_count = 1;
-    coarse_map_granularity = 1;
-    device_size = 1;
+    cluster_size_ = 3500;
+    cluster_count_ = 1;
+    coarse_map_granularity_ = 1;
+    device_size_ = 1;
     create_coarse_map(1); // we need at least one element in coarse map
 }
 
@@ -61,39 +61,39 @@ Clusters::~Clusters()
 int
 Clusters::lock_clusters()
 {
-    return pthread_mutex_lock(&clusters_mutex);
+    return pthread_mutex_lock(&clusters_mutex_);
 }
 
 int
 Clusters::lock_files()
 {
-    return pthread_mutex_lock(&files_mutex);
+    return pthread_mutex_lock(&files_mutex_);
 }
 
 int
 Clusters::unlock_clusters()
 {
-    return pthread_mutex_unlock(&clusters_mutex);
+    return pthread_mutex_unlock(&clusters_mutex_);
 }
 
 int
 Clusters::unlock_files()
 {
-    return pthread_mutex_unlock(&files_mutex);
+    return pthread_mutex_unlock(&files_mutex_);
 }
 
 Clusters::file_list&
 Clusters::get_files()
 {
-    return files;
+    return files_;
 }
 
 void
 Clusters::set_desired_cluster_size(uint64_t ds)
 {
-    if (cluster_size != ds) { // changed
-        cluster_size = std::min(ds, device_size / 100 + 1);
-        cluster_count = (device_size - 1) / cluster_size + 1;
+    if (cluster_size_ != ds) { // changed
+        cluster_size_ = std::min(ds, device_size_ / 100 + 1);
+        cluster_count_ = (device_size_ - 1) / cluster_size_ + 1;
         clear_caches();
     }
 }
@@ -101,33 +101,33 @@ Clusters::set_desired_cluster_size(uint64_t ds)
 uint64_t
 Clusters::get_actual_cluster_size(void)
 {
-    return cluster_size;
+    return cluster_size_;
 }
 
 void
 Clusters::create_coarse_map(unsigned int granularity)
 {
-    this->coarse_map_granularity = granularity;
-    unsigned int map_size = (get_device_size() - 1) / coarse_map_granularity + 1;
-    coarse_map.clear();
-    coarse_map.resize(map_size);
+    coarse_map_granularity_ = granularity;
+    unsigned int map_size = (get_device_size() - 1) / coarse_map_granularity_ + 1;
+    coarse_map_.clear();
+    coarse_map_.resize(map_size);
 
-    for (unsigned int k = 0; k < files.size(); ++ k) {
-        for (unsigned int k2 = 0; k2 < files[k].extents.size(); k2 ++) {
+    for (uintptr_t k = 0; k < files_.size(); k ++) {
+        auto file = files_[k];
+        for (auto extent: file.extents) {
             uint64_t estart_c, eend_c;
 
-            estart_c = files[k].extents[k2].start / coarse_map_granularity;
-            eend_c = (files[k].extents[k2].start + files[k].extents[k2].length - 1);
-            eend_c = eend_c / coarse_map_granularity;
+            estart_c = extent.start / coarse_map_granularity_;
+            eend_c = (extent.start + extent.length - 1);
+            eend_c = eend_c / coarse_map_granularity_;
 
             for (uint64_t k3 = estart_c; k3 <= std::min((unsigned)eend_c, map_size - 1); k3 ++ ) {
-                coarse_map[k3].push_back(k);
+                coarse_map_[k3].push_back(k);
             }
         }
     }
 
-    for (unsigned int k3 = 0; k3 < coarse_map.size(); k3 ++) {
-        std::vector<uint64_t>  &file_list = coarse_map[k3];
+    for (auto &file_list: coarse_map_) {
         std::sort(file_list.begin(), file_list.end());
         file_list.erase(std::unique(file_list.begin(), file_list.end()), file_list.end());
     }
@@ -139,8 +139,8 @@ Clusters::collect_fragments(const Glib::ustring &initial_dir)
     struct stat64 sb_root;
     struct statfs64 sfs;
 
-    this->device_size = 1;
-    cluster_count = 1;
+    device_size_ = 1;
+    cluster_count_ = 1;
 
     if (stat64(initial_dir.c_str(), &sb_root) != 0) {
         // can't stat root directory. Either have no rights or not a path.
@@ -153,11 +153,11 @@ Clusters::collect_fragments(const Glib::ustring &initial_dir)
         return;
     }
 
-    device_size = sfs.f_blocks;
-    cluster_count = (device_size - 1) / cluster_size + 1;
+    device_size_ = sfs.f_blocks;
+    cluster_count_ = (device_size_ - 1) / cluster_size_ + 1;
 
     clear_caches();
-    files.clear();
+    files_.clear();
 
     // walk directory tree, don't cross mount borders
     char *dirs[2] = {const_cast<char *>(initial_dir.c_str()), 0};
@@ -180,12 +180,9 @@ Clusters::collect_fragments(const Glib::ustring &initial_dir)
                 fi.fragmented = (fi.severity >= 2.0);
                 fi.name = ent->fts_path;
                 fi.size = sb_ent.st_size;
-                if (S_ISDIR (sb_ent.st_mode))
-                    fi.filetype = TYPE_DIR;
-                else
-                    fi.filetype = TYPE_FILE;
+                fi.filetype = S_ISDIR(sb_ent.st_mode) ? TYPE_DIR : TYPE_FILE;
                 lock_files();
-                files.push_back(fi);
+                files_.push_back(fi);
                 unlock_files();
             }
         }
@@ -197,39 +194,39 @@ Clusters::collect_fragments(const Glib::ustring &initial_dir)
 
     fts_close(fts_handle);
 
-    std::cout << "files.size = " << files.size() << std::endl;
+    std::cout << "files.size = " << files_.size() << std::endl;
 }
 
 void
 Clusters::__fill_clusters(uint64_t m_start, uint64_t m_length)
 {
     // express interval in coarse map's clusters
-    uint64_t icc_start = m_start * cluster_size / coarse_map_granularity;
-    uint64_t icc_end = ((m_start + m_length) * cluster_size - 1) / coarse_map_granularity;
-    icc_end = std::min(icc_end, (uint64_t)coarse_map.size() - 1);
+    uint64_t icc_start = m_start * cluster_size_ / coarse_map_granularity_;
+    uint64_t icc_end = ((m_start + m_length) * cluster_size_ - 1) / coarse_map_granularity_;
+    icc_end = std::min(icc_end, (uint64_t)coarse_map_.size() - 1);
 
     // convert to device block units
-    uint64_t ib_start = icc_start * coarse_map_granularity;
-    uint64_t ib_end = (icc_end + 1) * coarse_map_granularity - 1;
-    ib_end = std::min(ib_end, device_size - 1);
+    uint64_t ib_start = icc_start * coarse_map_granularity_;
+    uint64_t ib_end = (icc_end + 1) * coarse_map_granularity_ - 1;
+    ib_end = std::min(ib_end, device_size_ - 1);
 
     interval_t requested_interval(ib_start, ib_end);
     interval_set_t scan_intervals;
     scan_intervals += requested_interval;
-    scan_intervals -= fill_cache;
+    scan_intervals -= fill_cache_;
 
-    fill_cache += requested_interval;
+    fill_cache_ += requested_interval;
 
     // collect file list
     typedef std::vector<uint64_t> file_queue_t;
     file_queue_t file_queue;
     for (const auto i_iter: scan_intervals) {
         // for every cluster in coarse map
-        for (uint64_t ccc_block = i_iter.lower() / coarse_map_granularity;
-             ccc_block <= i_iter.upper() / coarse_map_granularity; ccc_block ++)
+        for (uint64_t ccc_block = i_iter.lower() / coarse_map_granularity_;
+             ccc_block <= i_iter.upper() / coarse_map_granularity_; ccc_block ++)
         {
-            file_queue.insert(file_queue.end(), coarse_map[ccc_block].begin(),
-                              coarse_map[ccc_block].end());
+            file_queue.insert(file_queue.end(), coarse_map_[ccc_block].begin(),
+                              coarse_map_[ccc_block].end());
         }
     }
 
@@ -239,10 +236,10 @@ Clusters::__fill_clusters(uint64_t m_start, uint64_t m_length)
 
     // process collected file list
     for (auto item_idx: file_queue) {
-        f_info &fi = files[item_idx];
-        for (unsigned int k2 = 0; k2 < fi.extents.size(); k2 ++) {
-            uint64_t estart_c = fi.extents[k2].start;
-            uint64_t eend_c = fi.extents[k2].start + fi.extents[k2].length - 1;
+        f_info &fi = files_[item_idx];
+        for (auto extent: fi.extents) {
+            uint64_t estart_c = extent.start;
+            uint64_t eend_c = extent.start + extent.length - 1;
 
             if (estart_c > ib_end)
                 continue;
@@ -251,17 +248,17 @@ Clusters::__fill_clusters(uint64_t m_start, uint64_t m_length)
             estart_c  = std::max(estart_c, ib_start);
             eend_c = std::min(eend_c, ib_end);
 
-            for (uint64_t k3 = estart_c / cluster_size; k3 <= eend_c / cluster_size; k3 ++ ) {
-                clusters[k3].files.push_back(item_idx);
-                clusters[k3].free = 0;
+            for (uint64_t k3 = estart_c / cluster_size_; k3 <= eend_c / cluster_size_; k3 ++ ) {
+                clusters_[k3].files.push_back(item_idx);
+                clusters_[k3].free = 0;
                 if (fi.fragmented)
-                    clusters[k3].fragmented = 1;
+                    clusters_[k3].fragmented = 1;
             } // k3
-        } // k2
+        }
     }
 
     for (unsigned int k3 = m_start; k3 < m_start + m_length; k3 ++) {
-        file_p_list &filesp = clusters[k3].files;
+        file_p_list &filesp = clusters_[k3].files;
         std::sort(filesp.begin(), filesp.end());
         filesp.erase(std::unique(filesp.begin(), filesp.end()), filesp.end());
     }
@@ -385,7 +382,7 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
 
     int fd = open(fname, O_RDONLY | O_NOFOLLOW | O_LARGEFILE);
     if (-1 == fd) {
-        if (!hide_error_inaccessible_files) {
+        if (!hide_error_inaccessible_files_) {
             std::cerr << "can't open file/dir: " << fname << std::endl;
         }
         return 0;
@@ -403,8 +400,9 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
 
         int ret = ioctl(fd, FS_IOC_FIEMAP, fiemap);
         if (ret == -1) {
-            if (!hide_error_no_fiemap) {
-                std::cerr << fname << ", fiemap get count error " << errno << ":\"" << strerror (errno) << "\"" << std::endl;
+            if (!hide_error_no_fiemap_) {
+                std::cerr << fname << ", fiemap get count error " << errno << ":\"" <<
+                    strerror(errno) << "\"" << std::endl;
             }
             // there is no FIEMAP or it's inaccessible, trying to emulate
             if (-1 == fibmap_fallback(fd, fname, sb, fiemap)) {
@@ -455,6 +453,6 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
 void
 Clusters::clear_caches(void)
 {
-    fill_cache.clear();
-    clusters.clear();
+    fill_cache_.clear();
+    clusters_.clear();
 }

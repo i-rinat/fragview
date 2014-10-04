@@ -32,42 +32,49 @@
 
 class MountpointSelectDialog : public Gtk::Dialog
 {
+public:
+    MountpointSelectDialog(void);
+
+    ~MountpointSelectDialog(void);
+
+    Glib::ustring& get_path(void);
+
+protected:
+    class ModelColumns : public Gtk::TreeModelColumnRecord
+    {
     public:
-        MountpointSelectDialog(void);
-        ~MountpointSelectDialog(void);
-        Glib::ustring& get_path(void);
-
-    protected:
-        class ModelColumns : public Gtk::TreeModelColumnRecord
+        ModelColumns()
         {
-            public:
-            ModelColumns()
-            {
-                add(mountpoint);
-                add(size);
-                add(used);
-                add(available);
-                add(type);
-                add(used_percentage);
-            }
+            add(mountpoint);
+            add(size);
+            add(used);
+            add(available);
+            add(type);
+            add(used_percentage);
+        }
 
-            Gtk::TreeModelColumn<Glib::ustring> mountpoint;
-            Gtk::TreeModelColumn<uint64_t> size;
-            Gtk::TreeModelColumn<uint64_t> used;
-            Gtk::TreeModelColumn<uint64_t> available;
-            Gtk::TreeModelColumn<Glib::ustring> type;
-            Gtk::TreeModelColumn<int> used_percentage;
-        };
+        Gtk::TreeModelColumn<Glib::ustring> mountpoint;
+        Gtk::TreeModelColumn<uint64_t>      size;
+        Gtk::TreeModelColumn<uint64_t>      used;
+        Gtk::TreeModelColumn<uint64_t>      available;
+        Gtk::TreeModelColumn<Glib::ustring> type;
+        Gtk::TreeModelColumn<int>           used_percentage;
+    };
 
-        ModelColumns columns;
-        Gtk::TreeView tv;
-        Glib::RefPtr<Gtk::ListStore> liststore;
-        Glib::ustring selected_path;
+    ModelColumns                    columns_;
+    Gtk::TreeView                   tv_;
+    Glib::RefPtr<Gtk::ListStore>    liststore_;
+    Glib::ustring                   selected_path_;
 
-        void on_list_selection_changed(void);
-        void on_list_row_activated(const Gtk::TreeModel::Path &path, Gtk::TreeViewColumn *column);
-        void cell_data_func_size(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter,
-                                 Gtk::TreeModelColumn<uint64_t> *column);
+    void
+    on_list_selection_changed(void);
+
+    void
+    on_list_row_activated(const Gtk::TreeModel::Path &path, Gtk::TreeViewColumn *column);
+
+    void
+    cell_data_func_size(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter,
+                        Gtk::TreeModelColumn<uint64_t> *column);
 };
 
 #endif // FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_HH
