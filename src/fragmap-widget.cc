@@ -41,23 +41,20 @@ Fragmap::Fragmap()
 ,   shift_x_(0)
 ,   shift_y_(0)
 {
-   
     drawing_area_.set_events(Gdk::BUTTON_PRESS_MASK | Gdk::POINTER_MOTION_MASK | Gdk::SCROLL_MASK);
 
     // colors
     bleach_factor_ = 0.3;
-    color_free_[0] = 1.0;          color_free_[1] = 1.0;          color_free_[2] = 1.0;
-    color_free_selected_[0] = 1.0; color_free_selected_[1] = 1.0; color_free_selected_[2] = 0.0;
-    color_frag_[0] = 0.8;          color_frag_[1] = 0.0;          color_frag_[2] = 0.0;
-    color_nfrag_[0] = 0.0;         color_nfrag_[1] = 0.0;         color_nfrag_[2] = 0.8;
-    color_back_[0] = 0.25;         color_back_[1] = 0.25;         color_back_[2] = 0.25;
+    color_free_.rgb(1.0, 1.0, 1.0);
+    color_free_selected_.rgb(1.0, 1.0, 0.0);
+    color_frag_.rgb(0.8, 0.0, 0.0);
+    color_nfrag_.rgb(0.0, 0.0, 0.8);
+    color_back_.rgb(0.25, 0.25, 0.25);
 
-    for (int k = 0; k < 3; k ++) {
-        color_free_bleached_[k] = 1.0 - (1.0 - color_free_[k]) * bleach_factor_;
-        color_frag_bleached_[k] = 1.0 - (1.0 - color_frag_[k]) * bleach_factor_;
-        color_nfrag_bleached_[k] = 1.0 - (1.0 - color_nfrag_[k]) * bleach_factor_;
-        color_back_bleached_[k] = 1.0 - (1.0 - color_back_[k]) * bleach_factor_;
-    }
+    color_free_bleached_  = color_free_.bleach(bleach_factor_);
+    color_frag_bleached_  = color_frag_.bleach(bleach_factor_);
+    color_nfrag_bleached_ = color_nfrag_.bleach(bleach_factor_);
+    color_back_bleached_  = color_back_.bleach(bleach_factor_);
 
     scrollbar_.set_orientation(Gtk::ORIENTATION_VERTICAL);
     pack_start(drawing_area_, true, true);
@@ -225,7 +222,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     cr->rectangle(0, 0, width, height);
     cr->fill();
 
-    const int target_line = target_block_ / clusters_->get_actual_cluster_size() /  
+    const int target_line = target_block_ / clusters_->get_actual_cluster_size() /
                             cluster_map_width_;
     const int target_offset = target_line * cluster_map_width_;
 

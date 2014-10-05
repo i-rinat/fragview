@@ -35,6 +35,7 @@
 #include <pthread.h>
 #include "clusters.hh"
 #include "filelist-widget.hh"
+#include "color3.hh"
 
 
 class Fragmap : public Gtk::HBox {
@@ -98,17 +99,17 @@ protected:
     int                 cluster_map_height_;
     int                 cluster_map_full_height_;
 
-    double              color_free_[3];
-    double              color_free_selected_[3];
-    double              color_frag_[3];
-    double              color_nfrag_[3];
-    double              color_back_[3];
+    color3              color_free_;
+    color3              color_free_selected_;
+    color3              color_frag_;
+    color3              color_nfrag_;
+    color3              color_back_;
 
     double              bleach_factor_;
-    double              color_free_bleached_[3];
-    double              color_frag_bleached_[3];
-    double              color_nfrag_bleached_[3];
-    double              color_back_bleached_[3];
+    color3              color_free_bleached_;
+    color3              color_frag_bleached_;
+    color3              color_nfrag_bleached_;
+    color3              color_back_bleached_;
 
 protected:
     // signal handlers
