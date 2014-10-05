@@ -159,7 +159,7 @@ Fragmap::recalculate_sizes(int pix_width, int pix_height)
 {
     // estimate map size without scrollbar
     cluster_map_width_ = std::max(1, (pix_width - 1) / box_size_);
-    cluster_map_height_ = (pix_height - 1) / box_size_;
+    cluster_map_height_ = (pix_height - 1) / box_size_ + 1;
 
     assert(clusters_ != NULL);
     uint64_t device_size = clusters_->get_device_size();
