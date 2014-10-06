@@ -123,10 +123,9 @@ Fragmap::on_drawarea_scroll_event(GdkEventScroll *event)
 
         clusters_->set_desired_cluster_size(new_size);
         if (statusbar_) {
-            std::stringstream ss;
-            uint64_t acs = clusters_->get_actual_cluster_size();
-            ss << acs << " block(s) in cluster";
-            statusbar_->push(ss.str(), statusbar_context_);
+            const uint64_t acs = clusters_->get_actual_cluster_size();
+            const std::string s = std::to_string(acs) + " block(s) in cluster";
+            statusbar_->push(s, statusbar_context_);
         }
 
         recalculate_sizes();
