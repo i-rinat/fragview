@@ -28,11 +28,11 @@
 #include <string>
 #include <stdint.h>
 
-class Util {
-    public:
-        static void format_filesize(uint64_t size, std::string &res);
-    private:
-        Util() {}
-};
+namespace util {
+
+std::string
+format_filesize(uint64_t size);
+
+} // namespace util
 
 #endif // FRAGVIEW_UTIL_HH

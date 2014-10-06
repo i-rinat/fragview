@@ -27,15 +27,16 @@
 #include <iomanip>
 #include "util.hh"
 
-void
-Util::format_filesize(uint64_t size, std::string &res)
+namespace util {
+
+std::string
+format_filesize(uint64_t size)
 {
     std::stringstream ss;
 
     if (size < 1024) {
         ss << size << " B";
-        res = ss.str();
-        return;
+        return ss.str();
     }
 
     ss << std::fixed << std::setprecision(1);
@@ -50,5 +51,7 @@ Util::format_filesize(uint64_t size, std::string &res)
         ss << (double)size/__UINT64_C(1099511627776) << " TiB";
     }
 
-    res = ss.str();
+    return ss.str();
 }
+
+} // namespace util

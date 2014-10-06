@@ -159,9 +159,5 @@ MountpointSelectDialog::cell_data_func_size(Gtk::CellRenderer *cell,
                                             Gtk::TreeModelColumn<uint64_t> *column)
 {
     auto *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
-    std::string filesize_string;
-    uint64_t size = (*iter)[*column];
-
-    Util::format_filesize(size, filesize_string);
-    renderer->property_text() = filesize_string;
+    renderer->property_text() = util::format_filesize((*iter)[*column]);
 }

@@ -112,11 +112,7 @@ void
 FilelistView::cell_data_func_size(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter)
 {
     Gtk::CellRendererText *renderer = dynamic_cast<Gtk::CellRendererText *>(cell);
-    std::string filesize_string;
-
-    uint64_t size = (*iter)[columns_.size];
-    Util::format_filesize(size, filesize_string);
-    renderer->property_text() = filesize_string;
+    renderer->property_text() = util::format_filesize((*iter)[columns_.size]);
 }
 
 void
