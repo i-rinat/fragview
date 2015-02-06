@@ -69,6 +69,12 @@ public:
     
     bool
     highlight_cluster_at(double x, double y);
+
+    void
+    update_statusbar();
+
+    const std::string
+    human_size(uint64_t bytes);
     
     void
     recalculate_sizes(int pix_width, int pix_height);

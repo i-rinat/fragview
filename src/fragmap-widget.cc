@@ -122,11 +122,7 @@ Fragmap::on_drawarea_scroll_event(GdkEventScroll *event)
         }
 
         clusters_->set_desired_cluster_size(new_size);
-        if (statusbar_) {
-            const uint64_t acs = clusters_->get_actual_cluster_size();
-            const std::string s = std::to_string(acs) + " block(s) in cluster";
-            statusbar_->push(s, statusbar_context_);
-        }
+        update_statusbar();
 
         recalculate_sizes();
         drawing_area_.queue_draw();
@@ -401,7 +397,40 @@ Fragmap::highlight_cluster_at(gdouble x, gdouble y)
 
     clusters_->unlock_files();
     clusters_->unlock_clusters();
+
+    update_statusbar();
+
     return flag_update;
+}
+
+void
+Fragmap::update_statusbar()
+{
+    if (statusbar_) {
+        const uint64_t acs = clusters_->get_actual_cluster_size();
+        const uint64_t bytes = acs * clusters_->get_device_block_size();
+        const std::string s = "Block " + std::to_string(selected_cluster_) +
+            ": " + std::to_string(acs) + " block(s) in cluster" +
+            " (" + human_size(bytes) + ")";
+        statusbar_->push(s, statusbar_context_);
+    }
+}
+
+const std::string
+Fragmap::human_size(uint64_t bytes)
+{
+    static std::vector<std::string> prefixes = { "B","kB","MB","GB" };
+    float units = bytes;
+    uint8_t order = 0;
+    for(; order < prefixes.size() - 1; order++) {
+        if(units < 1024) { break; }
+        units /= 1024;
+    }
+
+    char unitstr[20];
+    snprintf(unitstr, 20, "%0.3f", units);
+
+    return unitstr + prefixes[order];
 }
 
 void
