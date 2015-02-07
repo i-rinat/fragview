@@ -407,14 +407,17 @@ Fragmap::highlight_cluster_at(gdouble x, gdouble y)
 void
 Fragmap::update_statusbar()
 {
-    if (statusbar_) {
-        const uint64_t acs = clusters_->get_actual_cluster_size();
-        const uint64_t bytes = acs * clusters_->get_device_block_size();
-        const std::string s = "Block " + std::to_string(selected_cluster_) +
-            ": " + std::to_string(acs) + " block(s) in cluster" +
-            " (" + util::format_filesize(bytes) + ")";
-        statusbar_->push(s, statusbar_context_);
-    }
+    if (!statusbar_)
+        return;
+
+    const uint64_t blocks_in_cluster = clusters_->get_actual_cluster_size();
+    const uint64_t bytes_in_cluster = blocks_in_cluster * clusters_->get_device_block_size();
+    const std::string s = "Cluster " + std::to_string(selected_cluster_) + ", " +
+                          std::to_string(blocks_in_cluster) + " block(s) in cluster (" +
+                          util::format_filesize(bytes_in_cluster) + ")";
+
+    statusbar_->remove_all_messages(statusbar_context_);
+    statusbar_->push(s, statusbar_context_);
 }
 
 void
