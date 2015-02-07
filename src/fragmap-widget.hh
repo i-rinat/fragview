@@ -71,9 +71,6 @@ public:
     highlight_cluster_at(double x, double y);
 
     void
-    update_statusbar();
-    
-    void
     recalculate_sizes(int pix_width, int pix_height);
     
     void
@@ -137,6 +134,9 @@ protected:
 private:
     void
     cairo_set_source_rgbv(const Cairo::RefPtr<Cairo::Context> &cr, double const color[]);
+
+    void
+    update_statusbar();
 };
 
 #endif // FRAGVIEW_FRAGMAP_WIDGET_HH
