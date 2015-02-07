@@ -27,6 +27,7 @@
 #include <sys/time.h>
 #include <gtkmm/box.h>
 #include "fragmap-widget.hh"
+#include "util.hh"
 
 
 Fragmap::Fragmap()
@@ -122,11 +123,7 @@ Fragmap::on_drawarea_scroll_event(GdkEventScroll *event)
         }
 
         clusters_->set_desired_cluster_size(new_size);
-        if (statusbar_) {
-            const uint64_t acs = clusters_->get_actual_cluster_size();
-            const std::string s = std::to_string(acs) + " block(s) in cluster";
-            statusbar_->push(s, statusbar_context_);
-        }
+        update_statusbar();
 
         recalculate_sizes();
         drawing_area_.queue_draw();
@@ -401,7 +398,26 @@ Fragmap::highlight_cluster_at(gdouble x, gdouble y)
 
     clusters_->unlock_files();
     clusters_->unlock_clusters();
+
+    update_statusbar();
+
     return flag_update;
+}
+
+void
+Fragmap::update_statusbar()
+{
+    if (!statusbar_)
+        return;
+
+    const uint64_t blocks_in_cluster = clusters_->get_actual_cluster_size();
+    const uint64_t bytes_in_cluster = blocks_in_cluster * clusters_->get_device_block_size();
+    const std::string s = "Cluster " + std::to_string(selected_cluster_) + ", " +
+                          std::to_string(blocks_in_cluster) + " block(s) in cluster (" +
+                          util::format_filesize(bytes_in_cluster) + ")";
+
+    statusbar_->remove_all_messages(statusbar_context_);
+    statusbar_->push(s, statusbar_context_);
 }
 
 void

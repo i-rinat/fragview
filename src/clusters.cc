@@ -156,6 +156,8 @@ Clusters::collect_fragments(const Glib::ustring &initial_dir)
     device_size_ = sfs.f_blocks;
     cluster_count_ = (device_size_ - 1) / cluster_size_ + 1;
 
+    device_block_size_ = sb_root.st_blksize;
+
     clear_caches();
     files_.clear();
 
