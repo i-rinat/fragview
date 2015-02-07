@@ -89,10 +89,10 @@ public:
     collect_fragments(const Glib::ustring& initial_dir);
 
     uint64_t
-    get_device_size() const { return this->device_size_; }
+    get_device_size() const { return device_size_; }
 
     uint64_t
-    get_device_block_size() const { return this->device_block_size_; }
+    get_device_block_size() const { return device_block_size_; }
 
     void
     __fill_clusters(uint64_t m_start, uint64_t m_length);

@@ -129,7 +129,7 @@ GraphWindow::on_action_view_restore(void)
 void
 GraphWindow::on_action_main_quit(void)
 {
-    this->hide();
+    hide();
 }
 
 void
