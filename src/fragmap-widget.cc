@@ -27,6 +27,7 @@
 #include <sys/time.h>
 #include <gtkmm/box.h>
 #include "fragmap-widget.hh"
+#include "util.hh"
 
 
 Fragmap::Fragmap()
@@ -411,26 +412,9 @@ Fragmap::update_statusbar()
         const uint64_t bytes = acs * clusters_->get_device_block_size();
         const std::string s = "Block " + std::to_string(selected_cluster_) +
             ": " + std::to_string(acs) + " block(s) in cluster" +
-            " (" + human_size(bytes) + ")";
+            " (" + util::format_filesize(bytes) + ")";
         statusbar_->push(s, statusbar_context_);
     }
-}
-
-const std::string
-Fragmap::human_size(uint64_t bytes)
-{
-    static std::vector<std::string> prefixes = { "B","kB","MB","GB" };
-    float units = bytes;
-    uint8_t order = 0;
-    for(; order < prefixes.size() - 1; order++) {
-        if(units < 1024) { break; }
-        units /= 1024;
-    }
-
-    char unitstr[20];
-    snprintf(unitstr, 20, "%0.3f", units);
-
-    return unitstr + prefixes[order];
 }
 
 void
