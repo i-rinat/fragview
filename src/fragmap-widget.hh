@@ -51,28 +51,28 @@ public:
 
     void
     attach_clusters(Clusters &cl);
-    
+
     void
     attach_filelist_widget(FilelistView &fl);
-    
+
     void
     attach_statusbar(Gtk::Statusbar *sb, unsigned int sb_context);
-    
+
     void
     file_begin();
-    
+
     void
     file_add(int file_idx);
-    
+
     void
     set_mode(enum Fragmap::mode);
-    
+
     bool
     highlight_cluster_at(double x, double y);
 
     void
     recalculate_sizes(int pix_width, int pix_height);
-    
+
     void
     recalculate_sizes(void);
 
@@ -115,19 +115,19 @@ protected:
     // signal handlers
     virtual bool
     on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr);
-    
+
     virtual bool
     on_motion_notify_event(GdkEventMotion *event);
-    
+
     virtual bool
     on_button_press_event(GdkEventButton *event);
-    
+
     virtual bool
     on_drawarea_scroll_event(GdkEventScroll *event);
-    
+
     virtual void
     on_size_allocate(Gtk::Allocation &allocation);
-    
+
     virtual void
     on_scrollbar_value_changed(void);
 
