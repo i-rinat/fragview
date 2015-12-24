@@ -117,16 +117,16 @@ protected:
     on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr);
 
     virtual bool
-    on_motion_notify_event(GdkEventMotion *event);
+    on_motion_notify_event(GdkEventMotion *event) override;
 
     virtual bool
-    on_button_press_event(GdkEventButton *event);
+    on_button_press_event(GdkEventButton *event) override;
 
     virtual bool
     on_drawarea_scroll_event(GdkEventScroll *event);
 
     virtual void
-    on_size_allocate(Gtk::Allocation &allocation);
+    on_size_allocate(Gtk::Allocation &allocation) override;
 
     virtual void
     on_scrollbar_value_changed(void);
