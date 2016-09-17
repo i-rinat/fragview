@@ -29,12 +29,12 @@
  * list of most fragmented files from previous scan
  */
 
-#include <sqlite3.h>
+#include "clusters.hh"
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <iomanip>
-#include "clusters.hh"
+#include <iostream>
+#include <sqlite3.h>
 
 const char *sql_create_tables =
     "DROP TABLE IF EXISTS items; "
@@ -87,8 +87,7 @@ scan(sqlite3 *db, const char *dir)
     std::cout << "inserting results to the database ... " << std::flush;
 
     sqlite3_stmt *stmt;
-    const char *sql_insert =
-        "INSERT INTO items (name, fragments, severity) VALUES (:n, :f, :s)";
+    const char *sql_insert = "INSERT INTO items (name, fragments, severity) VALUES (:n, :f, :s)";
     res = sqlite3_prepare(db, sql_insert, -1, &stmt, NULL);
     if (SQLITE_OK != res) {
         std::cerr << "error: insert prepare" << std::endl;
@@ -98,7 +97,7 @@ scan(sqlite3 *db, const char *dir)
 
     Clusters::file_list &files = clusters.get_files();
 
-    for (const auto item: files) {
+    for (const auto item : files) {
         sqlite3_reset(stmt);
         sqlite3_clear_bindings(stmt);
         sqlite3_bind_text(stmt, 1, item.name.c_str(), -1, SQLITE_STATIC);
@@ -160,7 +159,7 @@ show_top_severity(sqlite3 *db, int top_count)
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         double severity = sqlite3_column_double(stmt, 1);
         if (NULL != name) {
-            std::cout << std::fixed << std::setw (7) << std::setprecision (1) << severity << " ";
+            std::cout << std::fixed << std::setw(7) << std::setprecision(1) << severity << " ";
             std::cout << name << std::endl;
         } else {
             std::cerr << "error: can't fetch name from db" << std::endl;
@@ -210,7 +209,8 @@ show_over_severity(sqlite3 *db, double over_count)
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         double severity = sqlite3_column_double(stmt, 1);
         if (NULL != name) {
-            std::cout << std::fixed << std::setw (7) << std::setprecision (1) << severity << " " << name << std::endl;
+            std::cout << std::fixed << std::setw(7) << std::setprecision(1) << severity << " "
+                      << name << std::endl;
         } else {
             std::cerr << "error: can't fetch name from db" << std::endl;
             sqlite3_close(db);
@@ -228,15 +228,15 @@ main(int argc, char *argv[])
     const char *dir = 0;
 
     if (argc < 2) {
-        std::cout <<
-            "Usage:\n"
-            "  fragdb scan <dir>       -- walk <dir> and store framentation information in db\n"
-            "  fragdb top [<count>]    -- show <count> most fragmented files, 10 by default\n"
-            "  fragdb over <threshold> -- show files with >= <threshold> fragments\n"
-            "  fragdb tops [<count>]   -- show <count> most fragmented files (by severity metric),"
-                                                                            " 10 by default\n"
-            "  fragdb over <threshold> -- show files with severity >= <threshold>\n"
-            ;
+        std::cout
+            << "Usage:\n"
+               "  fragdb scan <dir>       -- walk <dir> and store framentation information in db\n"
+               "  fragdb top [<count>]    -- show <count> most fragmented files, 10 by default\n"
+               "  fragdb over <threshold> -- show files with >= <threshold> fragments\n"
+               "  fragdb tops [<count>]   -- show <count> most fragmented files (by severity "
+               "metric),"
+               " 10 by default\n"
+               "  fragdb over <threshold> -- show files with severity >= <threshold>\n";
         _exit(0);
     }
 

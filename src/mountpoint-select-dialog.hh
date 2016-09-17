@@ -22,12 +22,11 @@
  * SOFTWARE.
  */
 
-#ifndef FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_HH
-#define FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_HH
+#pragma once
 
 #include <gtkmm/dialog.h>
-#include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
+#include <gtkmm/treeview.h>
 #include <stdint.h>
 
 class MountpointSelectDialog : public Gtk::Dialog
@@ -37,7 +36,8 @@ public:
 
     ~MountpointSelectDialog(void);
 
-    Glib::ustring& get_path(void);
+    Glib::ustring &
+    get_path(void);
 
 protected:
     class ModelColumns : public Gtk::TreeModelColumnRecord
@@ -54,17 +54,17 @@ protected:
         }
 
         Gtk::TreeModelColumn<Glib::ustring> mountpoint;
-        Gtk::TreeModelColumn<uint64_t>      size;
-        Gtk::TreeModelColumn<uint64_t>      used;
-        Gtk::TreeModelColumn<uint64_t>      available;
+        Gtk::TreeModelColumn<uint64_t> size;
+        Gtk::TreeModelColumn<uint64_t> used;
+        Gtk::TreeModelColumn<uint64_t> available;
         Gtk::TreeModelColumn<Glib::ustring> type;
-        Gtk::TreeModelColumn<int>           used_percentage;
+        Gtk::TreeModelColumn<int> used_percentage;
     };
 
-    ModelColumns                    columns_;
-    Gtk::TreeView                   tv_;
-    Glib::RefPtr<Gtk::ListStore>    liststore_;
-    Glib::ustring                   selected_path_;
+    ModelColumns columns_;
+    Gtk::TreeView tv_;
+    Glib::RefPtr<Gtk::ListStore> liststore_;
+    Glib::ustring selected_path_;
 
     void
     on_list_selection_changed(void);
@@ -76,5 +76,3 @@ protected:
     cell_data_func_size(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter,
                         Gtk::TreeModelColumn<uint64_t> *column);
 };
-
-#endif // FRAGVIEW_MOUNTPOINT_SELECT_DIALOG_HH

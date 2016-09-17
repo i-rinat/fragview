@@ -23,11 +23,12 @@
  */
 
 #define __STDC_LIMIT_MACROS
-#include <sstream>
-#include <iomanip>
 #include "util.hh"
+#include <iomanip>
+#include <sstream>
 
-namespace util {
+namespace util
+{
 
 std::string
 format_filesize(uint64_t size)
@@ -42,16 +43,16 @@ format_filesize(uint64_t size)
     ss << std::fixed << std::setprecision(1);
 
     if (size < __UINT64_C(1048576)) {
-        ss << (double)size/__UINT64_C(1024) << " kiB";
+        ss << (double)size / __UINT64_C(1024) << " kiB";
     } else if (size < __UINT64_C(1073741824)) {
-        ss << (double)size/__UINT64_C(1048576) << " MiB";
+        ss << (double)size / __UINT64_C(1048576) << " MiB";
     } else if (size < __UINT64_C(1099511627776)) {
-        ss << (double)size/__UINT64_C(1073741824) << " GiB";
+        ss << (double)size / __UINT64_C(1073741824) << " GiB";
     } else {
-        ss << (double)size/__UINT64_C(1099511627776) << " TiB";
+        ss << (double)size / __UINT64_C(1099511627776) << " TiB";
     }
 
     return ss.str();
 }
 
-} // namespace util
+}  // namespace util

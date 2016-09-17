@@ -22,17 +22,15 @@
  * SOFTWARE.
  */
 
-#ifndef FRAGVIEW_UTIL_HH
-#define FRAGVIEW_UTIL_HH
+#pragma once
 
-#include <string>
 #include <stdint.h>
+#include <string>
 
-namespace util {
+namespace util
+{
 
 std::string
 format_filesize(uint64_t size);
 
-} // namespace util
-
-#endif // FRAGVIEW_UTIL_HH
+}  // namespace util

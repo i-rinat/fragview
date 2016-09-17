@@ -22,77 +22,92 @@
  * SOFTWARE.
  */
 
-#ifndef FRAGVIEW_CLUSTERS_HH
-#define FRAGVIEW_CLUSTERS_HH
+#pragma once
 
-#include <stdint.h>
-#include <vector>
-#include <string>
-#include <map>
-#include <set>
-#include <glibmm/ustring.h>
-#include <pthread.h>
-#include <boost/icl/interval_set.hpp>
 #include <boost/icl/discrete_interval.hpp>
+#include <boost/icl/interval_set.hpp>
+#include <glibmm/ustring.h>
+#include <map>
+#include <pthread.h>
+#include <set>
+#include <stdint.h>
+#include <string>
+#include <vector>
 
-class Clusters {
+class Clusters
+{
 public:
     // type definitions
-    class tuple {
-        public:
+    class tuple
+    {
+    public:
         uint64_t start;
         uint64_t length;
-        tuple(uint64_t s, uint64_t l) : start(s), length(l) {};
-        class compare {
+        tuple(uint64_t s, uint64_t l)
+            : start(s)
+            , length(l){};
+        class compare
+        {
         public:
-            bool operator()(const tuple x, const tuple y) {
-                if (x.start == y.start) return x.length < y.length;
-                else return x.start < y.start;
+            bool
+            operator()(const tuple x, const tuple y)
+            {
+                if (x.start == y.start)
+                    return x.length < y.length;
+                else
+                    return x.start < y.start;
             }
         };
     };
 
     typedef std::vector<tuple> tuple_list;
 
-    enum FileType {
-        TYPE_FILE = 0,
-        TYPE_DIR = 1
-    };
+    enum FileType { TYPE_FILE = 0, TYPE_DIR = 1 };
 
     typedef struct {
-        tuple_list      extents;
-        std::string     name;
-        double          severity;
-        int             fragmented;
-        int             filetype;
-        uint64_t        size;
+        tuple_list extents;
+        std::string name;
+        double severity;
+        int fragmented;
+        int filetype;
+        uint64_t size;
     } f_info;
 
     typedef std::vector<f_info> file_list;
     typedef std::vector<unsigned int> file_p_list;
 
-    class cluster_info {
-        public:
+    class cluster_info
+    {
+    public:
         file_p_list files;
-        int         free;
-        int         fragmented;
-        cluster_info() : free(1), fragmented(0) {};
+        int free;
+        int fragmented;
+        cluster_info()
+            : free(1)
+            , fragmented(0){};
     };
 
     typedef std::map<int, cluster_info> cluster_list;
 
 public:
     Clusters();
+
     ~Clusters();
 
     void
-    collect_fragments(const Glib::ustring& initial_dir);
+    collect_fragments(const Glib::ustring &initial_dir);
 
     uint64_t
-    get_device_size() const { return device_size_; }
+    get_device_size() const
+    {
+        return device_size_;
+    }
 
     uint64_t
-    get_device_block_size() const { return device_block_size_; }
+    get_device_block_size() const
+    {
+        return device_block_size_;
+    }
 
     void
     __fill_clusters(uint64_t m_start, uint64_t m_length);
@@ -119,10 +134,16 @@ public:
     unlock_files();
 
     cluster_info &
-    at(unsigned int k) { return clusters_[k]; }
+    at(unsigned int k)
+    {
+        return clusters_[k];
+    }
 
     uint64_t
-    get_count() { return cluster_count_; }
+    get_count()
+    {
+        return cluster_count_;
+    }
 
     void
     set_desired_cluster_size(uint64_t ds);
@@ -141,23 +162,21 @@ private:
     clear_caches();
 
 private:
-    file_list       files_;
-    cluster_list    clusters_;
+    file_list files_;
+    cluster_list clusters_;
     pthread_mutex_t clusters_mutex_;
     pthread_mutex_t files_mutex_;
-    uint64_t        device_size_;
-    uint64_t        device_block_size_;
-    uint64_t        cluster_count_;
-    uint64_t        cluster_size_;
-    bool            hide_error_inaccessible_files_;
-    bool            hide_error_no_fiemap_;
+    uint64_t device_size_;
+    uint64_t device_block_size_;
+    uint64_t cluster_count_;
+    uint64_t cluster_size_;
+    bool hide_error_inaccessible_files_;
+    bool hide_error_no_fiemap_;
 
     typedef boost::icl::discrete_interval<uint64_t> interval_t;
-    typedef boost::icl::interval_set<uint64_t>      interval_set_t;
+    typedef boost::icl::interval_set<uint64_t> interval_set_t;
 
-    interval_set_t                      fill_cache_;
-    unsigned int                        coarse_map_granularity_;
-    std::vector<std::vector<uint64_t>>  coarse_map_;
+    interval_set_t fill_cache_;
+    unsigned int coarse_map_granularity_;
+    std::vector<std::vector<uint64_t>> coarse_map_;
 };
-
-#endif // FRAGVIEW_CLUSTERS_HH

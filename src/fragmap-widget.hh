@@ -22,29 +22,24 @@
  * SOFTWARE.
  */
 
-#ifndef FRAGVIEW_FRAGMAP_WIDGET_HH
-#define FRAGVIEW_FRAGMAP_WIDGET_HH
+#pragma once
 
-#include <gtkmm/drawingarea.h>
-#include <gtkmm/widget.h>
-#include <gtkmm/scrollbar.h>
-#include <gtkmm/statusbar.h>
+#include "clusters.hh"
+#include "color3.hh"
+#include "filelist-widget.hh"
 #include <gtkmm/adjustment.h>
 #include <gtkmm/box.h>
-#include <stdint.h>
+#include <gtkmm/drawingarea.h>
+#include <gtkmm/scrollbar.h>
+#include <gtkmm/statusbar.h>
+#include <gtkmm/widget.h>
 #include <pthread.h>
-#include "clusters.hh"
-#include "filelist-widget.hh"
-#include "color3.hh"
+#include <stdint.h>
 
-
-class Fragmap : public Gtk::HBox {
+class Fragmap : public Gtk::HBox
+{
 public:
-    enum mode {
-        FRAGMAP_MODE_SHOW_ALL = 0,
-        FRAGMAP_MODE_CLUSTER,
-        FRAGMAP_MODE_FILE
-    };
+    enum mode { FRAGMAP_MODE_SHOW_ALL = 0, FRAGMAP_MODE_CLUSTER, FRAGMAP_MODE_FILE };
 
     Fragmap();
     ~Fragmap();
@@ -64,8 +59,7 @@ public:
     void
     file_add(int file_idx);
 
-    void
-    set_mode(enum Fragmap::mode);
+    void set_mode(enum Fragmap::mode);
 
     bool
     highlight_cluster_at(double x, double y);
@@ -77,39 +71,39 @@ public:
     recalculate_sizes(void);
 
 protected:
-    Clusters           *clusters_;
-    FilelistView       *filelist_;
-    Gtk::Statusbar     *statusbar_;
-    unsigned int        statusbar_context_;
+    Clusters *clusters_;
+    FilelistView *filelist_;
+    Gtk::Statusbar *statusbar_;
+    unsigned int statusbar_context_;
 
-    Gtk::DrawingArea    drawing_area_;
-    Gtk::Scrollbar      scrollbar_;
+    Gtk::DrawingArea drawing_area_;
+    Gtk::Scrollbar scrollbar_;
 
-    int                 box_size_;
+    int box_size_;
 
-    Fragmap::mode       display_mode_;
-    uint64_t            selected_cluster_;
-    uint64_t            target_block_;
-    std::vector<int>    selected_files_;
+    Fragmap::mode display_mode_;
+    uint64_t selected_cluster_;
+    uint64_t target_block_;
+    std::vector<int> selected_files_;
 
-    int                 shift_x_;
-    int                 shift_y_;
+    int shift_x_;
+    int shift_y_;
 
-    int                 cluster_map_width_;
-    int                 cluster_map_height_;
-    int                 cluster_map_full_height_;
+    int cluster_map_width_;
+    int cluster_map_height_;
+    int cluster_map_full_height_;
 
-    color3              color_free_;
-    color3              color_free_selected_;
-    color3              color_frag_;
-    color3              color_nfrag_;
-    color3              color_back_;
+    color3 color_free_;
+    color3 color_free_selected_;
+    color3 color_frag_;
+    color3 color_nfrag_;
+    color3 color_back_;
 
-    double              bleach_factor_;
-    color3              color_free_bleached_;
-    color3              color_frag_bleached_;
-    color3              color_nfrag_bleached_;
-    color3              color_back_bleached_;
+    double bleach_factor_;
+    color3 color_free_bleached_;
+    color3 color_frag_bleached_;
+    color3 color_nfrag_bleached_;
+    color3 color_back_bleached_;
 
 protected:
     // signal handlers
@@ -138,5 +132,3 @@ private:
     void
     update_statusbar();
 };
-
-#endif // FRAGVIEW_FRAGMAP_WIDGET_HH

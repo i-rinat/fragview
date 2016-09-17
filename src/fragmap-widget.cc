@@ -22,25 +22,24 @@
  * SOFTWARE.
  */
 
-#include <iostream>
-#include <assert.h>
-#include <sys/time.h>
-#include <gtkmm/box.h>
 #include "fragmap-widget.hh"
 #include "util.hh"
-
+#include <assert.h>
+#include <gtkmm/box.h>
+#include <iostream>
+#include <sys/time.h>
 
 Fragmap::Fragmap()
-:   clusters_(nullptr)
-,   filelist_(nullptr)
-,   statusbar_(nullptr)
-,   statusbar_context_(0)
-,   box_size_(7)
-,   display_mode_(FRAGMAP_MODE_SHOW_ALL)
-,   selected_cluster_(0)
-,   target_block_(0)
-,   shift_x_(0)
-,   shift_y_(0)
+    : clusters_(nullptr)
+    , filelist_(nullptr)
+    , statusbar_(nullptr)
+    , statusbar_context_(0)
+    , box_size_(7)
+    , display_mode_(FRAGMAP_MODE_SHOW_ALL)
+    , selected_cluster_(0)
+    , target_block_(0)
+    , shift_x_(0)
+    , shift_y_(0)
 {
     drawing_area_.set_events(Gdk::BUTTON_PRESS_MASK | Gdk::POINTER_MOTION_MASK | Gdk::SCROLL_MASK);
 
@@ -52,10 +51,10 @@ Fragmap::Fragmap()
     color_nfrag_.rgb(0.0, 0.0, 0.8);
     color_back_.rgb(0.25, 0.25, 0.25);
 
-    color_free_bleached_  = color_free_.bleach(bleach_factor_);
-    color_frag_bleached_  = color_frag_.bleach(bleach_factor_);
+    color_free_bleached_ = color_free_.bleach(bleach_factor_);
+    color_frag_bleached_ = color_frag_.bleach(bleach_factor_);
     color_nfrag_bleached_ = color_nfrag_.bleach(bleach_factor_);
-    color_back_bleached_  = color_back_.bleach(bleach_factor_);
+    color_back_bleached_ = color_back_.bleach(bleach_factor_);
 
     scrollbar_.set_orientation(Gtk::ORIENTATION_VERTICAL);
     pack_start(drawing_area_, true, true);
@@ -63,10 +62,10 @@ Fragmap::Fragmap()
 
     // signals
     drawing_area_.signal_draw().connect(sigc::mem_fun(*this, &Fragmap::on_drawarea_draw));
-    drawing_area_.signal_scroll_event().connect(sigc::mem_fun(*this,
-                                                &Fragmap::on_drawarea_scroll_event));
-    scrollbar_.signal_value_changed().connect(sigc::mem_fun(*this,
-                                              &Fragmap::on_scrollbar_value_changed));
+    drawing_area_.signal_scroll_event().connect(
+        sigc::mem_fun(*this, &Fragmap::on_drawarea_scroll_event));
+    scrollbar_.signal_value_changed().connect(
+        sigc::mem_fun(*this, &Fragmap::on_scrollbar_value_changed));
 
     show_all_children();
     set_size_request(400, 50);
@@ -91,7 +90,7 @@ Fragmap::on_motion_notify_event(GdkEventMotion *event)
 bool
 Fragmap::on_button_press_event(GdkEventButton *event)
 {
-    if (event->button == 1) { // left mouse button
+    if (event->button == 1) {  // left mouse button
         if (highlight_cluster_at(event->x, event->y)) {
             queue_draw();
         }
@@ -184,9 +183,9 @@ Fragmap::recalculate_sizes(int pix_width, int pix_height)
 }
 
 void
-Fragmap::on_size_allocate (Gtk::Allocation &allocation)
+Fragmap::on_size_allocate(Gtk::Allocation &allocation)
 {
-    Gtk::HBox::on_size_allocate(allocation); // parent
+    Gtk::HBox::on_size_allocate(allocation);  // parent
 
     recalculate_sizes(allocation.get_width(), allocation.get_height());
 }
@@ -218,8 +217,8 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     cr->rectangle(0, 0, width, height);
     cr->fill();
 
-    const int target_line = target_block_ / clusters_->get_actual_cluster_size() /
-                            cluster_map_width_;
+    const int target_line =
+        target_block_ / clusters_->get_actual_cluster_size() / cluster_map_width_;
     const int target_offset = target_line * cluster_map_width_;
 
     clusters_->lock_clusters();
@@ -243,8 +242,8 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
         break;
     }
 
-    for (ky = 0; ky < cluster_map_height_; ky ++) {
-        for (kx = 0; kx < cluster_map_width_; kx ++) {
+    for (ky = 0; ky < cluster_map_height_; ky++) {
+        for (kx = 0; kx < cluster_map_width_; kx++) {
             uint64_t cluster_idx = ky * cluster_map_width_ + kx + target_offset;
             if (cluster_idx < clusters_->get_count() && clusters_->at(cluster_idx).free) {
                 cr->rectangle(kx * box_size_, ky * box_size_, box_size_ - 1, box_size_ - 1);
@@ -265,8 +264,8 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
         break;
     }
 
-    for (ky = 0; ky < cluster_map_height_; ky ++) {
-        for (kx = 0; kx < cluster_map_width_; kx ++) {
+    for (ky = 0; ky < cluster_map_height_; ky++) {
+        for (kx = 0; kx < cluster_map_width_; kx++) {
             uint64_t cluster_idx = ky * cluster_map_width_ + kx + target_offset;
             if (cluster_idx < clusters_->get_count() && !(clusters_->at(cluster_idx).free) &&
                 clusters_->at(cluster_idx).fragmented)
@@ -288,8 +287,8 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
         break;
     }
 
-    for (ky = 0; ky < cluster_map_height_; ky ++) {
-        for (kx = 0; kx < cluster_map_width_; kx ++) {
+    for (ky = 0; ky < cluster_map_height_; ky++) {
+        for (kx = 0; kx < cluster_map_width_; kx++) {
             uint64_t cluster_idx = ky * cluster_map_width_ + kx + target_offset;
             if (cluster_idx < clusters_->get_count() && !(clusters_->at(cluster_idx).free) &&
                 !(clusters_->at(cluster_idx).fragmented))
@@ -306,7 +305,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     if (FRAGMAP_MODE_CLUSTER == display_mode_) {
         ky = selected_cluster_ / cluster_map_width_;
         kx = selected_cluster_ - ky * cluster_map_width_;
-        ky = ky - target_line;              // to screen coordinates
+        ky = ky - target_line;  // to screen coordinates
 
         if (clusters_->at(selected_cluster_).free) {
             cairo_set_source_rgbv(cr, color_free_selected_);
@@ -328,14 +327,14 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
         assert(device_size > 0);
         uint64_t cluster_size = clusters_->get_actual_cluster_size();
 
-        for (auto file_idx: selected_files_) {
+        for (auto file_idx : selected_files_) {
             if (files.at(file_idx).fragmented) {
                 cairo_set_source_rgbv(cr, color_frag_);
             } else {
                 cairo_set_source_rgbv(cr, color_nfrag_);
             }
 
-            for (unsigned int k2 = 0; k2 < files.at(file_idx).extents.size(); k2 ++) {
+            for (unsigned int k2 = 0; k2 < files.at(file_idx).extents.size(); k2++) {
                 uint64_t estart_c, eend_c;
 
                 estart_c = files.at(file_idx).extents[k2].start / cluster_size;
@@ -343,10 +342,10 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
                           files.at(file_idx).extents[k2].length - 1);
                 eend_c = eend_c / cluster_size;
 
-                for (uint64_t k3 = estart_c; k3 <= eend_c; k3 ++) {
+                for (uint64_t k3 = estart_c; k3 <= eend_c; k3++) {
                     ky = k3 / cluster_map_width_;
                     kx = k3 - ky * cluster_map_width_;
-                    ky = ky - target_line;              // to screen coordinates
+                    ky = ky - target_line;  // to screen coordinates
 
                     if (0 <= ky && ky < cluster_map_height_) {
                         cr->rectangle(kx * box_size_, ky * box_size_, box_size_ - 1, box_size_ - 1);
@@ -368,8 +367,8 @@ Fragmap::highlight_cluster_at(gdouble x, gdouble y)
     clusters_->lock_files();
 
     bool flag_update = FALSE;
-    int cl_x = (int) (x - shift_x_) / box_size_;
-    int cl_y = (int) (y - shift_y_) / box_size_;
+    int cl_x = (int)(x - shift_x_) / box_size_;
+    int cl_y = (int)(y - shift_y_) / box_size_;
 
     int target_line = target_block_ / clusters_->get_actual_cluster_size() / cluster_map_width_;
     uint64_t cl_raw = (cl_y + target_line) * cluster_map_width_ + cl_x;
@@ -387,7 +386,7 @@ Fragmap::highlight_cluster_at(gdouble x, gdouble y)
         if (filelist_) {
             filelist_->clear();
 
-            for (auto const fid: ci.files) {
+            for (auto const fid : ci.files) {
                 Clusters::f_info &fi = files[fid];
                 filelist_->add_file_info(fid, fi.extents.size(), fi.severity, fi.filetype, fi.size,
                                          fi.name);
@@ -436,8 +435,8 @@ Fragmap::attach_statusbar(Gtk::Statusbar *sb, unsigned int sb_context)
 void
 Fragmap::on_scrollbar_value_changed(void)
 {
-    target_block_ = cluster_map_width_ * clusters_->get_actual_cluster_size() *
-                    round(scrollbar_.get_value());
+    target_block_ =
+        cluster_map_width_ * clusters_->get_actual_cluster_size() * round(scrollbar_.get_value());
     drawing_area_.queue_draw();
 }
 
@@ -445,7 +444,7 @@ void
 Fragmap::set_mode(enum Fragmap::mode dmode)
 {
     display_mode_ = dmode;
-    drawing_area_.queue_draw ();
+    drawing_area_.queue_draw();
 }
 
 void

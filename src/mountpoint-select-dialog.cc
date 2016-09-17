@@ -22,17 +22,16 @@
  * SOFTWARE.
  */
 
+#include "mountpoint-select-dialog.hh"
+#include "util.hh"
+#include <fstream>
 #include <gtkmm/box.h>
 #include <gtkmm/button.h>
+#include <gtkmm/cellrendererprogress.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/treemodelcolumn.h>
-#include <gtkmm/cellrendererprogress.h>
 #include <iostream>
-#include <fstream>
 #include <sys/vfs.h>
-#include "util.hh"
-#include "mountpoint-select-dialog.hh"
-
 
 MountpointSelectDialog::MountpointSelectDialog(void)
 {
@@ -55,7 +54,8 @@ MountpointSelectDialog::MountpointSelectDialog(void)
     {
         Gtk::CellRenderer *renderer = Gtk::manage(new Gtk::CellRendererText());
         int column_id = tv_.append_column("Size", *renderer) - 1;
-        tv_.get_column(column_id)->set_cell_data_func(*renderer,
+        tv_.get_column(column_id)->set_cell_data_func(
+            *renderer,
             sigc::bind(sigc::mem_fun(*this, &MountpointSelectDialog::cell_data_func_size),
                        &columns_.size));
     }
@@ -63,7 +63,8 @@ MountpointSelectDialog::MountpointSelectDialog(void)
     {
         Gtk::CellRenderer *renderer = Gtk::manage(new Gtk::CellRendererText());
         int column_id = tv_.append_column("Used", *renderer) - 1;
-        tv_.get_column(column_id)->set_cell_data_func(*renderer,
+        tv_.get_column(column_id)->set_cell_data_func(
+            *renderer,
             sigc::bind(sigc::mem_fun(*this, &MountpointSelectDialog::cell_data_func_size),
                        &columns_.used));
     }
@@ -71,7 +72,8 @@ MountpointSelectDialog::MountpointSelectDialog(void)
     {
         Gtk::CellRenderer *renderer = Gtk::manage(new Gtk::CellRendererText());
         int column_id = tv_.append_column("Available", *renderer) - 1;
-        tv_.get_column(column_id)->set_cell_data_func(*renderer,
+        tv_.get_column(column_id)->set_cell_data_func(
+            *renderer,
             sigc::bind(sigc::mem_fun(*this, &MountpointSelectDialog::cell_data_func_size),
                        &columns_.available));
     }
@@ -87,8 +89,8 @@ MountpointSelectDialog::MountpointSelectDialog(void)
 
     tv_.get_selection()->signal_changed().connect(
         sigc::mem_fun(*this, &MountpointSelectDialog::on_list_selection_changed));
-    tv_.signal_row_activated().connect(sigc::mem_fun(*this,
-                                       &MountpointSelectDialog::on_list_row_activated));
+    tv_.signal_row_activated().connect(
+        sigc::mem_fun(*this, &MountpointSelectDialog::on_list_row_activated));
 
     // populate
     std::ifstream m_f;
@@ -106,11 +108,11 @@ MountpointSelectDialog::MountpointSelectDialog(void)
         if (0 != lstat64(m_mountpoint.c_str(), &sb))
             continue;
         if (sfsb.f_blocks == 0)
-            continue; // pseudo-fs's have zero size
+            continue;  // pseudo-fs's have zero size
         if ("tmpfs" == m_type)
-            continue; // tmpfs has neither FIEMAP not FIBMAP
+            continue;  // tmpfs has neither FIEMAP not FIBMAP
         if ("devtmpfs" == m_type)
-            continue; // the same as tmpfs
+            continue;  // the same as tmpfs
 
         Gtk::TreeModel::Row row = *(liststore_->append());
         row[columns_.mountpoint] = m_mountpoint;
@@ -128,7 +130,7 @@ MountpointSelectDialog::~MountpointSelectDialog(void)
 {
 }
 
-Glib::ustring&
+Glib::ustring &
 MountpointSelectDialog::get_path(void)
 {
     return selected_path_;

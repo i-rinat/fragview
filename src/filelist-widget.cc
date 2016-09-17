@@ -22,21 +22,21 @@
  * SOFTWARE.
  */
 
-#include <iostream>
-#include <iomanip>
-#include <cassert>
 #include "filelist-widget.hh"
 #include "fragmap-widget.hh"
 #include "util.hh"
+#include <cassert>
+#include <iomanip>
+#include <iostream>
 
 FilelistView::FilelistView()
-:   fragmap_(nullptr)
+    : fragmap_(nullptr)
 {
     liststore_ = Gtk::ListStore::create(columns_);
     set_model(liststore_);
 
-    Gtk::TreeViewColumn    *column;
-    Gtk::CellRendererText  *renderer;
+    Gtk::TreeViewColumn *column;
+    Gtk::CellRendererText *renderer;
 
     column = get_column(append_column("Fragments", columns_.fragments) - 1);
     default_sort_order_[column] = Gtk::SORT_DESCENDING;
@@ -59,24 +59,22 @@ FilelistView::FilelistView()
     column = get_column(append_column("Type", *renderer) - 1);
     view_to_model_[column] = &columns_.filetype;
     default_sort_order_[column] = Gtk::SORT_ASCENDING;
-    column->set_cell_data_func(*renderer, sigc::mem_fun(*this,
-                               &FilelistView::cell_data_func_filetype));
+    column->set_cell_data_func(*renderer,
+                               sigc::mem_fun(*this, &FilelistView::cell_data_func_filetype));
 
     renderer = Gtk::manage(new Gtk::CellRendererText());
     column = get_column(append_column("Size", *renderer) - 1);
     default_sort_order_[column] = Gtk::SORT_DESCENDING;
     view_to_model_[column] = &columns_.size;
-    column->set_cell_data_func(*renderer, sigc::mem_fun(*this,
-                               &FilelistView::cell_data_func_size));
+    column->set_cell_data_func(*renderer, sigc::mem_fun(*this, &FilelistView::cell_data_func_size));
 
     std::vector<Gtk::TreeViewColumn *> columns = get_columns();
     for (unsigned int k = 0; k < columns.size(); ++k) {
         columns[k]->set_resizable();
         columns[k]->set_reorderable();
         columns[k]->set_clickable();
-        columns[k]->signal_clicked().connect(sigc::bind<Gtk::TreeViewColumn *>(sigc::mem_fun(*this,
-                                             &FilelistView::on_filelist_header_clicked),
-                                             columns[k]));
+        columns[k]->signal_clicked().connect(sigc::bind<Gtk::TreeViewColumn *>(
+            sigc::mem_fun(*this, &FilelistView::on_filelist_header_clicked), columns[k]));
     }
 
     Gtk::TreeViewColumn *fake_column = Gtk::manage(new Gtk::TreeViewColumn);
@@ -89,7 +87,7 @@ FilelistView::FilelistView()
     selection->signal_changed().connect(sigc::mem_fun(*this, &FilelistView::on_selection_changed));
 }
 
-FilelistView::~FilelistView ()
+FilelistView::~FilelistView()
 {
 }
 
@@ -146,7 +144,7 @@ FilelistView::on_filelist_header_clicked(Gtk::TreeViewColumn *column)
 
 void
 FilelistView::add_file_info(int id, int fragments, double severity, int filetype, uint64_t size,
-                            const std::string& name, const std::string& dir)
+                            const std::string &name, const std::string &dir)
 {
     Gtk::TreeModel::Row row = *(liststore_->append());
 
@@ -161,7 +159,7 @@ FilelistView::add_file_info(int id, int fragments, double severity, int filetype
 
 void
 FilelistView::add_file_info(int id, int fragments, double severity, int filetype, uint64_t size,
-                            const std::string& full_path)
+                            const std::string &full_path)
 {
     Gtk::TreeModel::Row row = *(liststore_->append());
     const size_t slash_pos = full_path.rfind('/');
@@ -188,7 +186,7 @@ FilelistView::on_selection_changed(void)
     Glib::RefPtr<Gtk::TreeModel> model = get_model();
     fragmap_->file_begin();
     std::vector<Gtk::TreeModel::Path> items = get_selection()->get_selected_rows();
-    for (unsigned int k = 0; k < items.size(); k ++) {
+    for (unsigned int k = 0; k < items.size(); k++) {
         Gtk::TreeModel::Row row = *(model->get_iter(items[k]));
         fragmap_->file_add(row[columns_.fileid]);
     }

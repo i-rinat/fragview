@@ -22,49 +22,66 @@
  * SOFTWARE.
  */
 
-#include <gtkmm/window.h>
-#include <gtkmm/main.h>
-#include <gtkmm/button.h>
+#include "clusters.hh"
+#include "filelist-widget.hh"
+#include "fragmap-widget.hh"
+#include "mountpoint-select-dialog.hh"
+#include <cassert>
+#include <gtkmm/actiongroup.h>
 #include <gtkmm/box.h>
+#include <gtkmm/button.h>
+#include <gtkmm/filechooserdialog.h>
+#include <gtkmm/main.h>
 #include <gtkmm/paned.h>
 #include <gtkmm/scrolledwindow.h>
-#include <gtkmm/actiongroup.h>
-#include <gtkmm/uimanager.h>
-#include <gtkmm/filechooserdialog.h>
 #include <gtkmm/statusbar.h>
 #include <gtkmm/stock.h>
+#include <gtkmm/uimanager.h>
+#include <gtkmm/window.h>
 #include <iostream>
 #include <locale>
 #include <pwd.h>
-#include <cassert>
-#include "clusters.hh"
-#include "fragmap-widget.hh"
-#include "filelist-widget.hh"
-#include "mountpoint-select-dialog.hh"
 
-class GraphWindow : public Gtk::Window {
-    public:
-        GraphWindow();
-        virtual ~GraphWindow();
-        void scan_dir(const Glib::ustring &dir);
-        void show_directory_in_title(const Glib::ustring &dir);
+class GraphWindow : public Gtk::Window
+{
+public:
+    GraphWindow();
 
-    protected:
-        Fragmap fragmap;
-        Clusters cl;
-        FilelistView filelistview;
-        std::string initial_dir;
-        Glib::RefPtr<Gtk::ActionGroup> action_group_ref;
-        Glib::RefPtr<Gtk::UIManager> ui_manager_ref;
-        Gtk::Statusbar statusbar;
-        unsigned int statusbar_context;
+    virtual ~GraphWindow();
 
-        void on_action_view_most_fragmented(void);
-        void on_action_view_most_severe(void);
-        void on_action_view_restore(void);
-        void on_action_main_open(void);
-        void on_action_main_open_mountpoint(void);
-        void on_action_main_quit(void);
+    void
+    scan_dir(const Glib::ustring &dir);
+
+    void
+    show_directory_in_title(const Glib::ustring &dir);
+
+protected:
+    Fragmap fragmap;
+    Clusters cl;
+    FilelistView filelistview;
+    std::string initial_dir;
+    Glib::RefPtr<Gtk::ActionGroup> action_group_ref;
+    Glib::RefPtr<Gtk::UIManager> ui_manager_ref;
+    Gtk::Statusbar statusbar;
+    unsigned int statusbar_context;
+
+    void
+    on_action_view_most_fragmented(void);
+
+    void
+    on_action_view_most_severe(void);
+
+    void
+    on_action_view_restore(void);
+
+    void
+    on_action_main_open(void);
+
+    void
+    on_action_main_open_mountpoint(void);
+
+    void
+    on_action_main_quit(void);
 };
 
 void
@@ -73,23 +90,22 @@ GraphWindow::on_action_view_most_fragmented(void)
     Clusters::file_list &fl = cl.get_files();
 
     // sort files
-    std::vector<std::pair<uint64_t, uint64_t> > mapping(fl.size());
-    for (unsigned int k = 0; k < fl.size(); k ++) {
+    std::vector<std::pair<uint64_t, uint64_t>> mapping(fl.size());
+    for (unsigned int k = 0; k < fl.size(); k++) {
         mapping[k].first = k;
         mapping[k].second = fl[k].extents.size();
     }
     std::sort(mapping.begin(), mapping.end(),
-        [](const std::pair<uint64_t, uint64_t> &a, const std::pair<uint64_t, uint64_t> &b) {
-            return a.second > b.second;
-        }
-    );
+              [](const std::pair<uint64_t, uint64_t> &a, const std::pair<uint64_t, uint64_t> &b) {
+                  return a.second > b.second;
+              });
 
     // fill filelistview widget with 'n' most fragmented
     filelistview.clear();
-    for (unsigned int k = 0; k < std::min((size_t)40, fl.size()); k ++) {
+    for (unsigned int k = 0; k < std::min((size_t)40, fl.size()); k++) {
         uint64_t idx = mapping[k].first;
-        filelistview.add_file_info(idx, fl[idx].extents.size(), fl[idx].severity,
-                                   fl[idx].filetype, fl[idx].size, fl[idx].name);
+        filelistview.add_file_info(idx, fl[idx].extents.size(), fl[idx].severity, fl[idx].filetype,
+                                   fl[idx].size, fl[idx].name);
     }
 }
 
@@ -98,23 +114,22 @@ GraphWindow::on_action_view_most_severe(void)
 {
     Clusters::file_list &fl = cl.get_files();
 
-    std::vector<std::pair<uint64_t, double> > mapping(fl.size());
-    for (unsigned int k = 0; k < fl.size(); k ++) {
+    std::vector<std::pair<uint64_t, double>> mapping(fl.size());
+    for (unsigned int k = 0; k < fl.size(); k++) {
         mapping[k].first = k;
         mapping[k].second = fl[k].severity;
     }
     std::sort(mapping.begin(), mapping.end(),
-        [](const std::pair<uint64_t, double> &a, const std::pair<uint64_t, double> &b) {
-            return a.second > b.second;
-        }
-    );
+              [](const std::pair<uint64_t, double> &a, const std::pair<uint64_t, double> &b) {
+                  return a.second > b.second;
+              });
 
     // fill filelistview widget with 'n' most fragmented (by severity)
     filelistview.clear();
-    for (unsigned int k = 0; k < std::min((size_t)40, fl.size()); k ++) {
+    for (unsigned int k = 0; k < std::min((size_t)40, fl.size()); k++) {
         uint64_t idx = mapping[k].first;
-        filelistview.add_file_info(idx, fl[idx].extents.size(), fl[idx].severity,
-                                   fl[idx].filetype, fl[idx].size, fl[idx].name);
+        filelistview.add_file_info(idx, fl[idx].extents.size(), fl[idx].severity, fl[idx].filetype,
+                                   fl[idx].size, fl[idx].name);
     }
 }
 
@@ -185,21 +200,21 @@ GraphWindow::GraphWindow(void)
     // set up menus
     action_group_ref = Gtk::ActionGroup::create();
 
-    action_group_ref->add(Gtk::Action::create ("MenuMain", "Fragview"));
-    action_group_ref->add(Gtk::Action::create ("MainOpen", "Open directory..."),
-                          sigc::mem_fun (*this, &GraphWindow::on_action_main_open));
-    action_group_ref->add(Gtk::Action::create ("MainOpenMountpoint", "Open mountpoint..."),
-                          sigc::mem_fun (*this, &GraphWindow::on_action_main_open_mountpoint));
-    action_group_ref->add(Gtk::Action::create ("MainQuit", "Quit"),
-                          sigc::mem_fun (*this, &GraphWindow::on_action_main_quit));
+    action_group_ref->add(Gtk::Action::create("MenuMain", "Fragview"));
+    action_group_ref->add(Gtk::Action::create("MainOpen", "Open directory..."),
+                          sigc::mem_fun(*this, &GraphWindow::on_action_main_open));
+    action_group_ref->add(Gtk::Action::create("MainOpenMountpoint", "Open mountpoint..."),
+                          sigc::mem_fun(*this, &GraphWindow::on_action_main_open_mountpoint));
+    action_group_ref->add(Gtk::Action::create("MainQuit", "Quit"),
+                          sigc::mem_fun(*this, &GraphWindow::on_action_main_quit));
 
-    action_group_ref->add(Gtk::Action::create ("MenuView", "View"));
-    action_group_ref->add(Gtk::Action::create ("ViewFragmented", "Most fragmented files"),
-                          sigc::mem_fun (*this, &GraphWindow::on_action_view_most_fragmented));
-    action_group_ref->add(Gtk::Action::create ("ViewSevere", "Files with highest severity"),
-                          sigc::mem_fun (*this, &GraphWindow::on_action_view_most_severe));
-    action_group_ref->add(Gtk::Action::create ("ViewRestore", "Restore regular view"),
-                          sigc::mem_fun (*this, &GraphWindow::on_action_view_restore));
+    action_group_ref->add(Gtk::Action::create("MenuView", "View"));
+    action_group_ref->add(Gtk::Action::create("ViewFragmented", "Most fragmented files"),
+                          sigc::mem_fun(*this, &GraphWindow::on_action_view_most_fragmented));
+    action_group_ref->add(Gtk::Action::create("ViewSevere", "Files with highest severity"),
+                          sigc::mem_fun(*this, &GraphWindow::on_action_view_most_severe));
+    action_group_ref->add(Gtk::Action::create("ViewRestore", "Restore regular view"),
+                          sigc::mem_fun(*this, &GraphWindow::on_action_view_restore));
 
     ui_manager_ref = Gtk::UIManager::create();
     ui_manager_ref->insert_action_group(action_group_ref);
@@ -247,13 +262,21 @@ GraphWindow::~GraphWindow()
 {
 }
 
-class numpunct_spacets : public std::numpunct_byname<char> {
+class numpunct_spacets : public std::numpunct_byname<char>
+{
 public:
-    numpunct_spacets(const char *name) : std::numpunct_byname<char>(name) { }
-private:
-    char do_thousands_sep() const { return ' ';}
-};
+    numpunct_spacets(const char *name)
+        : std::numpunct_byname<char>(name)
+    {
+    }
 
+private:
+    char
+    do_thousands_sep() const
+    {
+        return ' ';
+    }
+};
 
 int
 main(int argc, char *argv[])
@@ -266,7 +289,7 @@ main(int argc, char *argv[])
     // Using own numpunct implementation with plain space as thousand
     // separator.
     std::locale current_locale("");
-    if ('\xc2' == std::use_facet<std::numpunct<char> >(current_locale).thousands_sep()) {
+    if ('\xc2' == std::use_facet<std::numpunct<char>>(current_locale).thousands_sep()) {
         std::locale modified_locale(current_locale, new numpunct_spacets(""));
         std::locale::global(modified_locale);
     } else {

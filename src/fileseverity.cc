@@ -23,14 +23,16 @@
  */
 
 #define _XOPEN_SOURCE 500
+#include "clusters.hh"
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include "clusters.hh"
 
-void print_usage() {
+void
+print_usage()
+{
     printf("Usage: fileseverity [-k] file [file] [file] ...\n");
 }
 
@@ -48,7 +50,7 @@ main(int argc, char *argv[])
             break;
         default:
             print_usage();
-            exit (1);
+            exit(1);
             break;
         }
     }
@@ -60,7 +62,7 @@ main(int argc, char *argv[])
 
     Clusters clusters;
 
-    for (int fileidx = optind; fileidx < argc; fileidx ++) {
+    for (int fileidx = optind; fileidx < argc; fileidx++) {
         struct stat64 st;
         if (-1 != stat64(argv[fileidx], &st)) {
             Clusters::f_info fi;

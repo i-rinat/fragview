@@ -22,22 +22,21 @@
  * SOFTWARE.
  */
 
-#ifndef FRAGVIEW_FILELIST_WIDGET_HH
-#define FRAGVIEW_FILELIST_WIDGET_HH
+#pragma once
 
-#include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>
-#include <stdint.h>
+#include <gtkmm/treeview.h>
 #include <map>
-
+#include <stdint.h>
 
 class Fragmap;
 
 class FilelistView : public Gtk::TreeView
 {
-    class ModelColumns : public Gtk::TreeModelColumnRecord {
+    class ModelColumns : public Gtk::TreeModelColumnRecord
+    {
     public:
-        ModelColumns ()
+        ModelColumns()
         {
             add(fileid);
             add(fragments);
@@ -48,17 +47,18 @@ class FilelistView : public Gtk::TreeView
             add(size);
         };
 
-        Gtk::TreeModelColumn<int>           fileid;
-        Gtk::TreeModelColumn<int>           fragments;
-        Gtk::TreeModelColumn<double>        severity;
+        Gtk::TreeModelColumn<int> fileid;
+        Gtk::TreeModelColumn<int> fragments;
+        Gtk::TreeModelColumn<double> severity;
         Gtk::TreeModelColumn<Glib::ustring> name;
         Gtk::TreeModelColumn<Glib::ustring> dir;
-        Gtk::TreeModelColumn<int>           filetype;
-        Gtk::TreeModelColumn<uint64_t>      size;
+        Gtk::TreeModelColumn<int> filetype;
+        Gtk::TreeModelColumn<uint64_t> size;
     };
 
 public:
     FilelistView();
+
     ~FilelistView();
 
     void
@@ -66,21 +66,24 @@ public:
 
     void
     add_file_info(int id, int fragments, double severity, int filetype, uint64_t size,
-                  const std::string& name, const std::string& dir);
+                  const std::string &name, const std::string &dir);
 
     void
     add_file_info(int id, int fragments, double severity, int filetype, uint64_t size,
-                  const std::string& full_path);
+                  const std::string &full_path);
 
     void
-    attach_fragmap(Fragmap *fm) { fragmap_ = fm; }
+    attach_fragmap(Fragmap *fm)
+    {
+        fragmap_ = fm;
+    }
 
 protected:
-    ModelColumns                                 columns_;
-    Glib::RefPtr<Gtk::ListStore>                 liststore_;
-    std::map<void *, enum Gtk::SortType>         default_sort_order_;
+    ModelColumns columns_;
+    Glib::RefPtr<Gtk::ListStore> liststore_;
+    std::map<void *, enum Gtk::SortType> default_sort_order_;
     std::map<void *, Gtk::TreeModelColumnBase *> view_to_model_;
-    Fragmap                                     *fragmap_;
+    Fragmap *fragmap_;
 
     virtual void
     on_filelist_header_clicked(Gtk::TreeViewColumn *column);
@@ -94,5 +97,3 @@ protected:
     void
     cell_data_func_size(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);
 };
-
-#endif // FRAGVIEW_FILELIST_WIDGET_HH
