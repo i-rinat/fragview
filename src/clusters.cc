@@ -41,8 +41,8 @@
 
 Clusters::Clusters()
 {
-    pthread_mutex_init(&files_mutex_, NULL);
-    pthread_mutex_init(&clusters_mutex_, NULL);
+    pthread_mutex_init(&files_mutex_, nullptr);
+    pthread_mutex_init(&clusters_mutex_, nullptr);
 
     hide_error_inaccessible_files_ = true;
     hide_error_no_fiemap_ = true;
@@ -163,11 +163,14 @@ Clusters::collect_fragments(const Glib::ustring &initial_dir)
 
     // walk directory tree, don't cross mount borders
     char *dirs[2] = {const_cast<char *>(initial_dir.c_str()), 0};
-    FTS *fts_handle = fts_open(dirs, FTS_PHYSICAL | FTS_XDEV | FTS_NOCHDIR | FTS_NOSTAT, NULL);
+    FTS *fts_handle = fts_open(dirs, FTS_PHYSICAL | FTS_XDEV | FTS_NOCHDIR | FTS_NOSTAT, nullptr);
+
     while (1) {
         FTSENT *ent = fts_read(fts_handle);
-        if (NULL == ent)
+
+        if (!ent)
             break;
+
         switch (ent->fts_info) {
         case FTS_NSOK:
         case FTS_NS:
@@ -175,10 +178,13 @@ Clusters::collect_fragments(const Glib::ustring &initial_dir)
         case FTS_F: {
             f_info fi;
             struct stat64 sb_ent;
+
             if (0 != lstat64(ent->fts_path, &sb_ent))
                 break;  // something wrong, skip
+
             if (sb_ent.st_dev != sb_root.st_dev)
                 break;  // another device, skip
+
             if (get_file_extents(ent->fts_path, &sb_ent, &fi)) {
                 fi.fragmented = (fi.severity >= 2.0);
                 fi.name = ent->fts_path;
@@ -189,6 +195,7 @@ Clusters::collect_fragments(const Glib::ustring &initial_dir)
                 unlock_files();
             }
         } break;
+
         default:
             break;
         }

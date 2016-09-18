@@ -66,14 +66,14 @@ scan(sqlite3 *db, const char *dir)
     char *errmsg;
     Clusters clusters;
 
-    res = sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &errmsg);
+    res = sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, &errmsg);
     if (SQLITE_OK != res) {
         std::cerr << "error: can't start transaction (" << errmsg << ")" << std::endl;
         sqlite3_close(db);
         _exit(1);
     }
 
-    res = sqlite3_exec(db, sql_create_tables, NULL, NULL, &errmsg);
+    res = sqlite3_exec(db, sql_create_tables, nullptr, nullptr, &errmsg);
     if (SQLITE_OK != res) {
         std::cerr << "error: can't create table (" << errmsg << ")" << std::endl;
         sqlite3_close(db);
@@ -88,7 +88,7 @@ scan(sqlite3 *db, const char *dir)
 
     sqlite3_stmt *stmt;
     const char *sql_insert = "INSERT INTO items (name, fragments, severity) VALUES (:n, :f, :s)";
-    res = sqlite3_prepare(db, sql_insert, -1, &stmt, NULL);
+    res = sqlite3_prepare(db, sql_insert, -1, &stmt, nullptr);
     if (SQLITE_OK != res) {
         std::cerr << "error: insert prepare" << std::endl;
         sqlite3_close(db);
@@ -111,7 +111,7 @@ scan(sqlite3 *db, const char *dir)
         }
     }
 
-    res = sqlite3_exec(db, "COMMIT", NULL, NULL, &errmsg);
+    res = sqlite3_exec(db, "COMMIT", nullptr, nullptr, &errmsg);
     if (SQLITE_OK != res) {
         std::cerr << "error: can't commit (" << errmsg << ")" << std::endl;
         sqlite3_close(db);
@@ -128,13 +128,13 @@ show_top(sqlite3 *db, int top_count)
     int res;
 
     sqlite3_prepare(db, "SELECT name, fragments FROM items ORDER BY fragments DESC LIMIT ?", -1,
-                    &stmt, NULL);
+                    &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, top_count);
 
     while (SQLITE_ROW == (res = sqlite3_step(stmt))) {
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         int frag = sqlite3_column_int(stmt, 1);
-        if (NULL != name) {
+        if (name) {
             std::cout << std::setw(7) << frag << " " << name << std::endl;
         } else {
             std::cerr << "error: can't fetch name from db" << std::endl;
@@ -152,13 +152,13 @@ show_top_severity(sqlite3 *db, int top_count)
     int res;
 
     sqlite3_prepare(db, "SELECT name, severity FROM items ORDER BY severity DESC LIMIT ?", -1,
-                    &stmt, NULL);
+                    &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, top_count);
 
     while (SQLITE_ROW == (res = sqlite3_step(stmt))) {
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         double severity = sqlite3_column_double(stmt, 1);
-        if (NULL != name) {
+        if (name) {
             std::cout << std::fixed << std::setw(7) << std::setprecision(1) << severity << " ";
             std::cout << name << std::endl;
         } else {
@@ -178,13 +178,13 @@ show_over(sqlite3 *db, int over_count)
 
     sqlite3_prepare(db,
                     "SELECT name, fragments FROM items WHERE fragments>=? ORDER BY fragments DESC",
-                    -1, &stmt, NULL);
+                    -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, over_count);
 
     while (SQLITE_ROW == (res = sqlite3_step(stmt))) {
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         int frag = sqlite3_column_int(stmt, 1);
-        if (NULL != name) {
+        if (name) {
             std::cout << std::setw(7) << frag << " " << name << std::endl;
         } else {
             std::cerr << "error: can't fetch name from db" << std::endl;
@@ -202,13 +202,13 @@ show_over_severity(sqlite3 *db, double over_count)
     int res;
 
     sqlite3_prepare(db, "SELECT name, severity FROM items WHERE severity>=? ORDER BY severity DESC",
-                    -1, &stmt, NULL);
+                    -1, &stmt, nullptr);
     sqlite3_bind_double(stmt, 1, over_count);
 
     while (SQLITE_ROW == (res = sqlite3_step(stmt))) {
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         double severity = sqlite3_column_double(stmt, 1);
-        if (NULL != name) {
+        if (name) {
             std::cout << std::fixed << std::setw(7) << std::setprecision(1) << severity << " "
                       << name << std::endl;
         } else {
