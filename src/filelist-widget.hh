@@ -85,11 +85,11 @@ protected:
     std::map<void *, Gtk::TreeModelColumnBase *> view_to_model_;
     Fragmap *fragmap_;
 
-    virtual void
+    void
     on_filelist_header_clicked(Gtk::TreeViewColumn *column);
 
-    virtual void
-    on_selection_changed(void);
+    void
+    on_selection_changed();
 
     void
     cell_data_func_filetype(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator &iter);

@@ -47,7 +47,7 @@ class GraphWindow : public Gtk::Window
 public:
     GraphWindow();
 
-    virtual ~GraphWindow();
+    ~GraphWindow() noexcept override;
 
     void
     scan_dir(const Glib::ustring &dir);

@@ -41,7 +41,7 @@ public:
     enum mode { FRAGMAP_MODE_SHOW_ALL = 0, FRAGMAP_MODE_CLUSTER, FRAGMAP_MODE_FILE };
 
     Fragmap();
-    ~Fragmap();
+    ~Fragmap() noexcept override;
 
     void
     attach_clusters(Clusters &cl);
@@ -94,22 +94,22 @@ protected:
 
 protected:
     // signal handlers
-    virtual bool
+    bool
     on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr);
 
-    virtual bool
+    bool
     on_motion_notify_event(GdkEventMotion *event) override;
 
-    virtual bool
+    bool
     on_button_press_event(GdkEventButton *event) override;
 
-    virtual bool
+    bool
     on_drawarea_scroll_event(GdkEventScroll *event);
 
-    virtual void
+    void
     on_size_allocate(Gtk::Allocation &allocation) override;
 
-    virtual void
+    void
     on_scrollbar_value_changed(void);
 
 private:
