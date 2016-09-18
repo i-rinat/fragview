@@ -29,6 +29,42 @@
 #include <iostream>
 #include <sys/time.h>
 
+namespace
+{
+
+const double kBleachFactor = 0.3;
+
+class color3
+{
+public:
+    color3(double r, double g, double b)
+        : c_{r, g, b}
+        , c_bleached_{1.0 - (1.0 - c_[0]) * kBleachFactor, 1.0 - (1.0 - c_[1]) * kBleachFactor,
+                      1.0 - (1.0 - c_[2]) * kBleachFactor}
+    {
+    }
+
+    operator const double *() const { return c_; }
+
+    const double *
+    bleached() const
+    {
+        return c_bleached_;
+    }
+
+private:
+    const double c_[3];
+    const double c_bleached_[3];
+};
+
+const color3 kColorFree{1.0, 1.0, 1.0};
+const color3 kColorFreeSelected{1.0, 1.0, 0.0};
+const color3 kColorFrag{0.8, 0.0, 0.0};
+const color3 kColorNFrag{0.0, 0.0, 0.8};
+const color3 kColorBack{0.25, 0.25, 0.25};
+
+}  // unnamed namespace
+
 Fragmap::Fragmap()
     : clusters_(nullptr)
     , filelist_(nullptr)
@@ -42,19 +78,6 @@ Fragmap::Fragmap()
     , shift_y_(0)
 {
     drawing_area_.set_events(Gdk::BUTTON_PRESS_MASK | Gdk::POINTER_MOTION_MASK | Gdk::SCROLL_MASK);
-
-    // colors
-    bleach_factor_ = 0.3;
-    color_free_.rgb(1.0, 1.0, 1.0);
-    color_free_selected_.rgb(1.0, 1.0, 0.0);
-    color_frag_.rgb(0.8, 0.0, 0.0);
-    color_nfrag_.rgb(0.0, 0.0, 0.8);
-    color_back_.rgb(0.25, 0.25, 0.25);
-
-    color_free_bleached_ = color_free_.bleach(bleach_factor_);
-    color_frag_bleached_ = color_frag_.bleach(bleach_factor_);
-    color_nfrag_bleached_ = color_nfrag_.bleach(bleach_factor_);
-    color_back_bleached_ = color_back_.bleach(bleach_factor_);
 
     scrollbar_.set_orientation(Gtk::ORIENTATION_VERTICAL);
     pack_start(drawing_area_, true, true);
@@ -206,11 +229,11 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     switch (display_mode_) {
     case FRAGMAP_MODE_SHOW_ALL:
     default:
-        cairo_set_source_rgbv(cr, color_back_);
+        cairo_set_source_rgbv(cr, kColorBack);
         break;
     case FRAGMAP_MODE_CLUSTER:
     case FRAGMAP_MODE_FILE:
-        cairo_set_source_rgbv(cr, color_back_bleached_);
+        cairo_set_source_rgbv(cr, kColorBack.bleached());
         break;
     }
 
@@ -234,11 +257,11 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     switch (display_mode_) {
     case FRAGMAP_MODE_SHOW_ALL:
     default:
-        cairo_set_source_rgbv(cr, color_free_);
+        cairo_set_source_rgbv(cr, kColorFree);
         break;
     case FRAGMAP_MODE_CLUSTER:
     case FRAGMAP_MODE_FILE:
-        cairo_set_source_rgbv(cr, color_free_bleached_);
+        cairo_set_source_rgbv(cr, kColorFree.bleached());
         break;
     }
 
@@ -256,11 +279,11 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     switch (display_mode_) {
     case FRAGMAP_MODE_SHOW_ALL:
     default:
-        cairo_set_source_rgbv(cr, color_frag_);
+        cairo_set_source_rgbv(cr, kColorFrag);
         break;
     case FRAGMAP_MODE_CLUSTER:
     case FRAGMAP_MODE_FILE:
-        cairo_set_source_rgbv(cr, color_frag_bleached_);
+        cairo_set_source_rgbv(cr, kColorFrag.bleached());
         break;
     }
 
@@ -279,11 +302,11 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     switch (display_mode_) {
     case FRAGMAP_MODE_SHOW_ALL:
     default:
-        cairo_set_source_rgbv(cr, color_nfrag_);
+        cairo_set_source_rgbv(cr, kColorNFrag);
         break;
     case FRAGMAP_MODE_CLUSTER:
     case FRAGMAP_MODE_FILE:
-        cairo_set_source_rgbv(cr, color_nfrag_bleached_);
+        cairo_set_source_rgbv(cr, kColorNFrag.bleached());
         break;
     }
 
@@ -308,12 +331,12 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
         ky = ky - target_line;  // to screen coordinates
 
         if (clusters_->at(selected_cluster_).free) {
-            cairo_set_source_rgbv(cr, color_free_selected_);
+            cairo_set_source_rgbv(cr, kColorFreeSelected);
         } else {
             if (clusters_->at(selected_cluster_).fragmented) {
-                cairo_set_source_rgbv(cr, color_frag_);
+                cairo_set_source_rgbv(cr, kColorFrag);
             } else {
-                cairo_set_source_rgbv(cr, color_nfrag_);
+                cairo_set_source_rgbv(cr, kColorNFrag);
             }
         }
         cr->rectangle(kx * box_size_, ky * box_size_, box_size_ - 1, box_size_ - 1);
@@ -329,9 +352,9 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
 
         for (auto file_idx : selected_files_) {
             if (files.at(file_idx).fragmented) {
-                cairo_set_source_rgbv(cr, color_frag_);
+                cairo_set_source_rgbv(cr, kColorFrag);
             } else {
-                cairo_set_source_rgbv(cr, color_nfrag_);
+                cairo_set_source_rgbv(cr, kColorNFrag);
             }
 
             for (unsigned int k2 = 0; k2 < files.at(file_idx).extents.size(); k2++) {

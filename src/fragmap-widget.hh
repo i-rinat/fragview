@@ -25,7 +25,6 @@
 #pragma once
 
 #include "clusters.hh"
-#include "color3.hh"
 #include "filelist-widget.hh"
 #include <gtkmm/adjustment.h>
 #include <gtkmm/box.h>
@@ -92,18 +91,6 @@ protected:
     int cluster_map_width_;
     int cluster_map_height_;
     int cluster_map_full_height_;
-
-    color3 color_free_;
-    color3 color_free_selected_;
-    color3 color_frag_;
-    color3 color_nfrag_;
-    color3 color_back_;
-
-    double bleach_factor_;
-    color3 color_free_bleached_;
-    color3 color_frag_bleached_;
-    color3 color_nfrag_bleached_;
-    color3 color_back_bleached_;
 
 protected:
     // signal handlers
