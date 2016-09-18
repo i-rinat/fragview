@@ -78,8 +78,6 @@ protected:
     Gtk::DrawingArea drawing_area_;
     Gtk::Scrollbar scrollbar_;
 
-    int box_size_;
-
     Fragmap::mode display_mode_;
     uint64_t selected_cluster_;
     uint64_t target_block_;

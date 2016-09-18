@@ -32,6 +32,7 @@
 namespace
 {
 
+const int kBoxSize = 7;
 const double kBleachFactor = 0.3;
 
 class color3
@@ -76,7 +77,6 @@ Fragmap::Fragmap()
     , filelist_(nullptr)
     , statusbar_(nullptr)
     , statusbar_context_(0)
-    , box_size_(7)
     , display_mode_(FRAGMAP_MODE_SHOW_ALL)
     , selected_cluster_(0)
     , target_block_(0)
@@ -182,8 +182,8 @@ void
 Fragmap::recalculate_sizes(int pix_width, int pix_height)
 {
     // estimate map size without scrollbar
-    cluster_map_width_ = std::max(1, (pix_width - 1) / box_size_);
-    cluster_map_height_ = (pix_height - 1) / box_size_ + 1;
+    cluster_map_width_ = std::max(1, (pix_width - 1) / kBoxSize);
+    cluster_map_height_ = (pix_height - 1) / kBoxSize + 1;
 
     assert(clusters_ != nullptr);
     uint64_t device_size = clusters_->get_device_size();
@@ -195,7 +195,7 @@ Fragmap::recalculate_sizes(int pix_width, int pix_height)
         scrollbar_.show();
         // and then recalculate sizes
         pix_width = pix_width - scrollbar_.get_allocation().get_width();
-        cluster_map_width_ = std::max(1, (pix_width - 1) / box_size_);
+        cluster_map_width_ = std::max(1, (pix_width - 1) / kBoxSize);
         cluster_map_full_height_ = (clusters_->get_count() - 1) / cluster_map_width_ + 1;
     } else {
         // we do not need scrollbar, hide it
@@ -269,7 +269,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
         for (kx = 0; kx < cluster_map_width_; kx++) {
             uint64_t cluster_idx = ky * cluster_map_width_ + kx + target_offset;
             if (cluster_idx < clusters_->get_count() && clusters_->at(cluster_idx).free) {
-                cr->rectangle(kx * box_size_, ky * box_size_, box_size_ - 1, box_size_ - 1);
+                cr->rectangle(kx * kBoxSize, ky * kBoxSize, kBoxSize - 1, kBoxSize - 1);
             }
         }
     }
@@ -293,7 +293,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
             if (cluster_idx < clusters_->get_count() && !(clusters_->at(cluster_idx).free) &&
                 clusters_->at(cluster_idx).fragmented)
             {
-                cr->rectangle(kx * box_size_, ky * box_size_, box_size_ - 1, box_size_ - 1);
+                cr->rectangle(kx * kBoxSize, ky * kBoxSize, kBoxSize - 1, kBoxSize - 1);
             }
         }
     }
@@ -316,7 +316,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
             if (cluster_idx < clusters_->get_count() && !(clusters_->at(cluster_idx).free) &&
                 !(clusters_->at(cluster_idx).fragmented))
             {
-                cr->rectangle(kx * box_size_, ky * box_size_, box_size_ - 1, box_size_ - 1);
+                cr->rectangle(kx * kBoxSize, ky * kBoxSize, kBoxSize - 1, kBoxSize - 1);
             }
         }
     }
@@ -339,7 +339,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
                 cairo_set_source_rgbv(cr, kColorNFrag);
             }
         }
-        cr->rectangle(kx * box_size_, ky * box_size_, box_size_ - 1, box_size_ - 1);
+        cr->rectangle(kx * kBoxSize, ky * kBoxSize, kBoxSize - 1, kBoxSize - 1);
         cr->fill();
     }
 
@@ -371,7 +371,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
                     ky = ky - target_line;  // to screen coordinates
 
                     if (0 <= ky && ky < cluster_map_height_) {
-                        cr->rectangle(kx * box_size_, ky * box_size_, box_size_ - 1, box_size_ - 1);
+                        cr->rectangle(kx * kBoxSize, ky * kBoxSize, kBoxSize - 1, kBoxSize - 1);
                     }
                 }
             }
@@ -390,8 +390,8 @@ Fragmap::highlight_cluster_at(gdouble x, gdouble y)
     clusters_->lock_files();
 
     bool flag_update = FALSE;
-    int cl_x = (int)(x - shift_x_) / box_size_;
-    int cl_y = (int)(y - shift_y_) / box_size_;
+    int cl_x = (int)(x - shift_x_) / kBoxSize;
+    int cl_y = (int)(y - shift_y_) / kBoxSize;
 
     int target_line = target_block_ / clusters_->get_actual_cluster_size() / cluster_map_width_;
     uint64_t cl_raw = (cl_y + target_line) * cluster_map_width_ + cl_x;
