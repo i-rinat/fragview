@@ -207,8 +207,7 @@ Fragmap::recalculate_sizes(int pix_width, int pix_height)
     scrollbar_.set_value(target_block_ / clusters_->get_actual_cluster_size() / cluster_map_width_);
 
     // upper limit for scroll bar is one page shorter, so we must recalculate page size
-    Glib::RefPtr<Gtk::Adjustment> scroll_adj = scrollbar_.get_adjustment();
-    scroll_adj->set_page_size((double)cluster_map_height_);
+    scrollbar_.get_adjustment()->set_page_size(cluster_map_height_);
 }
 
 void
