@@ -63,6 +63,12 @@ const color3 kColorFrag{0.8, 0.0, 0.0};
 const color3 kColorNFrag{0.0, 0.0, 0.8};
 const color3 kColorBack{0.25, 0.25, 0.25};
 
+void
+cairo_set_source_rgbv(const Cairo::RefPtr<Cairo::Context> &cr, double const color[])
+{
+    cr->set_source_rgb(color[0], color[1], color[2]);
+}
+
 }  // unnamed namespace
 
 Fragmap::Fragmap()
@@ -211,12 +217,6 @@ Fragmap::on_size_allocate(Gtk::Allocation &allocation)
     Gtk::HBox::on_size_allocate(allocation);  // parent
 
     recalculate_sizes(allocation.get_width(), allocation.get_height());
-}
-
-void
-Fragmap::cairo_set_source_rgbv(const Cairo::RefPtr<Cairo::Context> &cr, double const color[])
-{
-    cr->set_source_rgb(color[0], color[1], color[2]);
 }
 
 bool

@@ -114,8 +114,5 @@ protected:
 
 private:
     void
-    cairo_set_source_rgbv(const Cairo::RefPtr<Cairo::Context> &cr, double const color[]);
-
-    void
     update_statusbar();
 };
