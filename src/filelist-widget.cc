@@ -180,7 +180,7 @@ FilelistView::clear()
 }
 
 void
-FilelistView::on_selection_changed(void)
+FilelistView::on_selection_changed()
 {
     assert(fragmap_);
     Glib::RefPtr<Gtk::TreeModel> model = get_model();

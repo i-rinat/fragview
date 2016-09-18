@@ -173,7 +173,7 @@ Fragmap::on_drawarea_scroll_event(GdkEventScroll *event)
 }
 
 void
-Fragmap::recalculate_sizes(void)
+Fragmap::recalculate_sizes()
 {
     recalculate_sizes(get_allocation().get_width(), get_allocation().get_height());
 }
@@ -456,7 +456,7 @@ Fragmap::attach_statusbar(Gtk::Statusbar *sb, unsigned int sb_context)
 }
 
 void
-Fragmap::on_scrollbar_value_changed(void)
+Fragmap::on_scrollbar_value_changed()
 {
     target_block_ =
         cluster_map_width_ * clusters_->get_actual_cluster_size() * round(scrollbar_.get_value());

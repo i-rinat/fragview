@@ -67,7 +67,7 @@ public:
     recalculate_sizes(int pix_width, int pix_height);
 
     void
-    recalculate_sizes(void);
+    recalculate_sizes();
 
 protected:
     Clusters *clusters_;
@@ -110,7 +110,7 @@ protected:
     on_size_allocate(Gtk::Allocation &allocation) override;
 
     void
-    on_scrollbar_value_changed(void);
+    on_scrollbar_value_changed();
 
 private:
     void

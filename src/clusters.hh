@@ -149,7 +149,7 @@ public:
     set_desired_cluster_size(uint64_t ds);
 
     uint64_t
-    get_actual_cluster_size(void);
+    get_actual_cluster_size();
 
     file_list &
     get_files();

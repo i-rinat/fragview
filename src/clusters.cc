@@ -99,7 +99,7 @@ Clusters::set_desired_cluster_size(uint64_t ds)
 }
 
 uint64_t
-Clusters::get_actual_cluster_size(void)
+Clusters::get_actual_cluster_size()
 {
     return cluster_size_;
 }
@@ -460,7 +460,7 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
 }
 
 void
-Clusters::clear_caches(void)
+Clusters::clear_caches()
 {
     fill_cache_.clear();
     clusters_.clear();

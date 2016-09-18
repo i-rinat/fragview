@@ -66,26 +66,26 @@ protected:
     unsigned int statusbar_context;
 
     void
-    on_action_view_most_fragmented(void);
+    on_action_view_most_fragmented();
 
     void
-    on_action_view_most_severe(void);
+    on_action_view_most_severe();
 
     void
-    on_action_view_restore(void);
+    on_action_view_restore();
 
     void
-    on_action_main_open(void);
+    on_action_main_open();
 
     void
-    on_action_main_open_mountpoint(void);
+    on_action_main_open_mountpoint();
 
     void
-    on_action_main_quit(void);
+    on_action_main_quit();
 };
 
 void
-GraphWindow::on_action_view_most_fragmented(void)
+GraphWindow::on_action_view_most_fragmented()
 {
     Clusters::file_list &fl = cl.get_files();
 
@@ -110,7 +110,7 @@ GraphWindow::on_action_view_most_fragmented(void)
 }
 
 void
-GraphWindow::on_action_view_most_severe(void)
+GraphWindow::on_action_view_most_severe()
 {
     Clusters::file_list &fl = cl.get_files();
 
@@ -134,7 +134,7 @@ GraphWindow::on_action_view_most_severe(void)
 }
 
 void
-GraphWindow::on_action_view_restore(void)
+GraphWindow::on_action_view_restore()
 {
     fragmap.set_mode(Fragmap::FRAGMAP_MODE_SHOW_ALL);
     filelistview.clear();
@@ -142,13 +142,13 @@ GraphWindow::on_action_view_restore(void)
 }
 
 void
-GraphWindow::on_action_main_quit(void)
+GraphWindow::on_action_main_quit()
 {
     hide();
 }
 
 void
-GraphWindow::on_action_main_open(void)
+GraphWindow::on_action_main_open()
 {
     Gtk::FileChooserDialog dialog("Select directory", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
     dialog.set_transient_for(*this);
@@ -162,7 +162,7 @@ GraphWindow::on_action_main_open(void)
 }
 
 void
-GraphWindow::on_action_main_open_mountpoint(void)
+GraphWindow::on_action_main_open_mountpoint()
 {
     MountpointSelectDialog msd;
     int result = msd.run();
@@ -188,7 +188,7 @@ GraphWindow::show_directory_in_title(const Glib::ustring &dir)
     set_title(Glib::ustring("fragview - ") + dir);
 }
 
-GraphWindow::GraphWindow(void)
+GraphWindow::GraphWindow()
 {
     show_directory_in_title("void");
     set_default_size(800, 560);

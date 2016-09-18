@@ -32,12 +32,12 @@
 class MountpointSelectDialog : public Gtk::Dialog
 {
 public:
-    MountpointSelectDialog(void);
+    MountpointSelectDialog();
 
-    ~MountpointSelectDialog(void);
+    ~MountpointSelectDialog();
 
     Glib::ustring &
-    get_path(void);
+    get_path();
 
 protected:
     class ModelColumns : public Gtk::TreeModelColumnRecord
@@ -67,7 +67,7 @@ protected:
     Glib::ustring selected_path_;
 
     void
-    on_list_selection_changed(void);
+    on_list_selection_changed();
 
     void
     on_list_row_activated(const Gtk::TreeModel::Path &path, Gtk::TreeViewColumn *column);

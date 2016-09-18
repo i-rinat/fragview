@@ -33,7 +33,7 @@
 #include <iostream>
 #include <sys/vfs.h>
 
-MountpointSelectDialog::MountpointSelectDialog(void)
+MountpointSelectDialog::MountpointSelectDialog()
 {
     set_title("Select mountpoint");
     set_size_request(400, 300);
@@ -126,18 +126,18 @@ MountpointSelectDialog::MountpointSelectDialog(void)
     m_f.close();
 }
 
-MountpointSelectDialog::~MountpointSelectDialog(void)
+MountpointSelectDialog::~MountpointSelectDialog()
 {
 }
 
 Glib::ustring &
-MountpointSelectDialog::get_path(void)
+MountpointSelectDialog::get_path()
 {
     return selected_path_;
 }
 
 void
-MountpointSelectDialog::on_list_selection_changed(void)
+MountpointSelectDialog::on_list_selection_changed()
 {
     auto iter = tv_.get_selection()->get_selected();
     if (iter)
