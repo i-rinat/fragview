@@ -97,10 +97,14 @@ MountpointSelectDialog::MountpointSelectDialog()
     m_f.open("/proc/mounts");
     std::locale clocale("C");
     m_f.imbue(clocale);
-    std::string m_device, m_mountpoint, m_type, m_options, m_freq, m_passno;
 
     while (!m_f.eof()) {
+        std::string m_device, m_mountpoint, m_type, m_options, m_freq, m_passno;
         m_f >> m_device >> m_mountpoint >> m_type >> m_options >> m_freq >> m_passno;
+
+        if (m_mountpoint.empty())
+            continue;
+
         struct statfs64 sfsb;
         struct stat64 sb;
         if (0 != statfs64(m_mountpoint.c_str(), &sfsb))
