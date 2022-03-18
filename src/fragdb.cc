@@ -97,7 +97,7 @@ scan(sqlite3 *db, const char *dir)
 
     Clusters::file_list &files = clusters.get_files();
 
-    for (const auto item : files) {
+    for (const Clusters::f_info &item : files) {
         sqlite3_reset(stmt);
         sqlite3_clear_bindings(stmt);
         sqlite3_bind_text(stmt, 1, item.name.c_str(), -1, SQLITE_STATIC);

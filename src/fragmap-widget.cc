@@ -186,8 +186,7 @@ Fragmap::recalculate_sizes(int pix_width, int pix_height)
     cluster_map_height_ = (pix_height - 1) / kBoxSize + 1;
 
     assert(clusters_ != nullptr);
-    uint64_t device_size = clusters_->get_device_size();
-    assert(device_size > 0);
+    assert(clusters_->get_device_size() > 0);
     cluster_map_full_height_ = (clusters_->get_count() - 1) / cluster_map_width_ + 1;
 
     if (cluster_map_full_height_ > cluster_map_height_) {
@@ -345,8 +344,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     if (FRAGMAP_MODE_FILE == display_mode_) {
         assert(clusters_);
         Clusters::file_list &files = clusters_->get_files();
-        uint64_t device_size = clusters_->get_device_size();
-        assert(device_size > 0);
+        assert(clusters_->get_device_size() > 0);
         uint64_t cluster_size = clusters_->get_actual_cluster_size();
 
         for (auto file_idx : selected_files_) {
