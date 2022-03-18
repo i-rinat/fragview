@@ -107,15 +107,15 @@ MountpointSelectDialog::MountpointSelectDialog()
 
         struct statfs64 sfsb;
         struct stat64 sb;
-        if (0 != statfs64(m_mountpoint.c_str(), &sfsb))
+        if (statfs64(m_mountpoint.c_str(), &sfsb) != 0)
             continue;
-        if (0 != lstat64(m_mountpoint.c_str(), &sb))
+        if (lstat64(m_mountpoint.c_str(), &sb) != 0)
             continue;
         if (sfsb.f_blocks == 0)
             continue;  // pseudo-fs's have zero size
-        if ("tmpfs" == m_type)
+        if (m_type == "tmpfs")
             continue;  // tmpfs has neither FIEMAP not FIBMAP
-        if ("devtmpfs" == m_type)
+        if (m_type == "devtmpfs")
             continue;  // the same as tmpfs
 
         Gtk::TreeModel::Row row = *(liststore_->append());

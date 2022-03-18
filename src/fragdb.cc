@@ -52,7 +52,7 @@ void
 init_db(sqlite3 **db)
 {
     int res = sqlite3_open("fragmentator.db", db);
-    if (SQLITE_OK != res) {
+    if (res != SQLITE_OK) {
         std::cerr << "error: can't create/open database" << std::endl;
         sqlite3_close(*db);
         _exit(1);
@@ -67,14 +67,14 @@ scan(sqlite3 *db, const char *dir)
     Clusters clusters;
 
     res = sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, &errmsg);
-    if (SQLITE_OK != res) {
+    if (res != SQLITE_OK) {
         std::cerr << "error: can't start transaction (" << errmsg << ")" << std::endl;
         sqlite3_close(db);
         _exit(1);
     }
 
     res = sqlite3_exec(db, sql_create_tables, nullptr, nullptr, &errmsg);
-    if (SQLITE_OK != res) {
+    if (res != SQLITE_OK) {
         std::cerr << "error: can't create table (" << errmsg << ")" << std::endl;
         sqlite3_close(db);
         _exit(1);
@@ -89,7 +89,7 @@ scan(sqlite3 *db, const char *dir)
     sqlite3_stmt *stmt;
     const char *sql_insert = "INSERT INTO items (name, fragments, severity) VALUES (:n, :f, :s)";
     res = sqlite3_prepare(db, sql_insert, -1, &stmt, nullptr);
-    if (SQLITE_OK != res) {
+    if (res != SQLITE_OK) {
         std::cerr << "error: insert prepare" << std::endl;
         sqlite3_close(db);
         _exit(1);
@@ -104,7 +104,7 @@ scan(sqlite3 *db, const char *dir)
         sqlite3_bind_int(stmt, 2, item.extents.size());
         sqlite3_bind_double(stmt, 3, item.severity);
         res = sqlite3_step(stmt);
-        if (SQLITE_DONE != res) {
+        if (res != SQLITE_DONE) {
             std::cerr << "error: something wrong with sqlite3_step" << std::endl;
             sqlite3_close(db);
             _exit(1);
@@ -112,7 +112,7 @@ scan(sqlite3 *db, const char *dir)
     }
 
     res = sqlite3_exec(db, "COMMIT", nullptr, nullptr, &errmsg);
-    if (SQLITE_OK != res) {
+    if (res != SQLITE_OK) {
         std::cerr << "error: can't commit (" << errmsg << ")" << std::endl;
         sqlite3_close(db);
         _exit(1);
@@ -131,7 +131,7 @@ show_top(sqlite3 *db, int top_count)
                     &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, top_count);
 
-    while (SQLITE_ROW == (res = sqlite3_step(stmt))) {
+    while ((res = sqlite3_step(stmt)) == SQLITE_ROW) {
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         int frag = sqlite3_column_int(stmt, 1);
         if (name) {
@@ -155,7 +155,7 @@ show_top_severity(sqlite3 *db, int top_count)
                     &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, top_count);
 
-    while (SQLITE_ROW == (res = sqlite3_step(stmt))) {
+    while ((res = sqlite3_step(stmt)) == SQLITE_ROW) {
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         double severity = sqlite3_column_double(stmt, 1);
         if (name) {
@@ -181,7 +181,7 @@ show_over(sqlite3 *db, int over_count)
                     -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, over_count);
 
-    while (SQLITE_ROW == (res = sqlite3_step(stmt))) {
+    while ((res = sqlite3_step(stmt)) == SQLITE_ROW) {
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         int frag = sqlite3_column_int(stmt, 1);
         if (name) {
@@ -205,7 +205,7 @@ show_over_severity(sqlite3 *db, double over_count)
                     -1, &stmt, nullptr);
     sqlite3_bind_double(stmt, 1, over_count);
 
-    while (SQLITE_ROW == (res = sqlite3_step(stmt))) {
+    while ((res = sqlite3_step(stmt)) == SQLITE_ROW) {
         const char unsigned *name = sqlite3_column_text(stmt, 0);
         double severity = sqlite3_column_double(stmt, 1);
         if (name) {
@@ -240,7 +240,7 @@ main(int argc, char *argv[])
         _exit(0);
     }
 
-    if (0 == strcmp(argv[1], "scan")) {
+    if (strcmp(argv[1], "scan") == 0) {
         if (argc < 3) {
             std::cerr << "error: no path specified" << std::endl;
             _exit(2);
@@ -250,19 +250,19 @@ main(int argc, char *argv[])
         init_db(&db);
         scan(db, dir);
         show_top(db, 10);
-    } else if (0 == strcmp(argv[1], "top")) {
+    } else if (strcmp(argv[1], "top") == 0) {
         int top_count = 10;
         if (argc >= 3)
             top_count = atoi(argv[2]);
         init_db(&db);
         show_top(db, top_count);
-    } else if (0 == strcmp(argv[1], "tops")) {
+    } else if (strcmp(argv[1], "tops") == 0) {
         int top_count = 10;
         if (argc >= 3)
             top_count = atoi(argv[2]);
         init_db(&db);
         show_top_severity(db, top_count);
-    } else if (0 == strcmp(argv[1], "over")) {
+    } else if (strcmp(argv[1], "over") == 0) {
         if (argc < 3) {
             std::cerr << "error: no threshold specified" << std::endl;
             _exit(2);
@@ -270,7 +270,7 @@ main(int argc, char *argv[])
         int over_count = atoi(argv[2]);
         init_db(&db);
         show_over(db, over_count);
-    } else if (0 == strcmp(argv[1], "overs")) {
+    } else if (strcmp(argv[1], "overs") == 0) {
         if (argc < 3) {
             std::cerr << "error: no threshold specified" << std::endl;
             _exit(2);

@@ -316,7 +316,7 @@ Clusters::fibmap_fallback(int fd, const char *fname, const struct stat64 *sb, st
     // FIBMAP uses its own units. Determine it.
     uint32_t fib_blocksize;
     int ret = ioctl(fd, FIGETBSZ, &fib_blocksize);
-    if (0 != ret) {
+    if (ret != 0) {
         std::cout << fname << " FIGETBSZ unavailable, " << errno << std::endl;
         return ret;
     }
@@ -334,7 +334,7 @@ Clusters::fibmap_fallback(int fd, const char *fname, const struct stat64 *sb, st
     struct fiemap_extent *extents = &fiemap->fm_extents[0];
     // fill first extent record
     uint64_t physical_block = 0;
-    if (0 != ioctl(fd, FIBMAP, &physical_block))
+    if (ioctl(fd, FIBMAP, &physical_block) != 0)
         return -1;
 
     extents[0].fe_logical = block_start * fib_blocksize;  // enforce alignment by / and then *
@@ -346,15 +346,15 @@ Clusters::fibmap_fallback(int fd, const char *fname, const struct stat64 *sb, st
     while (k < block_count && e_idx < fiemap->fm_extent_count) {
         physical_block = k;
         ret = ioctl(fd, FIBMAP, &physical_block);
-        if (0 != ret) {
-            if (ENOTTY != errno)
+        if (ret != 0) {
+            if (errno != ENOTTY)
                 std::cout << fname << " FIBMAP unavailable, " << errno << ", " << strerror(errno)
                           << std::endl;
             return ret;
         }
 
         // physical_block may be equal to zero if there is a hole in the file
-        if (0 != physical_block) {
+        if (physical_block != 0) {
             // extend extent, if next one is adjacent to current
             if (extents[e_idx].fe_physical + extents[e_idx].fe_length ==
                 physical_block * fib_blocksize)
@@ -391,7 +391,7 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
     }
 
     int fd = open(fname, O_RDONLY | O_NOFOLLOW | O_LARGEFILE);
-    if (-1 == fd) {
+    if (fd == -1) {
         if (!hide_error_inaccessible_files_) {
             std::cerr << "can't open file/dir: " << fname << std::endl;
         }
@@ -415,8 +415,8 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
                           << strerror(errno) << "\"" << std::endl;
             }
             // there is no FIEMAP or it's inaccessible, trying to emulate
-            if (-1 == fibmap_fallback(fd, fname, sb, fiemap)) {
-                if (ENOTTY != errno) {
+            if (fibmap_fallback(fd, fname, sb, fiemap) == -1) {
+                if (errno != ENOTTY) {
                     std::cerr << fname << ", fibmap fallback failed." << std::endl;
                 }
                 close(fd);
@@ -424,7 +424,7 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
             }
         }
 
-        if (0 == fiemap->fm_mapped_extents)
+        if (fiemap->fm_mapped_extents == 0)
             break;  // there are no more left
 
         int last_entry;

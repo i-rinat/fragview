@@ -138,13 +138,13 @@ Fragmap::on_drawarea_scroll_event(GdkEventScroll *event)
         uint64_t old_size = clusters_->get_actual_cluster_size();
         uint64_t new_size = old_size;
 
-        if (GDK_SCROLL_UP == event->direction) {
+        if (event->direction == GDK_SCROLL_UP) {
             new_size /= 1.15;
             if (new_size == 0)
                 new_size = 1;
         }
 
-        if (GDK_SCROLL_DOWN == event->direction) {
+        if (event->direction == GDK_SCROLL_DOWN) {
             new_size *= 1.15;
             if (old_size == new_size)
                 new_size++;
@@ -160,9 +160,9 @@ Fragmap::on_drawarea_scroll_event(GdkEventScroll *event)
         Glib::RefPtr<Gtk::Adjustment> adj = scrollbar_.get_adjustment();
         double value = adj->get_value();
         double step = adj->get_step_increment();
-        if (GDK_SCROLL_UP == event->direction)
+        if (event->direction == GDK_SCROLL_UP)
             value -= step;
-        if (GDK_SCROLL_DOWN == event->direction)
+        if (event->direction == GDK_SCROLL_DOWN)
             value += step;
         value = std::min(value, adj->get_upper() - adj->get_page_size());
         // 'set_value' will clamp value on 'lower'
@@ -323,7 +323,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
     if (selected_cluster_ > clusters_->get_count())
         selected_cluster_ = clusters_->get_count() - 1;
 
-    if (FRAGMAP_MODE_CLUSTER == display_mode_) {
+    if (display_mode_ == FRAGMAP_MODE_CLUSTER) {
         ky = selected_cluster_ / cluster_map_width_;
         kx = selected_cluster_ - ky * cluster_map_width_;
         ky = ky - target_line;  // to screen coordinates
@@ -341,7 +341,7 @@ Fragmap::on_drawarea_draw(const Cairo::RefPtr<Cairo::Context> &cr)
         cr->fill();
     }
 
-    if (FRAGMAP_MODE_FILE == display_mode_) {
+    if (display_mode_ == FRAGMAP_MODE_FILE) {
         assert(clusters_);
         Clusters::file_list &files = clusters_->get_files();
         assert(clusters_->get_device_size() > 0);

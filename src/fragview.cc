@@ -156,7 +156,7 @@ GraphWindow::on_action_main_open()
     dialog.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
 
     int result = dialog.run();
-    if (Gtk::RESPONSE_OK == result) {
+    if (result == Gtk::RESPONSE_OK) {
         scan_dir(dialog.get_filename());
     }
 }
@@ -166,7 +166,7 @@ GraphWindow::on_action_main_open_mountpoint()
 {
     MountpointSelectDialog msd;
     int result = msd.run();
-    if (Gtk::RESPONSE_OK == result) {
+    if (result == Gtk::RESPONSE_OK) {
         scan_dir(msd.get_path());
     }
 }
@@ -289,7 +289,7 @@ main(int argc, char *argv[])
     // Using own numpunct implementation with plain space as thousand
     // separator.
     std::locale current_locale("");
-    if ('\xc2' == std::use_facet<std::numpunct<char>>(current_locale).thousands_sep()) {
+    if (std::use_facet<std::numpunct<char>>(current_locale).thousands_sep() == '\xc2') {
         std::locale modified_locale(current_locale, new numpunct_spacets(""));
         std::locale::global(modified_locale);
     } else {

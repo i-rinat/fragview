@@ -64,7 +64,7 @@ main(int argc, char *argv[])
 
     for (int fileidx = optind; fileidx < argc; fileidx++) {
         struct stat64 st;
-        if (-1 != stat64(argv[fileidx], &st)) {
+        if (stat64(argv[fileidx], &st) != -1) {
             Clusters::f_info fi;
             if (clusters.get_file_extents(argv[fileidx], &st, &fi)) {
                 if (flag_kilo) {
