@@ -399,6 +399,7 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
     }
 
     struct fiemap *fiemap = (struct fiemap *)fiemap_buffer;
+    const struct fiemap_extent *fiemap_fm_extents = &fiemap->fm_extents[0];
     int max_count = (sizeof(fiemap_buffer) - sizeof(struct fiemap)) / sizeof(struct fiemap_extent);
 
     memset(fiemap, 0, sizeof(struct fiemap));
@@ -428,8 +429,8 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
 
         int last_entry;
         for (unsigned int k = 0; k < fiemap->fm_mapped_extents; ++k) {
-            tuple tempt(fiemap->fm_extents[k].fe_physical / sb->st_blksize,
-                        (fiemap->fm_extents[k].fe_length - 1) / sb->st_blksize + 1);
+            tuple tempt(fiemap_fm_extents[k].fe_physical / sb->st_blksize,
+                        (fiemap_fm_extents[k].fe_length - 1) / sb->st_blksize + 1);
 
             if (fi->extents.size() > 0) {
                 tuple *last = &fi->extents.back();
@@ -444,7 +445,7 @@ Clusters::get_file_extents(const char *fname, const struct stat64 *sb, f_info *f
             last_entry = k;
         }
         fiemap->fm_start =
-            fiemap->fm_extents[last_entry].fe_logical + fiemap->fm_extents[last_entry].fe_length;
+            fiemap_fm_extents[last_entry].fe_logical + fiemap_fm_extents[last_entry].fe_length;
 
     } while (1);
 
