@@ -1,5 +1,5 @@
-project(fragview)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
+project(fragview LANGUAGES CXX)
 
 # request pthreads and c++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -12,8 +12,8 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DNDEBUG -
 # generate more debug info for Debug build type
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3")
 
-find_package (PkgConfig REQUIRED)
-find_package (Boost REQUIRED)
+find_package(PkgConfig REQUIRED)
+find_package(Boost REQUIRED)
 
 pkg_check_modules(REQ REQUIRED gtkmm-3.0 glibmm-2.4 sqlite3)
 
