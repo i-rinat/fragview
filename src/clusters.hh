@@ -32,6 +32,9 @@
 #include <set>
 #include <stdint.h>
 #include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <vector>
 
 class Clusters
