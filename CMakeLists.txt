@@ -17,12 +17,16 @@ find_package(Boost REQUIRED)
 
 pkg_check_modules(REQ REQUIRED gtkmm-3.0 glibmm-2.4 sqlite3)
 
+# Musl libc does not include fts.h, and relies on an external implementation.
+pkg_check_modules(LIBFTS QUIET libfts)
+
+list(APPEND REQ_LIBRARY_DIRS ${Boost_LIBRARY_DIRS} ${LIBFTS_LIBRARY_DIRS})
+list(APPEND REQ_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LIBFTS_INCLUDE_DIRS})
+list(APPEND REQ_LIBRARIES ${Boost_LIBRARIES} ${LIBFTS_LIBRARIES})
+
 link_directories(${REQ_LIBRARY_DIRS})
 
-include_directories(
-    ${REQ_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
-)
+include_directories(${REQ_INCLUDE_DIRS})
 
 add_library(clusters STATIC
     src/clusters.cc
