@@ -17,6 +17,8 @@ Fragview uses its own metric to determine fragmented file or not. It is based
 on estimation of worst read speed. Files whose read speed more than two times
 lower than read speed of continuous ones will be considered fragmented.
 
+![Screenshot_20240224_160647](https://github.com/i-rinat/fragview/assets/3265870/a75bbb88-3edb-405d-b5b6-e00730afcc52)
+
 Compiling and installing
 ------------------------
 ```
@@ -33,6 +35,7 @@ Binaries
 There are three binaries you can run:
 
 * `fragview`
+
 * `fileseverity`
 * `fragdb`
 
