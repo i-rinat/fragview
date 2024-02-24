@@ -35,7 +35,6 @@ Binaries
 There are three binaries you can run:
 
 * `fragview`
-
 * `fileseverity`
 * `fragdb`
 
